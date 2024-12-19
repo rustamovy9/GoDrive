@@ -1,4 +1,4 @@
-using Backend.DataAccess;
+using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,5 +26,3 @@ app.UseHttpsRedirection();
 
 
 app.Run();
-
-

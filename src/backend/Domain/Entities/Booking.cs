@@ -1,4 +1,6 @@
-namespace Backend.Models;
+using Backend.Models;
+
+namespace Domain.Models;
 
 public class Booking : BaseEntity
 {
