@@ -1,4 +1,5 @@
-﻿using Domain.Common;
+﻿using Application.Extensions.ResultPattern;
+using Domain.Common;
 
 namespace Application.Contracts.Repositories.BaseRepository.CRUD;
 
