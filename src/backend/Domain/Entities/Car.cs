@@ -1,8 +1,8 @@
-using Domain.Models;
+using Domain.Common;
 
-namespace Backend.Models;
+namespace Domain.Entities;
 
-public class Car : BaseEntity
+public sealed class Car : BaseEntity
 {
     public string Brand { get; set; } = null!; 
     public string Model { get; set; } = null!;

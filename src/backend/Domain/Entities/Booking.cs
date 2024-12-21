@@ -1,8 +1,8 @@
-using Backend.Models;
+using Domain.Common;
 
-namespace Domain.Models;
+namespace Domain.Entities;
 
-public class Booking : BaseEntity
+public sealed class Booking : BaseEntity
 {
     public int UserId { get; set; } 
     public User User { get; set; } = null!;
