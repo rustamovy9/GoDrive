@@ -2,7 +2,7 @@ using Domain.Common;
 
 namespace Domain.Entities;
 
-public class Review : BaseEntity
+public sealed class Review : BaseEntity
 {
     public int UserId { get; set; }
     public User User { get; set; } = null!;
