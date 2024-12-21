@@ -2,7 +2,7 @@ using Domain.Common;
 
 namespace Domain.Entities;
 
-public sealed class User : BaseEntity
+public class User : BaseEntity
 {
     public string FirstName { get; set; } = null!; 
     public string LastName { get; set; } = null!; 
