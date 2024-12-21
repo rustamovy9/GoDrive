@@ -1,8 +1,8 @@
-using Domain.Models;
+using Domain.Common;
 
-namespace Backend.Models;
+namespace Domain.Entities;
 
-public class User : BaseEntity
+public sealed class User : BaseEntity
 {
     public string FirstName { get; set; } = null!; 
     public string LastName { get; set; } = null!; 

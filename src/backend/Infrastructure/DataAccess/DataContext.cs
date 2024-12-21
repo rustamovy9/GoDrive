@@ -1,5 +1,4 @@
-using Backend.Models;
-using Domain.Models;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataAccess;
