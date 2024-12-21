@@ -1,6 +1,6 @@
-using Domain.Models;
+using Domain.Common;
 
-namespace Backend.Models;
+namespace Domain.Entities;
 
 public class Review : BaseEntity
 {

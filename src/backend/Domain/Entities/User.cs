@@ -1,6 +1,7 @@
-using Domain.Models;
 
-namespace Backend.Models;
+using Domain.Common;
+
+namespace Domain.Entities;
 
 public class User : BaseEntity
 {
