@@ -1,28 +1,9 @@
-using Infrastructure.DataAccess;
-using Microsoft.EntityFrameworkCore;
+using MobileApp.HelpersApi.Extensions.DI;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+builder.AddServices();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<DataContext>(x =>
-{
-    x.UseNpgsql(builder.Configuration.GetConnectionString("Default"));
-    x.LogTo(Console.WriteLine);
-});
-var app = builder.Build();
+WebApplication app = builder.Build();
 
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-
-
-
-app.Run();
+app.UseMiddlewares();
