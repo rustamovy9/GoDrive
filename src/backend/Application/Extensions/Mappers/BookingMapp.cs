@@ -1,5 +1,6 @@
 ﻿using Application.DTO_s;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Extensions.Mappers;
 
@@ -30,7 +31,7 @@ public static class BookingMapper
             EndDateTime = createInfo.EndDateTime,
             PickupLocation = createInfo.PickupLocation,
             DropOffLocation = createInfo.DropOffLocation,
-            Status = "In Progress"
+            Status = Status.InProgress
         };
     }
 
@@ -42,19 +43,9 @@ public static class BookingMapper
         entity.EndDateTime = updateInfo.EndDateTime;
         entity.PickupLocation = updateInfo.PickupLocation;
         entity.DropOffLocation = updateInfo.DropOffLocation;
-        entity.Status = "Pending";
+        entity.Status = Status.Pending ;
         entity.Version++;
         entity.UpdatedAt = DateTimeOffset.UtcNow;
-        return entity;
-    }
-
-    public static Booking ToDelete(this Booking entity)
-    {
-        entity.Version++;
-        entity.UpdatedAt = DateTimeOffset.UtcNow;
-        entity.IsDeleted = true;
-        entity.DeletedAt = DateTimeOffset.UtcNow;
-        entity.IsActive = false;
         return entity;
     }
 }

@@ -1,0 +1,111 @@
+﻿using System.Linq.Expressions;
+using Application.Contracts.Repositories;
+using Application.Contracts.Services;
+using Application.DTO_s;
+using Application.Extensions.Mappers;
+using Application.Extensions.Responses.PagedResponse;
+using Application.Extensions.ResultPattern;
+using Application.Filters;
+using Domain.Common;
+using Domain.Constants;
+using Domain.Entities;
+using Infrastructure.Extensions;
+
+namespace Infrastructure.ImplementationContract.Services;
+
+public class CarService (ICarRepository repository,IFileService fileService) : ICarService
+{
+     public async Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter)
+    {
+        return await Task.Run(() =>
+        {
+                Expression<Func<Car, bool>> filterExpression = car =>
+                    (string.IsNullOrEmpty(filter.Brand) || car.Brand.ToLower().Contains(filter.Brand.ToLower())) &&
+                    (string.IsNullOrEmpty(filter.Model) || car.Model.ToLower().Contains(filter.Model.ToLower())) &&
+                    (filter.YearFrom == null || car.Year >= filter.YearFrom) &&
+                    (filter.YearTo == null || car.Year <= filter.YearTo) &&
+                    (string.IsNullOrEmpty(filter.Category) || car.Category.ToLower().Contains(filter.Category.ToLower())) &&
+                    (string.IsNullOrEmpty(filter.Location) || car.Location.ToLower().Contains(filter.Location.ToLower())) &&
+                    (string.IsNullOrEmpty(filter.RegistrationNumber) || car.RegistrationNumber.ToLower().Contains(filter.RegistrationNumber.ToLower()));
+
+            Result<IQueryable<Car>> request = repository
+                .Find(filterExpression);
+
+            if (!request.IsSuccess)
+                return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Failure(request.Error);
+
+            List<CarReadInfo> query = request.Value!.Select(x => x.ToRead()).ToList();
+
+            int count = query.Count;
+
+            IEnumerable<CarReadInfo> car =
+                query.Page(filter.PageNumber, filter.PageSize);
+
+            PagedResponse<IEnumerable<CarReadInfo>> res =
+                PagedResponse<IEnumerable<CarReadInfo>>.Create(filter.PageNumber, filter.PageSize, count, car);
+
+            return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Success(res);
+        });
+    }
+
+    public async Task<Result<CarReadInfo>> GetByIdAsync(int id)
+    {
+        Result<Car?> res = await repository.GetByIdAsync(id);
+        if (!res.IsSuccess) return Result<CarReadInfo>.Failure(res.Error);
+
+        return Result<CarReadInfo>.Success(res.Value!.ToRead());
+    }
+
+    public async Task<BaseResult> CreateAsync(CarCreateInfo createInfo)
+    {
+        bool conflict = (await repository.GetAllAsync()).Value!.Any(car => car.RegistrationNumber == createInfo.RegistrationNumber);
+
+        if (conflict) return BaseResult.Failure(Error.Conflict("Registration number already exists."));
+        
+        if (createInfo.Year < 1886 || createInfo.Year > DateTime.Now.Year)
+            return BaseResult.Failure(Error.BadRequest("Invalid year provided."));
+
+        if (string.IsNullOrWhiteSpace(createInfo.Brand) || string.IsNullOrWhiteSpace(createInfo.Model))
+            return BaseResult.Failure(Error.BadRequest("Brand and Model are required."));
+
+        Result<int> res = await repository.AddAsync(await createInfo.ToEntity(fileService));
+
+        return res.IsSuccess
+            ? BaseResult.Success()
+            : BaseResult.Failure(res.Error);
+    }
+
+    public async Task<BaseResult> UpdateAsync(int id, CarUpdateInfo updateInfo)
+    {
+        Result<Car?> res = await repository.GetByIdAsync(id);
+
+        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
+
+        bool conflict = (await repository.GetAllAsync()).Value!.Any(car => car.RegistrationNumber == updateInfo.RegistrationNumber);
+
+        if (conflict) return BaseResult.Failure(Error.Conflict("Registration number already exists."));
+        
+        if (updateInfo.Year < 1886 || updateInfo.Year > DateTime.Now.Year)
+            return BaseResult.Failure(Error.BadRequest("Invalid year provided."));
+
+        if (string.IsNullOrWhiteSpace(updateInfo.Brand) || string.IsNullOrWhiteSpace(updateInfo.Model))
+            return BaseResult.Failure(Error.BadRequest("Brand and Model are required."));
+        Result<int> result = await repository.UpdateAsync(await res.Value!.ToEntity(updateInfo,fileService));
+
+        return result.IsSuccess
+            ? BaseResult.Success()
+            : BaseResult.Failure(result.Error);
+    }
+
+    public async Task<BaseResult> DeleteAsync(int id)
+    {
+        Result<Car?> res = await repository.GetByIdAsync(id);
+        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
+        
+        fileService.DeleteFile(res.Value!.ImageCar, MediaFolders.Images);
+        Result<int> result = await repository.DeleteAsync(id);
+        return result.IsSuccess
+            ? BaseResult.Success()
+            : BaseResult.Failure(result.Error);
+    }
+}

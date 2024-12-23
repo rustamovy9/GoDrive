@@ -41,9 +41,12 @@ public static class RegisterService
 
         //registration repository
         builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+        builder.Services.AddScoped<ICarRepository, CarRepository>();
 
         //registration services
         builder.Services.AddScoped<IBookingService, BookingService>();
+        builder.Services.AddScoped<ICarService, CarService>();
+        builder.Services.AddScoped<IFileService, FileService>();
 
         return builder.Services;
     }

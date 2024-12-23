@@ -1,14 +1,15 @@
-﻿// using Application.Extensions.ResultPattern;
-// using Application.Filters;
-// using Application.Responces;
-//
-// namespace Application.Contracts.Services;
-//
-// public interface ISpecializationService
-// {
-//     Task<Result<PagedResponse<IEnumerable<SpecializationReadInfo>>>> GetAllAsync(SpecializationFilter filter);
-//     Task<Result<SpecializationReadInfo>> GetByIdAsync(Guid id);
-//     Task<BaseResult> CreateAsync(SpecializationCreateInfo createInfo);
-//     Task<BaseResult> UpdateAsync(Guid id,SpecializationUpdateInfo updateInfo);
-//     Task<BaseResult> DeleteAsync(Guid id);
-// }
+﻿using Application.DTO_s;
+using Application.Extensions.Responses.PagedResponse;
+using Application.Extensions.ResultPattern;
+using Application.Filters;
+
+namespace Application.Contracts.Services;
+
+public interface ICarService
+{
+    Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter);
+    Task<Result<CarReadInfo>> GetByIdAsync(int id);
+    Task<BaseResult> CreateAsync(CarCreateInfo createInfo);
+    Task<BaseResult> UpdateAsync(int id,CarUpdateInfo updateInfo);
+    Task<BaseResult> DeleteAsync(int id);
+}
