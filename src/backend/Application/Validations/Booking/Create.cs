@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Application.Validations.Booking;
 
-public class Create : AbstractValidator<BookingReadInfo>
+public class Create : AbstractValidator<BookingCreateInfo>
 {
     public Create()
     {

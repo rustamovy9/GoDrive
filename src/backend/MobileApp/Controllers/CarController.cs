@@ -8,19 +8,19 @@ namespace MobileApp.Controllers;
 
 
 [ApiController]
-[Route("api/bookings")]
-public class BookingController (IBookingService service) : BaseController
+[Route("api/cars")]
+public class CarController (ICarService service) : BaseController
 {
-    [HttpGet] public async Task<IActionResult> Get([FromQuery] BookingFilter filter)
+    [HttpGet] public async Task<IActionResult> Get([FromQuery] CarFilter filter)
         => (await service.GetAllAsync(filter)).ToActionResult();
 
     [HttpGet("{id:guid}")] public async Task<IActionResult> Get([FromRoute] int id)
         => (await service.GetByIdAsync(id)).ToActionResult();
 
-    [HttpPost] public async Task<IActionResult> Create([FromBody] BookingCreateInfo entity)
+    [HttpPost] public async Task<IActionResult> Create([FromForm] CarCreateInfo entity)
         => (await service.CreateAsync(entity)).ToActionResult();
 
-    [HttpPut("{id:guid}")] public async Task<IActionResult> Update([FromRoute] int id, [FromBody] BookingUpdateInfo entity)
+    [HttpPut("{id:guid}")] public async Task<IActionResult> Update([FromRoute] int id, [FromForm] CarUpdateInfo entity)
         => (await service.UpdateAsync(id, entity)).ToActionResult();
 
     [HttpDelete("{id:guid}")] public async Task<IActionResult> Delete([FromRoute] int id)

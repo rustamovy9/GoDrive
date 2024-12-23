@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Backend.Migrations
+namespace Infrastructure.DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
     partial class DataContextModelSnapshot : ModelSnapshot
@@ -57,9 +57,8 @@ namespace Backend.Migrations
                     b.Property<DateTime>("StartDateTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -90,6 +89,9 @@ namespace Backend.Migrations
                     b.Property<string>("Brand")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("CarStatus")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Category")
                         .HasColumnType("text");
@@ -123,10 +125,6 @@ namespace Backend.Migrations
 
                     b.Property<int?>("RentalCompanyId")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");

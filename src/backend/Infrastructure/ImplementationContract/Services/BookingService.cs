@@ -8,19 +8,19 @@ using Application.Extensions.ResultPattern;
 using Application.Filters;
 using Domain.Common;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Extensions;
 
 namespace Infrastructure.ImplementationContract.Services;
 
 public class BookingService(IBookingRepository repository) : IBookingService
 {
-    public async Task<Result<PagedResponse<IEnumerable<BookingReadInfo>>>> GetAllAsync(
-        BookingFilter filter)
+    public async Task<Result<PagedResponse<IEnumerable<BookingReadInfo>>>> GetAllAsync(BookingFilter filter)
     {
         return await Task.Run(() =>
         {
             Expression<Func<Booking, bool>> filterExpression = spec =>
-                (string.IsNullOrEmpty(filter.Status) || spec.Status.ToLower().Contains(filter.Status.ToLower())) &&
+                (filter.Status == null || spec.Status == filter.Status) &&
                 (filter.UserId == null || spec.UserId == filter.UserId) &&
                 (filter.CarId == null || spec.CarId == filter.CarId) &&
                 (filter.StartDate == null || spec.StartDateTime >= filter.StartDate) &&
@@ -91,7 +91,8 @@ public class BookingService(IBookingRepository repository) : IBookingService
     {
         Result<Booking?> res = await repository.GetByIdAsync(id);
         if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
-
+        
+        
         Result<int> result = await repository.DeleteAsync(id);
 
         return result.IsSuccess

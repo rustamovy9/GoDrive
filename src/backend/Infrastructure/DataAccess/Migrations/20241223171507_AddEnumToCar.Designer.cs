@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.DataAccess.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241222175731_name2")]
-    partial class name2
+    [Migration("20241223171507_AddEnumToCar")]
+    partial class AddEnumToCar
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,9 +60,8 @@ namespace Infrastructure.DataAccess.Migrations
                     b.Property<DateTime>("StartDateTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -93,6 +92,9 @@ namespace Infrastructure.DataAccess.Migrations
                     b.Property<string>("Brand")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("CarStatus")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Category")
                         .HasColumnType("text");
@@ -126,10 +128,6 @@ namespace Infrastructure.DataAccess.Migrations
 
                     b.Property<int?>("RentalCompanyId")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");

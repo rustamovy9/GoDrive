@@ -1,4 +1,6 @@
-﻿namespace Application.DTO_s;
+﻿using Domain.Enums;
+
+namespace Application.DTO_s;
 
 public interface IBaseBookingInfo
 {
@@ -17,7 +19,7 @@ public readonly record struct BookingReadInfo(
     DateTime EndDateTime,
     string PickupLocation,
     string DropOffLocation,
-    string Status,
+    Status Status,
     int Id) : IBaseBookingInfo;
 
 public readonly record struct BookingUpdateInfo(

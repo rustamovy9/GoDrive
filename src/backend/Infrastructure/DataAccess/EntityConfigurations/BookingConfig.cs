@@ -8,6 +8,7 @@ public sealed class BookingConfig : IEntityTypeConfiguration<Booking>
 {
     public void Configure(EntityTypeBuilder<Booking> builder)
     {
-      
+        builder.Property(c => c.Status)
+            .HasConversion<int>();
     }
 }
