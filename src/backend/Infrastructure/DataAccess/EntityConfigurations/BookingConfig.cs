@@ -1,6 +1,13 @@
-﻿namespace Infrastructure.DataAccess.EntityConfigurations;
+﻿using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class BookingConfig
+namespace Infrastructure.DataAccess.EntityConfigurations;
+
+public sealed class BookingConfig : IEntityTypeConfiguration<Booking>
 {
-    
+    public void Configure(EntityTypeBuilder<Booking> builder)
+    {
+      
+    }
 }

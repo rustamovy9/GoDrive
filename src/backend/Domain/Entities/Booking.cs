@@ -11,6 +11,6 @@ public sealed class Booking : BaseEntity
     public DateTime StartDateTime { get; set; }
     public DateTime EndDateTime { get; set; } 
     public string? PickupLocation { get; set; } 
-    public string? DropoffLocation { get; set; } 
+    public string? DropOffLocation { get; set; } 
     public string Status { get; set; } = null!; 
 }
