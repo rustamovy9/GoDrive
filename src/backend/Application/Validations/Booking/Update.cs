@@ -1,19 +1,41 @@
-﻿namespace Application.Validations.Specialization.Application.Validations.Specialization;
+﻿using Application.DTO_s;
+using FluentValidation;
 
-public class Update : AbstractValidator<SpecializationUpdateInfo>
+namespace Application.Validations.Booking;
+
+public class Update : AbstractValidator<BookingUpdateInfo>
 {
-    public UpdateSpecializationValidation()
+    public Update()
     {
-        RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Name is required.")
-            .Length(2, 100).WithMessage("Name must be between 2 and 100 characters.");
+        // UserId должен быть положительным числом
+        RuleFor(update => update.UserId)
+            .GreaterThan(0).WithMessage("UserId must be greater than 0.");
 
-        RuleFor(x => x.Code)
-            .NotEmpty().WithMessage("Code is required.")
-            .Matches("^[A-Za-z0-9]+$").WithMessage("Code must contain only alphanumeric characters.")
-            .Length(3, 20).WithMessage("Code must be between 3 and 20 characters.");
+        // CarId должен быть положительным числом
+        RuleFor(update => update.CarId)
+            .GreaterThan(0).WithMessage("CarId must be greater than 0.");
 
-        RuleFor(x => x.IsActive)
-            .NotNull().WithMessage("IsActive must be specified.");
+        // StartDateTime должен быть раньше EndDateTime
+        RuleFor(update => update)
+            .Must(update => update.StartDateTime < update.EndDateTime)
+            .WithMessage("StartDateTime must be earlier than EndDateTime.");
+
+        // PickupLocation не может быть пустым и длина не более 100 символов
+        RuleFor(update => update.PickupLocation)
+            .NotEmpty().WithMessage("PickupLocation is required.")
+            .MaximumLength(100).WithMessage("PickupLocation must not exceed 100 characters.");
+
+        // DropOffLocation не может быть пустым и длина не более 100 символов
+        RuleFor(update => update.DropOffLocation)
+            .NotEmpty().WithMessage("DropOffLocation is required.")
+            .MaximumLength(100).WithMessage("DropOffLocation must not exceed 100 characters.");
+
+        // Проверка на будущее время для StartDateTime
+        RuleFor(update => update.StartDateTime)
+            .GreaterThanOrEqualTo(DateTime.Now).WithMessage("StartDateTime must not be in the past.");
+
+        // EndDateTime должен быть не более чем через год от текущей даты
+        RuleFor(update => update.EndDateTime)
+            .LessThanOrEqualTo(DateTime.Now.AddYears(1)).WithMessage("EndDateTime must be within a year from now.");
     }
 }

@@ -1,6 +1,10 @@
-﻿namespace Application.Filters;
+﻿using Domain.Common;
 
-public class BookingFilter
-{
-    
-}
+namespace Application.Filters;
+
+public record BookingFilter(
+    int? UserId,
+    int? CarId,
+    string? Status,
+    DateTimeOffset? StartDate,
+    DateTimeOffset? EndDate) : BaseFilter;

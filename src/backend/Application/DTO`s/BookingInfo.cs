@@ -1,21 +1,37 @@
-﻿// namespace Application.DTO_s;
-//
-// public interface IBaseCarInfo
-// {
-//     public string Name { get; init; }
-//     public string Code { get; init; }
-// }
-//
-// public readonly record struct CarReadInfo(
-//     string Name,
-//     string Code,
-//     Guid Id) : IBaseSpecializationInfo;
-//
-// public readonly record struct CarUpdateInfo(
-//     string Name,
-//     string Code,
-//     bool IsActive) : IBaseCarInfo;
-//
-// public readonly record struct CarCreateInfo(
-//     string Name,
-//     string Code) : IBaseSpecializationInfo;
+﻿namespace Application.DTO_s;
+
+public interface IBaseBookingInfo
+{
+    public int UserId { get; init; }
+    public int CarId { get; init; }
+    public DateTime StartDateTime { get; init; }
+    public DateTime EndDateTime { get; init; }
+    public string? PickupLocation { get; init; }
+    public string? DropOffLocation { get; init; }
+}
+
+public readonly record struct BookingReadInfo(
+    int UserId,
+    int CarId,
+    DateTime StartDateTime,
+    DateTime EndDateTime,
+    string PickupLocation,
+    string DropOffLocation,
+    string Status,
+    int Id) : IBaseBookingInfo;
+
+public readonly record struct BookingUpdateInfo(
+    int UserId,
+    int CarId,
+    DateTime StartDateTime,
+    DateTime EndDateTime,
+    string PickupLocation,
+    string DropOffLocation) : IBaseBookingInfo;
+
+public readonly record struct BookingCreateInfo(
+    int UserId,
+    int CarId,
+    DateTime StartDateTime,
+    DateTime EndDateTime,
+    string PickupLocation,
+    string DropOffLocation) : IBaseBookingInfo;
