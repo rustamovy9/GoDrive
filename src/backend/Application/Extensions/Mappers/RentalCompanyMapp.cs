@@ -32,14 +32,4 @@ public static class RentalCompanyMapper
         entity.UpdatedAt = DateTimeOffset.UtcNow;
         return entity;
     }
-
-    public static RentalCompany ToDelete(this RentalCompany entity)
-    {
-        entity.Version++;
-        entity.UpdatedAt = DateTimeOffset.UtcNow;
-        entity.IsDeleted = true;
-        entity.DeletedAt = DateTimeOffset.UtcNow;
-        entity.IsActive = false;
-        return entity;
-    }
 }

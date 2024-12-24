@@ -3,4 +3,4 @@ using Domain.Entities;
 
 namespace Application.Contracts.Repositories;
 
-public interface IReviewRepository:IGenericRepository<Review> {}
+public interface IReviewRepository:IGenericRepository<Review>;

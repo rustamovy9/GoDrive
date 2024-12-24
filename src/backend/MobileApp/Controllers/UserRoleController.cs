@@ -8,19 +8,19 @@ namespace MobileApp.Controllers;
 
 
 [ApiController]
-[Route("api/cars")]
-public class CarController (ICarService service) : BaseController
+[Route("api/user-role")]
+public class UserRoleController (IUserRoleService service) : BaseController
 {
-    [HttpGet] public async Task<IActionResult> Get([FromQuery] CarFilter filter)
+    [HttpGet] public async Task<IActionResult> Get([FromQuery] UserRoleFilter filter)
         => (await service.GetAllAsync(filter)).ToActionResult();
 
     [HttpGet("{id:int}")] public async Task<IActionResult> Get([FromRoute] int id)
         => (await service.GetByIdAsync(id)).ToActionResult();
 
-    [HttpPost] public async Task<IActionResult> Create([FromForm] CarCreateInfo entity)
+    [HttpPost] public async Task<IActionResult> Create([FromBody] UserRoleCreateInfo entity)
         => (await service.CreateAsync(entity)).ToActionResult();
 
-    [HttpPut("{id:int}")] public async Task<IActionResult> Update([FromRoute] int id, [FromForm] CarUpdateInfo entity)
+    [HttpPut("{id:int}")] public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UserRoleUpdateInfo entity)
         => (await service.UpdateAsync(id, entity)).ToActionResult();
 
     [HttpDelete("{id:int}")] public async Task<IActionResult> Delete([FromRoute] int id)
