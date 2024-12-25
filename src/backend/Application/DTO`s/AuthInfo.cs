@@ -18,6 +18,16 @@ public class RegisterRequest
     [Required]
     [MaxLength(40), MinLength(4)]
     public string UserName { get; set; } = string.Empty;
+    
+    [Required]
+    [MaxLength(40), MinLength(4)]
+    public string FirstName { get; set; } = string.Empty;
+    
+    [Required]
+    [MaxLength(40), MinLength(4)]
+    public string LastName { get; set; } = string.Empty;
+    
+    [Required] [DataType(DataType.Date)] public DateTime DateOfBirth { get; set; }
 
     [Required] [Phone] public string PhoneNumber { get; set; } = string.Empty;
 

@@ -10,9 +10,12 @@ public static class AuthMap
     {
         return new()
         {
-            Email = request.EmailAddress,
             UserName = request.UserName,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            DateOfBirth = request.DateOfBirth,
             PhoneNumber = request.PhoneNumber,
+            Email = request.EmailAddress,
             PasswordHash = HashAlgorithms.ConvertToHash(request.Password),
         };
     }

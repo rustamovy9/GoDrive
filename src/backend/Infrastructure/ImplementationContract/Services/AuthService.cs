@@ -1,6 +1,8 @@
 using Application.Contracts.Services;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
+using Application.Extensions.ResultPattern;
+using Domain.Common;
 using Domain.Constants;
 using Domain.Entities;
 using Infrastructure.DataAccess;
@@ -12,7 +14,7 @@ namespace Infrastructure.ImplementationContract.Services;
 
 public class AuthService(DataContext dbContext, IAuthenticationService service) : IAuthService
 {
-    public async Task<Tuple<string, bool>> LoginAsync(LoginRequest request)
+    public async Task<Result<Tuple<string, bool>>> LoginAsync(LoginRequest request)
     {
         User? user = await dbContext.Users
             .FirstOrDefaultAsync(x => (x.UserName == request.UserName
@@ -21,55 +23,71 @@ public class AuthService(DataContext dbContext, IAuthenticationService service) 
                                       && x.PasswordHash == HashAlgorithms
                                           .ConvertToHash(request.Password));
         if (user is null)
-            return Tuple.Create("Invalid username or password", false);
+            return Result<Tuple<string,bool>>.Failure(Error.BadRequest("Invalid username or password"));
 
         await dbContext.SaveChangesAsync();
-        return Tuple.Create(await service.GenerateTokenAsync(user), true);
+        return Result<Tuple<string,bool>>.Success(Tuple.Create(await service.GenerateTokenAsync(user), true));
     }
 
-    public async Task<bool> RegisterAsync(RegisterRequest request)
+    public async Task<BaseResult> RegisterAsync(RegisterRequest request)
     {
+        if (!request.Password.Equals(request.ConfirmPassword))
+            return BaseResult.Failure(Error.BadRequest("Passwords do not match."));
+        
         bool conflict = await dbContext.Users.AnyAsync(
             x => x.UserName == request.UserName
                  || x.Email == request.EmailAddress
                  || x.PhoneNumber == request.PhoneNumber);
-        if (conflict) return false;
+        if (conflict) return BaseResult.Failure(Error.Conflict());
 
         User newUser = request.ToEntity();
+        
+        if (!IsValidDateOfBirth(request.DateOfBirth))
+            return BaseResult.Failure(Error.BadRequest("Invalid date of birth provided."));
 
         Role? existingRole = await dbContext.Roles
             .FirstOrDefaultAsync(x => x.Name == DefaultRoles.User);
-        if (existingRole is null) return false;
+        if (existingRole is null) return BaseResult.Failure(Error.NotFound());
         
         await dbContext.Users.AddAsync(newUser);
         await dbContext.UserRoles.AddAsync(new()
             { UserId = newUser.Id, RoleId = existingRole.Id });
 
-        int res = await dbContext.SaveChangesAsync();
-        return res != 0;
+        await dbContext.SaveChangesAsync();
+        return BaseResult.Success();
     }
 
-    public async Task<bool> DeleteAccountAsync(int userId)
+    public async Task<BaseResult> DeleteAccountAsync(int userId)
     {
         User? user = await dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        if (user is null) return false;
+        if (user is null) return BaseResult.Failure(Error.NotFound());
 
-        user.ToDelete();
-        int res = await dbContext.SaveChangesAsync();
-        return res != 0;
+        user.ToDelete(); 
+        await dbContext.SaveChangesAsync();
+        return BaseResult.Success();
     }
 
-    public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordRequest request)
+    public async Task<BaseResult> ChangePasswordAsync(int userId, ChangePasswordRequest request)
     {
         User? user = await dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        if (user is null) return false;
-
+        if (user is null) return BaseResult.Failure(Error.NotFound());
+        
+        
         bool checkPassword = user.PasswordHash == HashAlgorithms.ConvertToHash(request.OldPassword);
-        if (!checkPassword) return false;
+        if (!checkPassword) return BaseResult.Failure(Error.BadRequest("Password is incorrect"));
 
+        if (!request.NewPassword.Equals(request.ConfirmPassword))
+            return BaseResult.Failure(Error.BadRequest("Passwords do not match."));
+        
         user.PasswordHash = HashAlgorithms.ConvertToHash(request.NewPassword);
-
-        int res = await dbContext.SaveChangesAsync();
-        return res != 0;
+        
+        await dbContext.SaveChangesAsync();
+        return BaseResult.Success();
     }
+    
+    private bool IsValidDateOfBirth(DateTime dateOfBirth)
+    {
+        return dateOfBirth <= DateTime.UtcNow && dateOfBirth >= DateTime.UtcNow.AddYears(-150);
+    }
+    
 }

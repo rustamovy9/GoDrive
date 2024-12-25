@@ -23,8 +23,6 @@ public class UserService (IUserRepository repository,IFileService fileService) :
                     (string.IsNullOrEmpty(filter.UserName) || user.UserName.ToLower().Contains(filter.UserName.ToLower())) &&
                     (string.IsNullOrEmpty(filter.FirstName) || user.FirstName.ToLower().Contains(filter.FirstName.ToLower())) &&
                     (string.IsNullOrEmpty(filter.LastName) || user.LastName.ToLower().Contains(filter.LastName.ToLower())) &&
-                    (filter.MinAge == null || user.Age >= filter.MinAge) &&
-                    (filter.MaxAge == null || user.Age <= filter.MaxAge) &&
                     (filter.MinDateOfBirth == null || user.DateOfBirth >= filter.MinDateOfBirth) &&
                     (filter.MaxDateOfBirth == null || user.DateOfBirth <= filter.MaxDateOfBirth) &&
                     (string.IsNullOrEmpty(filter.Email) || user.Email.ToLower().Contains(filter.Email.ToLower())) &&
@@ -73,8 +71,9 @@ public class UserService (IUserRepository repository,IFileService fileService) :
 
         if (conflict) return BaseResult.Failure(Error.Conflict("phone or email or username already exists."));
         
-        if (updateInfo.Age < 18 || updateInfo.Age > DateTime.Now.Year)
-            return BaseResult.Failure(Error.BadRequest("Invalid year provided."));
+        if (updateInfo.DateOfBirth > DateTime.UtcNow || updateInfo.DateOfBirth < DateTime.UtcNow.AddYears(-150))
+            return BaseResult.Failure(Error.BadRequest("Invalid date of birth provided."));
+
 
         Result<int> result = await repository.UpdateAsync(await res.Value!.ToEntity(updateInfo,fileService));
 

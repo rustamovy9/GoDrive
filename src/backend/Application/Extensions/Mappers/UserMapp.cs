@@ -14,7 +14,6 @@ public static class UserMapper
             user.UserName,
             user.FirstName,
             user.LastName,
-            user.Age,
             user.DateOfBirth,
             user.Email,
             user.PhoneNumber,
@@ -37,7 +36,6 @@ public static class UserMapper
         entity.UserName = updateInfo.UserName;
         entity.FirstName = updateInfo.FirstName;
         entity.LastName = updateInfo.LastName;
-        entity.Age = updateInfo.Age;
         entity.DateOfBirth = updateInfo.DateOfBirth;
         entity.Email = updateInfo.Email;
         entity.PhoneNumber = updateInfo.PhoneNumber ;

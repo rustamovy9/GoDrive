@@ -1,6 +1,7 @@
 ﻿using Application.Contracts.Services;
 using Application.DTO_s;
 using Application.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MobileApp.HelpersApi.Extensions.ResultPattern;
 
@@ -9,6 +10,7 @@ namespace MobileApp.Controllers;
 
 [ApiController]
 [Route("api/bookings")]
+[Authorize]
 public class BookingController (IBookingService service) : BaseController
 {
     [HttpGet] public async Task<IActionResult> Get([FromQuery] BookingFilter filter)

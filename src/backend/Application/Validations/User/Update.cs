@@ -19,9 +19,6 @@ public class UserUpdateInfoValidator : AbstractValidator<UserUpdateInfo>
             .NotEmpty().WithMessage("LastName is required.")
             .MaximumLength(50).WithMessage("LastName must not exceed 50 characters.");
 
-        RuleFor(user => user.Age)
-            .InclusiveBetween(0, 120).WithMessage("Age must be between 0 and 120.");
-
         RuleFor(user => user.DateOfBirth)
             .LessThanOrEqualTo(DateTimeOffset.UtcNow).WithMessage("DateOfBirth cannot be in the future.");
 

@@ -91,22 +91,24 @@ file class SeedData
         new User()
         {
             Id = 4,
-            Email = "admin@gmail.com",
-            PhoneNumber = "+992933448829",
             UserName = "Admin",
             FirstName = "Admin",
             LastName = "Adminov",
+            DateOfBirth = new(new DateTime(2005,01,01)),
+            Email = "admin@gmail.com",
+            PhoneNumber = "+992933448829",
             PasswordHash = HashAlgorithms.ConvertToHash("123456")
         },
 
         new User()
         {
             Id = 3,
-            Email = "user@gmail.com",
-            PhoneNumber = "+992222222222",
             UserName = "User",
             FirstName = "User",
             LastName = "Userov",
+            DateOfBirth = new(new DateTime(2005,01,01)),
+            Email = "user@gmail.com",
+            PhoneNumber = "+992222222222",
             PasswordHash = HashAlgorithms.ConvertToHash("123456")
         }
     ];

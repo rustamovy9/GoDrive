@@ -1,12 +1,13 @@
 
 using Application.DTO_s;
+using Application.Extensions.ResultPattern;
 
 namespace Application.Contracts.Services;
 
 public interface IAuthService
 {
-    Task<Tuple<string,bool>> LoginAsync(LoginRequest request);
-    Task<bool> RegisterAsync(RegisterRequest request);
-    Task<bool> DeleteAccountAsync(int userId);
-    Task<bool> ChangePasswordAsync(int userId,ChangePasswordRequest request);
+    Task<Result<Tuple<string,bool>>> LoginAsync(LoginRequest request);
+    Task<BaseResult> RegisterAsync(RegisterRequest request);
+    Task<BaseResult> DeleteAccountAsync(int userId);
+    Task<BaseResult> ChangePasswordAsync(int userId,ChangePasswordRequest request);
 }
