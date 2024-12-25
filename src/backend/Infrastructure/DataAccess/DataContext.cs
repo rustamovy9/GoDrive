@@ -1,14 +1,16 @@
-using System.Reflection;
 using Domain.Entities;
-using Domain.Enums;
 using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Infrastructure.DataAccess;
 
-public class DataContext (DbContextOptions<DataContext> options) : DbContext(options)
+public class DataContext : DbContext
 {
+    public DataContext(DbContextOptions<DataContext> options)
+        : base(options)
+    {
+    }
+
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Car> Cars { get; set; }
@@ -24,4 +26,3 @@ public class DataContext (DbContextOptions<DataContext> options) : DbContext(opt
         modelBuilder.FilterSoftDeletedProperties();
     }
 }
-
