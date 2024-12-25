@@ -1,4 +1,5 @@
 using Domain.Common;
+using Domain.Enums;
 
 namespace Domain.Entities;
 
@@ -11,6 +12,6 @@ public sealed class Booking : BaseEntity
     public DateTime StartDateTime { get; set; }
     public DateTime EndDateTime { get; set; } 
     public string? PickupLocation { get; set; } 
-    public string? DropoffLocation { get; set; } 
-    public string Status { get; set; } = null!; 
+    public string? DropOffLocation { get; set; } 
+    public Status Status { get; set; }
 }
