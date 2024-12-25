@@ -37,14 +37,4 @@ public static class ReviewMapper
         entity.Version++;
         return entity;
     }
-
-    public static Review ToDelete(this Review entity)
-    {
-        entity.Version++;
-        entity.UpdatedAt = DateTimeOffset.UtcNow;
-        entity.IsDeleted = true;
-        entity.DeletedAt = DateTimeOffset.UtcNow;
-        entity.IsActive = false;
-        return entity;
-    }
 }

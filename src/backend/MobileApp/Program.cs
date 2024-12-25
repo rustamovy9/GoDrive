@@ -6,4 +6,4 @@ builder.AddServices();
 
 WebApplication app = builder.Build();
 
-app.UseMiddlewares();
+await app.UseMiddlewares();

@@ -10,7 +10,6 @@ public static class EntityExtension
         entity.UpdatedAt = DateTimeOffset.UtcNow;
         entity.IsDeleted = true;
         entity.DeletedAt = DateTimeOffset.UtcNow;
-
         return entity;
     }
 }
