@@ -1,6 +1,8 @@
 ﻿using Application.Contracts.Services;
 using Application.DTO_s;
 using Application.Filters;
+using Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MobileApp.HelpersApi.Extensions.ResultPattern;
 
@@ -9,6 +11,7 @@ namespace MobileApp.Controllers;
 
 [ApiController]
 [Route("api/users")]
+[Authorize(Roles = DefaultRoles.Admin)]
 public class UserController (IUserService service) : BaseController
 {
     [HttpGet] public async Task<IActionResult> Get([FromQuery] UserFilter filter)

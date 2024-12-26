@@ -1,7 +1,9 @@
 ﻿using Application.Contracts.Services;
 using Application.DTO_s;
 using Application.Filters;
+using Domain.Constants;
 using Infrastructure.ImplementationContract.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MobileApp.HelpersApi.Extensions.ResultPattern;
 
@@ -10,7 +12,8 @@ namespace MobileApp.Controllers;
 
 [ApiController]
 [Route("api/roles")]
-public class RoleController (RoleService service) : BaseController
+[Authorize(Roles = DefaultRoles.Admin)]
+public class RoleController (IRoleService service) : BaseController
 {
     [HttpGet] public async Task<IActionResult> Get([FromQuery] RoleFilter filter)
         => (await service.GetAllAsync(filter)).ToActionResult();
