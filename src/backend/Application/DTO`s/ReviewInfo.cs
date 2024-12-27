@@ -10,7 +10,7 @@ public readonly record struct ReviewReadInfo(
     int CarId,
     int Rating,
     string? Comment,
-    DateTime ReviewDate,
+    DateTimeOffset ReviewDate,
     int Id) : IBaseReviewInfo;
 
 public readonly record struct ReviewUpdateInfo(

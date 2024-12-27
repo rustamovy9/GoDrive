@@ -6,5 +6,5 @@ public sealed class RentalCompany : BaseEntity
 {
     public string Name { get; set; } = null!;
     public string? ContactInfo { get; set; } 
-    public List<Car> Cars { get; set; } = new();
+    public List<Car> Cars { get; set; } = [];
 }

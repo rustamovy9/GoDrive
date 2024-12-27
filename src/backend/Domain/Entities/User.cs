@@ -15,4 +15,5 @@ public class User : BaseEntity
     public string? DriverLicense { get; set; }
     public string AvatarPath { get; set; } = FileData.Default;
     public string PasswordHash { get; set; } = null!;
+    public ICollection<UserRole> UserRoles { get; set; } = [];
 }

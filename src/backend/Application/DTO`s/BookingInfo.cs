@@ -6,8 +6,8 @@ public interface IBaseBookingInfo
 {
     public int UserId { get; init; }
     public int CarId { get; init; }
-    public DateTime StartDateTime { get; init; }
-    public DateTime EndDateTime { get; init; }
+    public DateTimeOffset StartDateTime { get; init; }
+    public DateTimeOffset EndDateTime { get; init; }
     public string? PickupLocation { get; init; }
     public string? DropOffLocation { get; init; }
 }
@@ -15,8 +15,8 @@ public interface IBaseBookingInfo
 public readonly record struct BookingReadInfo(
     int UserId,
     int CarId,
-    DateTime StartDateTime,
-    DateTime EndDateTime,
+    DateTimeOffset StartDateTime,
+    DateTimeOffset EndDateTime,
     string PickupLocation,
     string DropOffLocation,
     Status Status,
@@ -25,15 +25,15 @@ public readonly record struct BookingReadInfo(
 public readonly record struct BookingUpdateInfo(
     int UserId,
     int CarId,
-    DateTime StartDateTime,
-    DateTime EndDateTime,
+    DateTimeOffset StartDateTime,
+    DateTimeOffset EndDateTime,
     string PickupLocation,
     string DropOffLocation) : IBaseBookingInfo;
 
 public readonly record struct BookingCreateInfo(
     int UserId,
     int CarId,
-    DateTime StartDateTime,
-    DateTime EndDateTime,
+    DateTimeOffset StartDateTime,
+    DateTimeOffset EndDateTime,
     string PickupLocation,
     string DropOffLocation) : IBaseBookingInfo;
