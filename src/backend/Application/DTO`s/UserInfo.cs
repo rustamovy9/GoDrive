@@ -27,7 +27,7 @@ public readonly record struct UserReadInfo(
     string UserImageName,    
     int Id):IBaseUserInfo;
 
-public readonly record struct UserUpdateInfo(
+public record UserUpdateInfo(
     string UserName,
     string FirstName,
     string LastName,

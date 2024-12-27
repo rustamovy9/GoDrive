@@ -13,21 +13,25 @@ using Infrastructure.Extensions;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class UserService (IUserRepository repository,IFileService fileService) : IUserService
+public class UserService(IUserRepository repository, IFileService fileService) : IUserService
 {
-     public async Task<Result<PagedResponse<IEnumerable<UserReadInfo>>>> GetAllAsync(UserFilter filter)
+    public async Task<Result<PagedResponse<IEnumerable<UserReadInfo>>>> GetAllAsync(UserFilter filter)
     {
         return await Task.Run(() =>
         {
-                Expression<Func<User, bool>> filterExpression = user =>
-                    (string.IsNullOrEmpty(filter.UserName) || user.UserName.ToLower().Contains(filter.UserName.ToLower())) &&
-                    (string.IsNullOrEmpty(filter.FirstName) || user.FirstName.ToLower().Contains(filter.FirstName.ToLower())) &&
-                    (string.IsNullOrEmpty(filter.LastName) || user.LastName.ToLower().Contains(filter.LastName.ToLower())) &&
-                    (filter.MinDateOfBirth == null || user.DateOfBirth >= filter.MinDateOfBirth) &&
-                    (filter.MaxDateOfBirth == null || user.DateOfBirth <= filter.MaxDateOfBirth) &&
-                    (string.IsNullOrEmpty(filter.Email) || user.Email.ToLower().Contains(filter.Email.ToLower())) &&
-                    (string.IsNullOrEmpty(filter.PhoneNumber) || user.PhoneNumber!.ToLower().Contains(filter.PhoneNumber.ToLower())) &&
-                    (string.IsNullOrEmpty(filter.Address) || user.Address!.ToLower().Contains(filter.Address.ToLower()));
+            Expression<Func<User, bool>> filterExpression = user =>
+                (string.IsNullOrEmpty(filter.UserName) ||
+                 user.UserName.ToLower().Contains(filter.UserName.ToLower())) &&
+                (string.IsNullOrEmpty(filter.FirstName) ||
+                 user.FirstName.ToLower().Contains(filter.FirstName.ToLower())) &&
+                (string.IsNullOrEmpty(filter.LastName) ||
+                 user.LastName.ToLower().Contains(filter.LastName.ToLower())) &&
+                (filter.MinDateOfBirth == null || user.DateOfBirth >= filter.MinDateOfBirth) &&
+                (filter.MaxDateOfBirth == null || user.DateOfBirth <= filter.MaxDateOfBirth) &&
+                (string.IsNullOrEmpty(filter.Email) || user.Email.ToLower().Contains(filter.Email.ToLower())) &&
+                (string.IsNullOrEmpty(filter.PhoneNumber) ||
+                 user.PhoneNumber!.ToLower().Contains(filter.PhoneNumber.ToLower())) &&
+                (string.IsNullOrEmpty(filter.Address) || user.Address!.ToLower().Contains(filter.Address.ToLower()));
 
             Result<IQueryable<User>> request = repository
                 .Find(filterExpression);
@@ -64,18 +68,17 @@ public class UserService (IUserRepository repository,IFileService fileService) :
 
         if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
 
-        bool conflict = (await repository.GetAllAsync()).Value!.Any(user => user.UserName.ToLower().Contains(updateInfo.UserName.ToLower())
-        || user.PhoneNumber!.ToLower().Contains(updateInfo.PhoneNumber!)
-        || user.Email.ToLower().Contains(updateInfo.Email)
-        && user.Id!= id);
-
+        bool conflict = (await repository.GetAllAsync()).Value!.Any(user =>
+            user.UserName.ToLower().Contains(updateInfo.UserName.ToLower())
+            || user.PhoneNumber!.ToLower().Contains(updateInfo.PhoneNumber!)
+            || user.Email.ToLower().Contains(updateInfo.Email));
         if (conflict) return BaseResult.Failure(Error.Conflict("phone or email or username already exists."));
-        
+
         if (updateInfo.DateOfBirth > DateTime.UtcNow || updateInfo.DateOfBirth < DateTime.UtcNow.AddYears(-150))
             return BaseResult.Failure(Error.BadRequest("Invalid date of birth provided."));
 
 
-        Result<int> result = await repository.UpdateAsync(await res.Value!.ToEntity(updateInfo,fileService));
+        Result<int> result = await repository.UpdateAsync(await res.Value!.ToEntity(updateInfo, fileService));
 
         return result.IsSuccess
             ? BaseResult.Success()
@@ -86,7 +89,7 @@ public class UserService (IUserRepository repository,IFileService fileService) :
     {
         Result<User?> res = await repository.GetByIdAsync(id);
         if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
-        
+
         fileService.DeleteFile(res.Value!.AvatarPath, MediaFolders.Images);
         Result<int> result = await repository.DeleteAsync(id);
         return result.IsSuccess

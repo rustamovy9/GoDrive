@@ -1,7 +1,9 @@
-﻿using Application.Contracts.Repositories;
+﻿using System.Reflection;
+using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.BaseRepository;
 using Application.Contracts.Repositories.BaseRepository.CRUD;
 using Application.Contracts.Services;
+using FluentValidation;
 using Infrastructure.DataAccess;
 using Infrastructure.Extensions.Authentication;
 using Infrastructure.ImplementationContract.Repositories;
@@ -12,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MobileApp.HelpersApi.Extensions.FluentValidation;
 using MobileApp.HelpersApi.Extensions.Seed;
 
 namespace MobileApp.HelpersApi.Extensions.DI;
@@ -86,8 +89,8 @@ public static class RegisterService
 
         //fluent validation ? for automatic validation ,need use mediatr.
         //builder.Services.AddValidatorsFromAssembly(typeof(Application.Application).Assembly);
-        
-        
+
+
         //add authentication methods
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -106,8 +109,7 @@ public static class RegisterService
 
         //add  authorization
         builder.Services.AddAuthorization();
-        
-        
+
 
         //registration generic repository
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -134,19 +136,29 @@ public static class RegisterService
         builder.Services.AddScoped<IFileService, FileService>();
         builder.Services.AddScoped<Seeder>();
 
+        //registration validation
+        builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+        builder.Services.AddMediatR(x =>
+        {
+            x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            x.AddOpenBehavior(typeof(ValidationBehavior<,>));
+        });
+
+        // добавляем сервисы CORS
+        builder.Services.AddCors();
 
         return builder.Services;
     }
 
     public static async Task<WebApplication> UseMiddlewares(this WebApplication app)
     {
-        
         using (IServiceScope scope = app.Services.CreateScope())
         {
             var seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
             await seeder.Initial();
         }
-        
+
         try
         {
             app.UseSwagger();
@@ -155,6 +167,12 @@ public static class RegisterService
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+            app.UseCors(x =>
+            {
+                x.AllowAnyOrigin();
+                x.AllowAnyHeader();
+                x.AllowAnyMethod();
+            });
             await app.RunAsync();
         }
         catch (Exception e)

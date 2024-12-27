@@ -25,7 +25,7 @@ public readonly record struct CarReadInfo(
     string CarImageName,    
     int Id):IBaseCarInfo;
 
-public readonly record struct CarUpdateInfo(
+public record CarUpdateInfo(
     string Brand,
     string Model,
     int Year,
@@ -36,7 +36,7 @@ public readonly record struct CarUpdateInfo(
     IFormFile? File
     ) : IBaseCarInfo;
 
-public readonly record struct CarCreateInfo(
+public record  CarCreateInfo(
     string Brand,
     string Model,
     int Year,

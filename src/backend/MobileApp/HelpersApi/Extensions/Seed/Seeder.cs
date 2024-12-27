@@ -90,11 +90,10 @@ file class SeedData
     [
         new User()
         {
-            Id = 4,
+            Id = 1,
             UserName = "Admin",
             FirstName = "Admin",
             LastName = "Adminov",
-            DateOfBirth = new(new DateTime(2005,01,01)),
             Email = "admin@gmail.com",
             PhoneNumber = "+992933448829",
             PasswordHash = HashAlgorithms.ConvertToHash("123456")
@@ -102,11 +101,10 @@ file class SeedData
 
         new User()
         {
-            Id = 3,
+            Id = 2,
             UserName = "User",
             FirstName = "User",
             LastName = "Userov",
-            DateOfBirth = new(new DateTime(2005,01,01)),
             Email = "user@gmail.com",
             PhoneNumber = "+992222222222",
             PasswordHash = HashAlgorithms.ConvertToHash("123456")
@@ -135,13 +133,13 @@ file class SeedData
         {
             Id = 1,
             RoleId = 1,
-            UserId = 4
+            UserId = 1
         },
         new()
         {
             Id = 2,
             RoleId = 2,
-            UserId = 3
+            UserId = 2
         },
     ];
 }

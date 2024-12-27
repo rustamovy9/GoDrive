@@ -31,6 +31,13 @@ public class AuthService(DataContext dbContext, IAuthenticationService service) 
 
     public async Task<BaseResult> RegisterAsync(RegisterRequest request)
     {
+        Role? existingRole = await dbContext.Roles
+            .FirstOrDefaultAsync(x => x.Name == DefaultRoles.User);
+        if (existingRole is null) return BaseResult.Failure(Error.NotFound());
+        
+        if (request.Password.Length < 8)
+            return BaseResult.Failure(Error.BadRequest("Password must be at least 8 characters long."));
+        
         if (!request.Password.Equals(request.ConfirmPassword))
             return BaseResult.Failure(Error.BadRequest("Passwords do not match."));
         
@@ -45,11 +52,10 @@ public class AuthService(DataContext dbContext, IAuthenticationService service) 
         if (!IsValidDateOfBirth(request.DateOfBirth))
             return BaseResult.Failure(Error.BadRequest("Invalid date of birth provided."));
 
-        Role? existingRole = await dbContext.Roles
-            .FirstOrDefaultAsync(x => x.Name == DefaultRoles.User);
-        if (existingRole is null) return BaseResult.Failure(Error.NotFound());
         
         await dbContext.Users.AddAsync(newUser);
+        await dbContext.SaveChangesAsync();
+        
         await dbContext.UserRoles.AddAsync(new()
             { UserId = newUser.Id, RoleId = existingRole.Id });
 
@@ -85,7 +91,7 @@ public class AuthService(DataContext dbContext, IAuthenticationService service) 
         return BaseResult.Success();
     }
     
-    private bool IsValidDateOfBirth(DateTime dateOfBirth)
+    private static bool IsValidDateOfBirth(DateTimeOffset dateOfBirth)
     {
         return dateOfBirth <= DateTime.UtcNow && dateOfBirth >= DateTime.UtcNow.AddYears(-150);
     }

@@ -10,5 +10,5 @@ public sealed class Review : BaseEntity
     public Car Car { get; set; } = null!;
     public int Rating { get; set; }
     public string? Comment { get; set; } 
-    public DateTime ReviewDate { get; set; } 
+    public DateTimeOffset ReviewDate { get; set; } 
 }

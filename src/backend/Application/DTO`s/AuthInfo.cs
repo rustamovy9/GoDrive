@@ -27,7 +27,7 @@ public class RegisterRequest
     [MaxLength(40), MinLength(4)]
     public string LastName { get; set; } = string.Empty;
     
-    [Required] [DataType(DataType.Date)] public DateTime DateOfBirth { get; set; }
+    [Required] [DataType(DataType.DateTime)] public DateTimeOffset DateOfBirth { get; set; }
 
     [Required] [Phone] public string PhoneNumber { get; set; } = string.Empty;
 
