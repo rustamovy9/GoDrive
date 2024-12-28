@@ -124,6 +124,8 @@ public static class RegisterService
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
         builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+        builder.Services.AddScoped<IRentalCompanyRepository, RentalCompanyRepository>();
+        builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
         //registration services
         builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
@@ -135,6 +137,8 @@ public static class RegisterService
         builder.Services.AddScoped<IRoleService, RoleService>();
         builder.Services.AddScoped<IFileService, FileService>();
         builder.Services.AddScoped<Seeder>();
+        builder.Services.AddScoped<IRentalCompanyService, RentalCompanyService>();
+        builder.Services.AddScoped<IReviewService, ReviewService>();
 
         //registration validation
         builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
