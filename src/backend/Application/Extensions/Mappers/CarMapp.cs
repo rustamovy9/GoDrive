@@ -1,7 +1,6 @@
-﻿using Application.Contracts.Services;
-using Application.DTO_s;
-using Domain.Constants;
+﻿using Application.DTO_s;
 using Domain.Entities;
+using Domain.Enums;
 
 
 namespace Application.Extensions.Mappers;
@@ -11,54 +10,63 @@ public static class CarMapper
     public static CarReadInfo ToRead(this Car car)
     {
         return new CarReadInfo(
+            car.Id,
             car.Brand,
             car.Model,
             car.Year,
-            car.Category,
             car.RegistrationNumber,
-            car.Location,
             car.CarStatus,
-            car.ImageCar,
-            car.Id
+            car.CategoryId,
+            car.LocationId,
+            car.RentalCompanyId,
+            car.CarImages
+                .Select(ci => ci.ImagePath)
+                .ToList(),  
+            car.CreatedAt
         );
     }
 
 
-    public static async Task<Car> ToEntity(this CarCreateInfo createInfo,IFileService fileService)
+    public static  Car ToEntity(this CarCreateInfo createInfo)
     {
-        string? imagePath = FileData.Default;
-        if (createInfo.File is not null)
-            imagePath = await fileService.CreateFile(createInfo.File, MediaFolders.Images);
         return new Car
         {
             Brand = createInfo.Brand,
             Model = createInfo.Model,
             Year = createInfo.Year,
-            Category = createInfo.Category,
             RegistrationNumber = createInfo.RegistrationNumber,
-            Location = createInfo.Location,
-            CarStatus = createInfo.CarStatus,
-            ImageCar = imagePath
+            
+            CategoryId = createInfo.CategoryId,
+            LocationId = createInfo.LocationId,
+            RentalCompanyId = createInfo.RentalCompanyId, 
+            
+            CarStatus = CarStatus.Available,
         };
     }
 
-    public static async Task<Car> ToEntity(this Car entity, CarUpdateInfo updateInfo,IFileService fileService)
+    public static Car ToEntity(this Car entity, CarUpdateInfo updateInfo)
     {
-        if (updateInfo.File is not null)
-        { 
-            fileService.DeleteFile(entity.ImageCar, MediaFolders.Images);
-            
-            entity.ImageCar = await fileService.CreateFile(updateInfo.File, MediaFolders.Images);
-        }
-        entity.Brand = updateInfo.Brand;
-        entity.Model = updateInfo.Model;
-        entity.Year = updateInfo.Year;
-        entity.Category = updateInfo.Category;
-        entity.RegistrationNumber = updateInfo.RegistrationNumber;
-        entity.Location = updateInfo.Location;
-        entity.CarStatus = updateInfo.CarStatus ;
+        if (updateInfo.Brand is not null)
+            entity.Brand = updateInfo.Brand;
+
+        if (updateInfo.Model is not null)
+            entity.Model = updateInfo.Model;
+
+        if (updateInfo.Year.HasValue)
+            entity.Year = updateInfo.Year.Value;
+
+        if (updateInfo.CategoryId.HasValue)
+            entity.CategoryId = updateInfo.CategoryId.Value;
+
+        if (updateInfo.LocationId.HasValue)
+            entity.LocationId = updateInfo.LocationId.Value;
+
+        if (updateInfo.RentalCompanyId.HasValue)
+            entity.RentalCompanyId = updateInfo.RentalCompanyId;
+
         entity.Version++;
         entity.UpdatedAt = DateTimeOffset.UtcNow;
+
         return entity;
     }
 }

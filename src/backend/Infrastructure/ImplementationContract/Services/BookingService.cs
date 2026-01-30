@@ -20,7 +20,7 @@ public class BookingService(IBookingRepository repository) : IBookingService
         return await Task.Run(() =>
         {
             Expression<Func<Booking, bool>> filterExpression = spec =>
-                (filter.Status == null || spec.Status == filter.Status) &&
+                (filter.Status == null || spec.BookingStatus == filter.Status) &&
                 (filter.UserId == null || spec.UserId == filter.UserId) &&
                 (filter.CarId == null || spec.CarId == filter.CarId) &&
                 (filter.StartDate == null || spec.StartDateTime >= filter.StartDate) &&

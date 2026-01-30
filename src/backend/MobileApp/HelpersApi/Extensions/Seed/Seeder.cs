@@ -1,7 +1,7 @@
+using Application.Extensions.Algorithms;
 using Domain.Constants;
 using Domain.Entities;
 using Infrastructure.DataAccess;
-using Infrastructure.Extensions.Algorithms;
 using Microsoft.EntityFrameworkCore;
 
 namespace MobileApp.HelpersApi.Extensions.Seed;

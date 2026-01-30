@@ -11,6 +11,7 @@ public static class UserMapper
     public static UserReadInfo ToRead(this User user)
     {
         return new UserReadInfo(
+            user.Id,
             user.UserName,
             user.FirstName,
             user.LastName,
@@ -20,28 +21,41 @@ public static class UserMapper
             user.Address,
             user.DriverLicense,
             user.AvatarPath,
-            user.Id
+            user.CreatedAt
         );
     }
     
 
     public static async Task<User> ToEntity(this User entity, UserUpdateInfo updateInfo,IFileService fileService)
     {
-        if (updateInfo.File is not null)
-        { 
-            fileService.DeleteFile(entity.AvatarPath, MediaFolders.Images);
-            
-            entity.AvatarPath = await fileService.CreateFile(updateInfo.File, MediaFolders.Images);
+        if (updateInfo.FirstName is not null)
+            entity.FirstName = updateInfo.FirstName;
+
+        if (updateInfo.LastName is not null)
+            entity.LastName = updateInfo.LastName;
+
+        if (updateInfo.PhoneNumber is not null)
+            entity.PhoneNumber = updateInfo.PhoneNumber;
+
+        if (updateInfo.Address is not null)
+            entity.Address = updateInfo.Address;
+
+        if (updateInfo.DriverLicense is not null)
+            entity.DriverLicense = updateInfo.DriverLicense;
+
+        if (updateInfo.AvatarPath is not null)
+        {
+            if (!string.IsNullOrWhiteSpace(entity.AvatarPath))
+                fileService.DeleteFile(entity.AvatarPath, MediaFolders.Images);
+
+            entity.AvatarPath = await fileService.CreateFile(
+                updateInfo.AvatarPath,
+                MediaFolders.Images);
         }
-        entity.UserName = updateInfo.UserName;
-        entity.FirstName = updateInfo.FirstName;
-        entity.LastName = updateInfo.LastName;
-        entity.DateOfBirth = updateInfo.DateOfBirth;
-        entity.Email = updateInfo.Email;
-        entity.PhoneNumber = updateInfo.PhoneNumber ;
-        entity.DriverLicense = updateInfo.DriverLicense ;
+
         entity.Version++;
         entity.UpdatedAt = DateTimeOffset.UtcNow;
+
         return entity;
     }
 }

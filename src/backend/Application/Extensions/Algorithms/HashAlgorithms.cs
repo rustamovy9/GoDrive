@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Infrastructure.Extensions.Algorithms;
+namespace Application.Extensions.Algorithms;
 
 public static class HashAlgorithms
 {

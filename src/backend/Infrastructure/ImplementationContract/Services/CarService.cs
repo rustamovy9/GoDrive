@@ -24,8 +24,8 @@ public class CarService (ICarRepository repository,IFileService fileService) : I
                     (string.IsNullOrEmpty(filter.Model) || car.Model.ToLower().Contains(filter.Model.ToLower())) &&
                     (filter.YearFrom == null || car.Year >= filter.YearFrom) &&
                     (filter.YearTo == null || car.Year <= filter.YearTo) &&
-                    (string.IsNullOrEmpty(filter.Category) || car.Category.ToLower().Contains(filter.Category.ToLower())) &&
-                    (string.IsNullOrEmpty(filter.Location) || car.Location.ToLower().Contains(filter.Location.ToLower())) &&
+                    (filter.CategoryId == null || car.CategoryId ==  filter.CategoryId ) &&
+                    (filter.LocationId == null || car.LocationId ==  filter.LocationId) &&
                     (string.IsNullOrEmpty(filter.RegistrationNumber) || car.RegistrationNumber.ToLower().Contains(filter.RegistrationNumber.ToLower()));
 
             Result<IQueryable<Car>> request = repository

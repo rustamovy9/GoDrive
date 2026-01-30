@@ -1,20 +1,13 @@
 namespace Application.DTO_s;
-
-public interface IBaseRoleInfo
-{
-    public string Name { get; init; }
-    public string? Description { get; init; }
-}
-
-public readonly record struct RoleReadInfo(
+public sealed record RoleReadInfo(
     int Id,
     string Name,
-    string? Description) : IBaseRoleInfo;
+    string? Description);
 
-public readonly record struct RoleCreateInfo(
+public sealed record RoleCreateInfo(
     string Name,
-    string? Description) : IBaseRoleInfo;
+    string? Description);
 
-public readonly record struct RoleUpdateInfo(
-    string Name,
-    string? Description) : IBaseRoleInfo;
+public sealed record RoleUpdateInfo(
+    string? Name,
+    string? Description);

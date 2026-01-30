@@ -1,6 +1,6 @@
 using Application.DTO_s;
+using Application.Extensions.Algorithms;
 using Domain.Entities;
-using Infrastructure.Extensions.Algorithms;
 
 namespace Application.Extensions.Mappers;
 
@@ -15,17 +15,8 @@ public static class AuthMap
             LastName = request.LastName,
             DateOfBirth = request.DateOfBirth,
             PhoneNumber = request.PhoneNumber,
-            Email = request.EmailAddress,
+            Email = request.Email,
             PasswordHash = HashAlgorithms.ConvertToHash(request.Password),
         };
-    }
-
-    public static User ToDelete(this User user)
-    {
-        user.IsDeleted = true;
-        user.IsActive = false;
-        user.DeletedAt = DateTimeOffset.UtcNow;
-        user.Version++;
-        return user;
     }
 }

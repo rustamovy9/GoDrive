@@ -7,7 +7,7 @@ public  record CarFilter(
     string? Model = null,           // Фильтрация по модели
     int? YearFrom = null,           // Фильтрация по минимальному году
     int? YearTo = null,             // Фильтрация по максимальному году
-    string? Category = null,        // Фильтрация по категории
-    string? Location = null,        // Фильтрация по местоположению
+    int? CategoryId = null,        // Фильтрация по категории
+    int? LocationId = null,        // Фильтрация по местоположению
     string? RegistrationNumber = null // Фильтрация по регистрационному номеру
 ) : BaseFilter;

@@ -8,53 +8,46 @@ public class Update : AbstractValidator<CarUpdateInfo>
 {
     public Update()
     {
-        // Validate Brand
-        RuleFor(car => car.Brand)
-            .NotEmpty().WithMessage("Brand is required.")
-            .MaximumLength(100).WithMessage("Brand must not exceed 100 characters.");
+        When(x => x.Brand != null, () =>
+        {
+            RuleFor(x => x.Brand!)
+                .NotEmpty()
+                .MaximumLength(100);
+        });
 
-        // Validate Model
-        RuleFor(car => car.Model)
-            .NotEmpty().WithMessage("Model is required.")
-            .MaximumLength(100).WithMessage("Model must not exceed 100 characters.");
+        When(x => x.Model != null, () =>
+        {
+            RuleFor(x => x.Model!)
+                .NotEmpty()
+                .MaximumLength(100);
+        });
 
-        // Validate Year
-        RuleFor(car => car.Year)
-            .GreaterThan(1885).WithMessage("Year must be greater than 1885.") // First car invention year
-            .LessThanOrEqualTo(DateTime.Now.Year).WithMessage("Year must not be in the future.");
+        When(x => x.Year.HasValue, () =>
+        {
+            RuleFor(x => x.Year!.Value)
+                .InclusiveBetween(1950, DateTime.UtcNow.Year + 1)
+                .WithMessage("Year must be a valid production year.");
+        });
 
-        // Validate Category (optional)
-        RuleFor(car => car.Category)
-            .MaximumLength(50).WithMessage("Category must not exceed 50 characters.");
+        When(x => x.CategoryId.HasValue, () =>
+        {
+            RuleFor(x => x.CategoryId!.Value)
+                .GreaterThan(0)
+                .WithMessage("CategoryId must be greater than 0.");
+        });
 
-        // Validate Registration Number
-        RuleFor(car => car.RegistrationNumber)
-            .NotEmpty().WithMessage("Registration number is required.")
-            .Matches("^[A-Z0-9-]+$").WithMessage("Registration number can only contain uppercase letters, numbers, and hyphens.");
+        When(x => x.LocationId.HasValue, () =>
+        {
+            RuleFor(x => x.LocationId!.Value)
+                .GreaterThan(0)
+                .WithMessage("LocationId must be greater than 0.");
+        });
 
-        // Validate Location (optional)
-        RuleFor(car => car.Location)
-            .MaximumLength(100).WithMessage("Location must not exceed 100 characters.");
-
-        // Validate CarStatus
-        RuleFor(car => car.CarStatus)
-            .IsInEnum().WithMessage("Invalid car status value.");
-
-        // Validate File (optional)
-        RuleFor(car => car.File)
-            .Must(file => file == null || IsValidFileType(file))
-            .WithMessage("Invalid file type. Only JPEG and PNG are allowed.")
-            .Must(file => file == null || file.Length <= 5 * 1024 * 1024) // 5 MB
-            .WithMessage("File size must not exceed 5 MB.");
-    }
-
-    private bool IsValidFileType(IFormFile? file)
-    {
-        if (file == null) return true;
-
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
-        var fileExtension = Path.GetExtension(file.FileName)?.ToLower();
-
-        return allowedExtensions.Contains(fileExtension);
+        When(x => x.RentalCompanyId.HasValue, () =>
+        {
+            RuleFor(x => x.RentalCompanyId!.Value)
+                .GreaterThan(0)
+                .WithMessage("RentalCompanyId must be greater than 0.");
+        });
     }
 }

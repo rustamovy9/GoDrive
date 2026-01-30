@@ -10,5 +10,4 @@ public static class CustomClaimTypes
     public const string UserName = "UserName";
     public const string FirstName = "FirstName";
     public const string LastName = "LastName";
-    
 }

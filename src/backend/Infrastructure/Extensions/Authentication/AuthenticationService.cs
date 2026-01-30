@@ -36,7 +36,7 @@ public class AuthenticationService(IConfiguration config, DataContext dbContext)
             where u.Id == user.Id
             select new Claim(CustomClaimTypes.Role, r.Name)).ToListAsync());
 
-
+    
         JwtSecurityToken jwt = new JwtSecurityToken(
             issuer: config["JWT:issuer"],
             audience: config["JWT:audience"],

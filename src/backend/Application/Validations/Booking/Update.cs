@@ -7,35 +7,49 @@ public class Update : AbstractValidator<BookingUpdateInfo>
 {
     public Update()
     {
-        // UserId должен быть положительным числом
-        RuleFor(update => update.UserId)
-            .GreaterThan(0).WithMessage("UserId must be greater than 0.");
+        RuleFor(x => x.CarId)
+            .GreaterThan(0)
+            .WithMessage("CarId must be greater than 0.");
 
-        // CarId должен быть положительным числом
-        RuleFor(update => update.CarId)
-            .GreaterThan(0).WithMessage("CarId must be greater than 0.");
+        RuleFor(x => x.PickupLocationId)
+            .GreaterThan(0)
+            .WithMessage("PickupLocationId must be greater than 0.");
 
-        // StartDateTime должен быть раньше EndDateTime
-        RuleFor(update => update)
-            .Must(update => update.StartDateTime < update.EndDateTime)
+        RuleFor(x => x.DropOffLocationId)
+            .GreaterThan(0)
+            .WithMessage("DropOffLocationId must be greater than 0.");
+
+        RuleFor(x => x)
+            .Must(x => x.PickupLocationId != x.DropOffLocationId)
+            .WithMessage("Pickup and Drop-off locations cannot be the same.");
+
+        When(x => x.StartDateTime.HasValue, () =>
+        {
+            RuleFor(x => x.StartDateTime!.Value)
+                .GreaterThanOrEqualTo(DateTimeOffset.UtcNow)
+                .WithMessage("StartDateTime must not be in the past.");
+        });
+
+        When(x => x.EndDateTime.HasValue, () =>
+        {
+            RuleFor(x => x.EndDateTime!.Value)
+                .GreaterThan(DateTimeOffset.UtcNow)
+                .WithMessage("EndDateTime must be in the future.");
+        });
+
+        RuleFor(x => x)
+            .Must(x => x.StartDateTime < x.EndDateTime)
             .WithMessage("StartDateTime must be earlier than EndDateTime.");
 
-        // PickupLocation не может быть пустым и длина не более 100 символов
-        RuleFor(update => update.PickupLocation)
-            .NotEmpty().WithMessage("PickupLocation is required.")
-            .MaximumLength(100).WithMessage("PickupLocation must not exceed 100 characters.");
+        RuleFor(x => x)
+            .Must(x =>
+                !x.StartDateTime.HasValue ||
+                !x.EndDateTime.HasValue ||
+                (x.EndDateTime.Value - x.StartDateTime.Value).TotalHours >= 1)
+            .WithMessage("Booking duration must be at least 1 hour.");
 
-        // DropOffLocation не может быть пустым и длина не более 100 символов
-        RuleFor(update => update.DropOffLocation)
-            .NotEmpty().WithMessage("DropOffLocation is required.")
-            .MaximumLength(100).WithMessage("DropOffLocation must not exceed 100 characters.");
-
-        // Проверка на будущее время для StartDateTime
-        RuleFor(update => update.StartDateTime)
-            .GreaterThanOrEqualTo(DateTime.Now).WithMessage("StartDateTime must not be in the past.");
-
-        // EndDateTime должен быть не более чем через год от текущей даты
-        RuleFor(update => update.EndDateTime)
-            .LessThanOrEqualTo(DateTime.Now.AddYears(1)).WithMessage("EndDateTime must be within a year from now.");
+        RuleFor(x => x.Comment)
+            .MaximumLength(500)
+            .WithMessage("Comment must not exceed 500 characters.");
     }
 }

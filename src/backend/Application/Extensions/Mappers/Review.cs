@@ -8,33 +8,34 @@ public static class ReviewMapper
     public static ReviewReadInfo ToRead(this Review review)
     {
         return new ReviewReadInfo(
-            review.UserId,
-            review.CarId,
-            review.Rating,
-            review.Comment,
-            review.ReviewDate,
-            review.Id
+            Id: review.Id,
+            CarId: review.CarId,
+            Rating: review.Rating,
+            Comment: review.Comment,
+            UserName: review.User.UserName,
+            CreatedAt: review.CreatedAt
         );
     }
 
-    public static Review ToEntity(this ReviewCreateInfo createInfo)
+    public static Review ToEntity(this ReviewCreateInfo createInfo,int userId)
     {
         return new Review
         {
-            UserId = createInfo.UserId,
+            UserId = userId,
             CarId = createInfo.CarId,
             Rating = createInfo.Rating,
             Comment = createInfo.Comment,
-            ReviewDate = DateTime.UtcNow 
         };
     }
 
     public static Review ToEntity(this Review entity, ReviewUpdateInfo updateInfo)
     {
-        entity.Rating = updateInfo.Rating;
-        entity.Comment = updateInfo.Comment;
+        if (updateInfo.Comment is not null)
+            entity.Comment = updateInfo.Comment;
+        
         entity.UpdatedAt = DateTimeOffset.UtcNow;
         entity.Version++;
+        
         return entity;
     }
 }

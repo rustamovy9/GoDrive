@@ -1,50 +1,40 @@
 ﻿using Domain.Enums;
-using Microsoft.AspNetCore.Http;
 
 namespace Application.DTO_s;
-
-public interface IBaseCarInfo
-{
-    public string Brand { get; init; }
-    public string Model { get; init; }
-    public int Year { get; init; }
-    public string? Category { get; init; }
-    public string RegistrationNumber { get; init; }
-    public string? Location { get; init; }
-    public CarStatus CarStatus { get; init; }
-}
-
-public readonly record struct CarReadInfo(
+public sealed record CarReadInfo(
+    int Id,
     string Brand,
     string Model,
     int Year,
-    string? Category,
     string RegistrationNumber,
-    string? Location,
     CarStatus CarStatus,
-    string CarImageName,    
-    int Id):IBaseCarInfo;
+    
+    int CategoryId,
+    int LocationId,
+    int? RentalCompanyId,
+    
+    IReadOnlyList<string> Images,
+    
+    DateTimeOffset CreatedAt);
 
-public record CarUpdateInfo(
+public sealed record CarUpdateInfo(
+    string? Brand,
+    string? Model,
+    int? Year,
+    
+    int? CategoryId,
+    int? LocationId,
+    int? RentalCompanyId);
+
+public sealed record CarCreateInfo(
     string Brand,
     string Model,
     int Year,
-    string? Category,
     string RegistrationNumber,
-    string? Location,
-    CarStatus CarStatus,
-    IFormFile? File
-    ) : IBaseCarInfo;
-
-public record  CarCreateInfo(
-    string Brand,
-    string Model,
-    int Year,
-    string? Category,
-    string RegistrationNumber,
-    string? Location,
-    CarStatus CarStatus,
-    IFormFile? File) : IBaseCarInfo;
+    
+    int CategoryId,
+    int LocationId,
+    int? RentalCompanyId);
 
 
     

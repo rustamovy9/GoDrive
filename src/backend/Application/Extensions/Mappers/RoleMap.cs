@@ -7,12 +7,12 @@ public static class RoleMap
 {
     public static RoleReadInfo ToRead(this Role role)
     {
-        return new()
-        {
-            Id = role.Id,
-            Description = role.Description,
-            Name = role.Name
-        };
+        return new RoleReadInfo
+        (
+            Id: role.Id,
+            Name: role.Name,
+            Description: role.Description
+        );
     }
 
     public static Role ToEntity(this RoleCreateInfo roleCreate)
@@ -26,10 +26,12 @@ public static class RoleMap
 
     public static Role ToEntity(this Role role, RoleUpdateInfo updateInfo)
     {
-        role.Description = updateInfo.Description;
-        role.Name = updateInfo.Name;
+        if (updateInfo.Description is not null)
+            role.Description = updateInfo.Description;
+
         role.Version++;
         role.UpdatedAt = DateTimeOffset.UtcNow;
+
         return role;
     }
 }

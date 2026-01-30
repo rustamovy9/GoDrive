@@ -1,24 +1,42 @@
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataAccess;
 
-public class DataContext : DbContext
+public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
 {
-    public DataContext(DbContextOptions<DataContext> options)
-        : base(options)
-    {
-    }
-
-    public DbSet<Booking> Bookings { get; set; }
+    // 👤 Users & Roles
     public DbSet<User> Users { get; set; }
-    public DbSet<Car> Cars { get; set; }
-    public DbSet<RentalCompany> RentalCompanies { get; set; }
-    public DbSet<Review> Reviews { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
+    
+    // 🚗 Cars
+    public DbSet<Car> Cars { get; set; }
+    public DbSet<CarAvailability> CarAvailabilities { get; set; }
+    public DbSet<CarDocument> CarDocuments { get; set; }
+    public DbSet<CarPrice> CarPrices { get; set; }
+    
+    //Categories
+    public DbSet<Category> Categories  { get; set; }
+    
+    // 🔔 Notifications
+    public DbSet<Notification> Notifications  { get; set; }
 
+    // 🏢 Company
+    public DbSet<RentalCompany> RentalCompanies { get; set; }
+    
+    // 📍 Location
+    public DbSet<Location> Locations  { get; set; }
+    
+    // 📅 Booking & Payment
+    public DbSet<Booking> Bookings { get; set; }
+    public DbSet<Payment> Payments  { get; set; } 
+    
+    // ⭐ Reviews
+    public DbSet<Review> Reviews { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

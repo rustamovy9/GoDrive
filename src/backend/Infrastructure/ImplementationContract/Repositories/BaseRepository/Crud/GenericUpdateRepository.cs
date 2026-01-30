@@ -12,15 +12,11 @@ public class GenericUpdateRepository<T>(DataContext dbContext) : IGenericUpdateR
     {
         try
         {
-            T? existing = await dbContext.Set<T>().FirstOrDefaultAsync(x => x.Id == value.Id);
-            if (existing == null)
+            T? entity = await dbContext.Set<T>().FirstOrDefaultAsync(x => x.Id == value.Id);
+            if (entity == null)
                 return Result<int>.Failure(Error.NotFound());
 
-            dbContext.Entry(existing).CurrentValues.SetValues(value);
-
-            if (dbContext.Entry(existing).State == EntityState.Unchanged)
-                return Result<int>.Success(1);
-
+            dbContext.Set<T>().Update(entity);
             int res = await dbContext.SaveChangesAsync();
             return res > 0
                 ? Result<int>.Success(res)

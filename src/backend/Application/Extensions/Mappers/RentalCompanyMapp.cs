@@ -8,28 +8,35 @@ public static class RentalCompanyMapper
     public static RentalCompanyReadInfo ToRead(this RentalCompany rentalCompany)
     {
         return new RentalCompanyReadInfo(
+            Id: rentalCompany.Id,
             Name: rentalCompany.Name,
             ContactInfo: rentalCompany.ContactInfo,
-            Id: rentalCompany.Id
+            OwnerId: rentalCompany.OwnerId,
+            CreatedAt: rentalCompany.CreatedAt
         );
     }
 
-    public static RentalCompany ToEntity(this RentalCompanyCreateInfo createInfo)
+    public static RentalCompany ToEntity(this RentalCompanyCreateInfo createInfo,int ownerId)
     {
         return new RentalCompany
         {
             Name = createInfo.Name,
             ContactInfo = createInfo.ContactInfo,
-            Cars = new List<Car>() 
+            OwnerId = ownerId
         };
     }
 
     public static RentalCompany ToEntity(this RentalCompany entity, RentalCompanyUpdateInfo updateInfo)
     {
-        entity.Name = updateInfo.Name;
-        entity.ContactInfo = updateInfo.ContactInfo;
+        if (updateInfo.Name is not null)
+            entity.Name = updateInfo.Name;
+
+        if (updateInfo.ContactInfo is not null)
+            entity.ContactInfo = updateInfo.ContactInfo;
+
         entity.Version++;
         entity.UpdatedAt = DateTimeOffset.UtcNow;
+
         return entity;
     }
 }

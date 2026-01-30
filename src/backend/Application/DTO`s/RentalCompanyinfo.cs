@@ -1,20 +1,18 @@
 namespace Application.DTO_s;
 
-public interface IBaseRentalCompanyInfo
-{
-    public string Name { get; init; }
-    public string? ContactInfo { get; init; }
-}
 
-public readonly record struct RentalCompanyReadInfo(
+
+public sealed record RentalCompanyReadInfo(
+    int Id,
     string Name,
     string? ContactInfo,
-    int Id) : IBaseRentalCompanyInfo;
+    int OwnerId,
+    DateTimeOffset CreatedAt);
 
-public readonly record struct RentalCompanyUpdateInfo(
-    string Name,
-    string? ContactInfo) : IBaseRentalCompanyInfo;
+public sealed record RentalCompanyUpdateInfo(
+    string? Name,
+    string? ContactInfo);
 
-public readonly record struct RentalCompanyCreateInfo(
+public sealed record RentalCompanyCreateInfo(
     string Name,
-    string? ContactInfo) : IBaseRentalCompanyInfo;
+    string? ContactInfo);

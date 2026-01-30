@@ -6,6 +6,6 @@ namespace Application.Filters;
 public record BookingFilter(
     int? UserId,
     int? CarId,
-    Status? Status,
+    BookingStatus? Status,
     DateTimeOffset? StartDate,
     DateTimeOffset? EndDate) : BaseFilter;

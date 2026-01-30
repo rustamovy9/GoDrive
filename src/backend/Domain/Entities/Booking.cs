@@ -3,15 +3,30 @@ using Domain.Enums;
 
 namespace Domain.Entities;
 
-public sealed class Booking : BaseEntity
+public class Booking : BaseEntity
 {
-    public int UserId { get; set; } 
-    public User User { get; set; } = null!;
-    public int CarId { get; set; }
-    public Car Car { get; set; } = null!;
     public DateTimeOffset StartDateTime { get; set; }
     public DateTimeOffset EndDateTime { get; set; } 
-    public string? PickupLocation { get; set; } 
-    public string? DropOffLocation { get; set; } 
-    public Status Status { get; set; }
+    
+    public bool IsContactShared { get; set; }
+    
+    public decimal TotalPrice { get; set; }
+    
+    public BookingStatus BookingStatus { get; set; }
+    
+    public PaymentMethod PaymentMethod { get; set; }
+    public PaymentStatus PaymentStatus { get; set; }
+    public string? Comment { get; set; }
+    
+    public int UserId { get; set; } 
+    public int CarId { get; set; }
+    public int PickupLocationId { get; set; }
+    public int DropOffLocationId { get; set; } 
+    
+    
+    public Location PickupLocation { get; set; } = null!; 
+    public Location DropOffLocation { get; set; } = null!; 
+    public User User { get; set; } = null!;
+    public Car Car { get; set; } = null!;
+    public ICollection<Payment> Payments { get; set; } = [];
 }

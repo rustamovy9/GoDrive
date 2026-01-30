@@ -7,13 +7,19 @@ public class Update : AbstractValidator<RentalCompanyUpdateInfo>
 {
     public Update()
     {
-        // Имя компании не должно быть пустым и длина не более 100 символов
-        RuleFor(company => company.Name)
-            .NotEmpty().WithMessage("Name is required.")
-            .MaximumLength(100).WithMessage("Name must not exceed 100 characters.");
+        When(x => x.Name != null, () =>
+        {
+            RuleFor(x => x.Name!)
+                .NotEmpty()
+                .MaximumLength(200)
+                .WithMessage("Company name must not be empty and must not exceed 200 characters.");
+        });
 
-        // ContactInfo не может быть длиннее 200 символов, если указано
-        RuleFor(company => company.ContactInfo)
-            .MaximumLength(200).WithMessage("ContactInfo must not exceed 200 characters.");
+        When(x => x.ContactInfo != null, () =>
+        {
+            RuleFor(x => x.ContactInfo!)
+                .MaximumLength(500)
+                .WithMessage("ContactInfo must not exceed 500 characters.");
+        });
     }
 }
