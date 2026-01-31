@@ -11,7 +11,7 @@ public interface IReviewService
 
     Task<Result<ReviewReadInfo>> GetByIdAsync(int id);
 
-    Task<BaseResult> CreateAsync(ReviewCreateInfo createInfo);
+    Task<BaseResult> CreateAsync(int userId,ReviewCreateInfo createInfo);
 
     Task<BaseResult> UpdateAsync(int id, ReviewUpdateInfo updateInfo);
 

@@ -1,6 +1,7 @@
 using Application.Contracts.Services;
 using Application.DTO_s;
 using Application.Filters;
+using Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MobileApp.HelpersApi.Extensions.ResultPattern;
@@ -12,6 +13,10 @@ namespace MobileApp.Controllers;
 [Authorize]
 public class ReviewController(IReviewService service) : BaseController
 {
+    private int UserId =>
+        int.Parse(User.FindFirst(CustomClaimTypes.Id)?.Value
+            ?? throw new UnauthorizedAccessException("UserId not found"));
+    
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] ReviewFilter filter)
         => (await service.GetAllAsync(filter)).ToActionResult();
@@ -22,7 +27,7 @@ public class ReviewController(IReviewService service) : BaseController
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] ReviewCreateInfo entity)
-        => (await service.CreateAsync(entity)).ToActionResult();
+        => (await service.CreateAsync(UserId,entity)).ToActionResult();
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ReviewUpdateInfo entity)

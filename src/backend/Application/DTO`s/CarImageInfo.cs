@@ -1,4 +1,6 @@
-﻿namespace Application.DTO_s;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Application.DTO_s;
 
 public sealed record CarImageReadInfo(
     int Id,
@@ -7,4 +9,4 @@ public sealed record CarImageReadInfo(
     
 public sealed record CarImageCreateInfo(
     int CarId,
-    string ImagePath);
+    IFormFile ImagePath);

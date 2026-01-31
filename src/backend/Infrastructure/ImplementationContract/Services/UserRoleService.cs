@@ -60,19 +60,6 @@ public class UserRoleService(IUserRoleRepository repository) : IUserRoleService
             : BaseResult.Failure(res.Error);
     }
 
-    public async Task<BaseResult> UpdateAsync(int id, UserRoleUpdateInfo updateInfo)
-    {
-        Result<UserRole?> res = await repository.GetByIdAsync(id);
-
-        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
-        
-        Result<int> result = await repository.UpdateAsync(res.Value!.ToEntity(updateInfo));
-
-        return result.IsSuccess
-            ? BaseResult.Success()
-            : BaseResult.Failure(result.Error);
-    }
-
     public async Task<BaseResult> DeleteAsync(int id)
     {
         Result<UserRole?> res = await repository.GetByIdAsync(id);

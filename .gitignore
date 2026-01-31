@@ -485,6 +485,8 @@ $RECYCLE.BIN/
 
 # My gitignore
 *.png
+*.pdf
+*webp
 *.image
 *.jpeg
 *.jpg

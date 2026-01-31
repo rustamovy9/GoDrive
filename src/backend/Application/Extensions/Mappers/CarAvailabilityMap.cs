@@ -25,4 +25,20 @@ public static class CarAvailabilityMapper
             IsAvailable = true
         };
     }
+
+    public static CarAvailability ToEntity(
+        this CarAvailability entity,
+        CarAvailabilityUpdateInfo updateInfo)
+    {
+        if (updateInfo.AvailableFrom.HasValue)
+            entity.AvailableFrom = updateInfo.AvailableFrom.Value;
+
+        if (updateInfo.AvailableTo.HasValue)
+            entity.AvailableTo = updateInfo.AvailableTo.Value;
+
+        entity.Version++;
+        entity.UpdatedAt = DateTimeOffset.UtcNow;
+
+        return entity;
+    }
 }

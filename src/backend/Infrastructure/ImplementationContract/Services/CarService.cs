@@ -68,7 +68,7 @@ public class CarService (ICarRepository repository,IFileService fileService) : I
         if (string.IsNullOrWhiteSpace(createInfo.Brand) || string.IsNullOrWhiteSpace(createInfo.Model))
             return BaseResult.Failure(Error.BadRequest("Brand and Model are required."));
 
-        Result<int> res = await repository.AddAsync(await createInfo.ToEntity(fileService));
+        Result<int> res = await repository.AddAsync(createInfo.ToEntity());
 
         return res.IsSuccess
             ? BaseResult.Success()
@@ -80,17 +80,13 @@ public class CarService (ICarRepository repository,IFileService fileService) : I
         Result<Car?> res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
-
-        bool conflict = (await repository.GetAllAsync()).Value!.Any(car => car.RegistrationNumber == updateInfo.RegistrationNumber);
-
-        if (conflict) return BaseResult.Failure(Error.Conflict("Registration number already exists."));
         
         if (updateInfo.Year < 1886 || updateInfo.Year > DateTime.Now.Year)
             return BaseResult.Failure(Error.BadRequest("Invalid year provided."));
 
         if (string.IsNullOrWhiteSpace(updateInfo.Brand) || string.IsNullOrWhiteSpace(updateInfo.Model))
             return BaseResult.Failure(Error.BadRequest("Brand and Model are required."));
-        Result<int> result = await repository.UpdateAsync(await res.Value!.ToEntity(updateInfo,fileService));
+        Result<int> result = await repository.UpdateAsync(res.Value!.ToEntity(updateInfo));
 
         return result.IsSuccess
             ? BaseResult.Success()
@@ -102,7 +98,6 @@ public class CarService (ICarRepository repository,IFileService fileService) : I
         Result<Car?> res = await repository.GetByIdAsync(id);
         if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
         
-        fileService.DeleteFile(res.Value!.ImageCar, MediaFolders.Images);
         Result<int> result = await repository.DeleteAsync(id);
         return result.IsSuccess
             ? BaseResult.Success()

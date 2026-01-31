@@ -2,8 +2,8 @@
 
 public enum Currency
 {
-    Tjs,
-    Usd,
-    Rub,
-    Eur
+    TJS,
+    USD,
+    RUB,
+    EUR
 }

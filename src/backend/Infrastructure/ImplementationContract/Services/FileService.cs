@@ -9,7 +9,7 @@ public class FileService(IWebHostEnvironment hostEnvironment) : IFileService
     private const long MaxFileSize = 50 * 1024 * 1024;
 
     private readonly HashSet<string> _allowedExtensions = new(StringComparer.OrdinalIgnoreCase)
-        { ".jpg", ".png",".jpeg",".mp4" };  
+        { ".jpg", ".png",".jpeg",".mp4",".pdf" };  
 
     public async Task<string> CreateFile(IFormFile file, string folder)
     {

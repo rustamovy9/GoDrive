@@ -6,6 +6,7 @@ using Application.Extensions.ResultPattern;
 using Domain.Common;
 using Domain.Constants;
 using Domain.Entities;
+using Domain.Extensions;
 using Infrastructure.DataAccess;
 using Infrastructure.Extensions.Authentication;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +44,7 @@ public class AuthService(DataContext dbContext, IAuthenticationService service) 
 
         bool conflict = await dbContext.Users.AnyAsync(
             x => x.UserName == request.UserName
-                 || x.Email == request.EmailAddress
+                 || x.Email == request.Email
                  || x.PhoneNumber == request.PhoneNumber);
         if (conflict) return BaseResult.Failure(Error.Conflict());
 

@@ -54,7 +54,7 @@ public class BookingService(IBookingRepository repository) : IBookingService
         return Result<BookingReadInfo>.Success(res.Value!.ToRead());
     }
 
-    public async Task<BaseResult> CreateAsync(BookingCreateInfo createInfo)
+    public async Task<BaseResult> CreateAsync(BookingCreateInfo createInfo,int userId)
     {
         bool conflict = (await repository.GetAllAsync()).Value!.Any(b => b.CarId == createInfo.CarId &&
                                                                          b.StartDateTime < createInfo.EndDateTime &&
@@ -62,7 +62,7 @@ public class BookingService(IBookingRepository repository) : IBookingService
 
         if (conflict) return BaseResult.Failure(Error.Conflict());
 
-        Result<int> res = await repository.AddAsync(createInfo.ToEntity());
+        Result<int> res = await repository.AddAsync(createInfo.ToEntity(userId));
 
         return res.IsSuccess
             ? BaseResult.Success()

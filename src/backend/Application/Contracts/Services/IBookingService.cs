@@ -11,7 +11,7 @@ public interface IBookingService
 {
     Task<Result<PagedResponse<IEnumerable<BookingReadInfo>>>> GetAllAsync(BookingFilter filter);
     Task<Result<BookingReadInfo>> GetByIdAsync(int id);
-    Task<BaseResult> CreateAsync(BookingCreateInfo createInfo);
+    Task<BaseResult> CreateAsync(BookingCreateInfo createInfo,int userId);
     Task<BaseResult> UpdateAsync(int id,BookingUpdateInfo updateInfo);
     Task<BaseResult> DeleteAsync(int id);
 }   

@@ -22,10 +22,7 @@ public class UserRoleController (IUserRoleService service) : BaseController
 
     [HttpPost] public async Task<IActionResult> Create([FromBody] UserRoleCreateInfo entity)
         => (await service.CreateAsync(entity)).ToActionResult();
-
-    [HttpPut("{id:int}")] public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UserRoleUpdateInfo entity)
-        => (await service.UpdateAsync(id, entity)).ToActionResult();
-
+    
     [HttpDelete("{id:int}")] public async Task<IActionResult> Delete([FromRoute] int id)
         => (await service.DeleteAsync(id)).ToActionResult();
 }

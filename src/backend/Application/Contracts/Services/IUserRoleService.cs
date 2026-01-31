@@ -10,6 +10,5 @@ public interface IUserRoleService
     Task<Result<PagedResponse<IEnumerable<UserRoleReadInfo>>>> GetAllAsync(UserRoleFilter filter);
     Task<Result<UserRoleReadInfo?>> GetByIdAsync(int userRoleId);
     Task<BaseResult> CreateAsync(UserRoleCreateInfo userRoleCreateInfo);
-    Task<BaseResult> UpdateAsync(int userRoleId, UserRoleUpdateInfo userRoleUpdateInfo);
     Task<BaseResult> DeleteAsync(int userRoleId);
 }

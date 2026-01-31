@@ -69,13 +69,10 @@ public class UserService(IUserRepository repository, IFileService fileService) :
         if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
 
         bool conflict = (await repository.GetAllAsync()).Value!.Any(user =>
-            user.UserName.ToLower().Contains(updateInfo.UserName.ToLower())
-            || user.PhoneNumber!.ToLower().Contains(updateInfo.PhoneNumber!)
-            || user.Email.ToLower().Contains(updateInfo.Email));
+            user.PhoneNumber!.ToLower().Contains(updateInfo.PhoneNumber!));
         if (conflict) return BaseResult.Failure(Error.Conflict("phone or email or username already exists."));
 
-        if (updateInfo.DateOfBirth > DateTime.UtcNow || updateInfo.DateOfBirth < DateTime.UtcNow.AddYears(-150))
-            return BaseResult.Failure(Error.BadRequest("Invalid date of birth provided."));
+  
 
 
         Result<int> result = await repository.UpdateAsync(await res.Value!.ToEntity(updateInfo, fileService));

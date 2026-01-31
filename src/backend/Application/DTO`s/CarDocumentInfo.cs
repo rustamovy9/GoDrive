@@ -1,4 +1,5 @@
 ﻿using Domain.Enums;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.DTO_s;
 
@@ -15,7 +16,7 @@ public sealed record CarDocumentReadInfo(
 public sealed record CarDocumentCreateInfo(
     int CarId,
     CarDocumentType DocumentType,
-    string FilePath);
+    IFormFile FilePath);
 
 
 public sealed record CarDocumentUpdateInfo(
