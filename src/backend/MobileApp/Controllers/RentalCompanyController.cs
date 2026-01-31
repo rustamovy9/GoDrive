@@ -1,6 +1,7 @@
 using Application.Contracts.Services;
 using Application.DTO_s;
 using Application.Filters;
+using Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MobileApp.HelpersApi.Extensions.ResultPattern;
@@ -12,6 +13,10 @@ namespace MobileApp.Controllers;
 [Authorize]
 public class RentalCompanyController(IRentalCompanyService service) : BaseController
 {
+    private int OwnerId =>
+        int.Parse(User.FindFirst(CustomClaimTypes.Id)?.Value
+            ?? throw new UnauthorizedAccessException("OwnerId not found"));
+    
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] RentalCompanyFilter filter)
         => (await service.GetAllAsync(filter)).ToActionResult();
@@ -22,7 +27,7 @@ public class RentalCompanyController(IRentalCompanyService service) : BaseContro
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] RentalCompanyCreateInfo entity)
-        => (await service.CreateAsync(entity)).ToActionResult();
+        => (await service.CreateAsync(entity,OwnerId)).ToActionResult();
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] RentalCompanyUpdateInfo entity)

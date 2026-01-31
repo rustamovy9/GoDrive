@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Application.Validations.Location;
 
-public class Create : AbstractValidator<LocationCreatInfo>
+public class Create : AbstractValidator<LocationCreateInfo>
 {
     public Create()
     {

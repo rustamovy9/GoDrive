@@ -49,9 +49,9 @@ public class ReviewService(IReviewRepository repository) : IReviewService
         return Result<ReviewReadInfo>.Success(res.Value!.ToRead());
     }
 
-    public async Task<BaseResult> CreateAsync(ReviewCreateInfo createInfo)
+    public async Task<BaseResult> CreateAsync(int userId,ReviewCreateInfo createInfo)
     {
-        Result<int> res = await repository.AddAsync(createInfo.ToEntity());
+        Result<int> res = await repository.AddAsync(createInfo.ToEntity(userId));
 
         return res.IsSuccess
             ? BaseResult.Success()

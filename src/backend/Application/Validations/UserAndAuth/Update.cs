@@ -45,7 +45,7 @@ public class UserUpdateInfoValidator : AbstractValidator<UserUpdateInfo>
                 .WithMessage("DriverLicense must not exceed 50 characters.");
         });
 
-        When(x => x.AvatarPath != null, () =>
+        When(x => x.AvatarPath is not null, () =>
         {
             RuleFor(x => x.AvatarPath!)
                 .Must(BeValidImage)
@@ -53,11 +53,24 @@ public class UserUpdateInfoValidator : AbstractValidator<UserUpdateInfo>
         });
     }
 
-    private static bool BeValidImage(IFormFile file)
+    private static bool BeValidImage(IFormFile? file)
     {
-        if (file.Length <= 0)
+        if (file is null || file.Length == 0)
             return false;
 
-        return file.ContentType.StartsWith("image/");
+        // ограничение размера (5MB)
+        const long maxSize = 5 * 1024 * 1024;
+        if (file.Length > maxSize)
+            return false;
+
+        var allowedTypes = new[]
+        {
+            "image/jpeg",
+            "image/png",
+            "image/jpg",
+            "image/webp"
+        };
+
+        return allowedTypes.Contains(file.ContentType.ToLower());
     }
 }

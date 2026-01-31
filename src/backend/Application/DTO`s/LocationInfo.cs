@@ -7,7 +7,7 @@ public sealed record LocationReadInfo(
     double Latitude,
     double Longitude);
 
-public sealed record LocationCreatInfo(
+public sealed record LocationCreateInfo(
     string Country,
     string City,
     double Latitude,

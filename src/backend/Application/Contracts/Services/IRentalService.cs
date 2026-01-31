@@ -9,7 +9,7 @@ public interface IRentalCompanyService
 {
     Task<Result<PagedResponse<IEnumerable<RentalCompanyReadInfo>>>> GetAllAsync(RentalCompanyFilter filter);
     Task<Result<RentalCompanyReadInfo>> GetByIdAsync(int id);
-    Task<BaseResult> CreateAsync(RentalCompanyCreateInfo createInfo);
+    Task<BaseResult> CreateAsync(RentalCompanyCreateInfo createInfo,int ownerId);
     Task<BaseResult> UpdateAsync(int id, RentalCompanyUpdateInfo updateInfo);
     Task<BaseResult> DeleteAsync(int id);
 }

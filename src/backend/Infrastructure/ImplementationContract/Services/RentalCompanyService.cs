@@ -50,9 +50,9 @@ public class RentalCompanyService(IRentalCompanyRepository repository) : IRental
         return Result<RentalCompanyReadInfo>.Success(res.Value!.ToRead());
     }
 
-    public async Task<BaseResult> CreateAsync(RentalCompanyCreateInfo createInfo)
+    public async Task<BaseResult> CreateAsync(RentalCompanyCreateInfo createInfo,int ownerId)
     {
-        Result<int> res = await repository.AddAsync(createInfo.ToEntity());
+        Result<int> res = await repository.AddAsync(createInfo.ToEntity(ownerId));
 
         return res.IsSuccess
             ? BaseResult.Success()
