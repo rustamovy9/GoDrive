@@ -32,35 +32,44 @@ public class AuthService(DataContext dbContext, IAuthenticationService service) 
 
     public async Task<BaseResult> RegisterAsync(RegisterRequest request)
     {
-        Role? existingRole = await dbContext.Roles
-            .FirstOrDefaultAsync(x => x.Name == DefaultRoles.User);
-        if (existingRole is null) return BaseResult.Failure(Error.NotFound());
+        bool conflict = await dbContext.Users.AnyAsync(u =>
+            u.UserName == request.UserName ||
+            u.Email == request.Email ||
+            u.PhoneNumber == request.PhoneNumber);
 
-        if (request.Password.Length < 8)
-            return BaseResult.Failure(Error.BadRequest("Password must be at least 8 characters long."));
+        if (conflict)
+            return BaseResult.Failure(Error.Conflict("User already exists"));
 
-        if (!request.Password.Equals(request.ConfirmPassword))
-            return BaseResult.Failure(Error.BadRequest("Passwords do not match."));
+        string roleName = request.Role;
 
-        bool conflict = await dbContext.Users.AnyAsync(
-            x => x.UserName == request.UserName
-                 || x.Email == request.Email
-                 || x.PhoneNumber == request.PhoneNumber);
-        if (conflict) return BaseResult.Failure(Error.Conflict());
+        if (roleName == DefaultRoles.Admin)
+            return BaseResult.Failure(Error.BadRequest("You cannot register as Admin"));
 
-        User newUser = request.ToEntity();
+        if (roleName != DefaultRoles.User &&
+            roleName != DefaultRoles.Owner)
+            return BaseResult.Failure(Error.BadRequest("Invalid role"));
+
+        var role = await dbContext.Roles
+            .FirstOrDefaultAsync(r => r.Name == roleName);
+
+        if (role is null)
+            return BaseResult.Failure(Error.NotFound("Role not found"));
+
+        var user = request.ToEntity();
 
         if (!IsValidDateOfBirth(request.DateOfBirth))
             return BaseResult.Failure(Error.BadRequest("Invalid date of birth provided."));
 
+        await dbContext.Users.AddAsync(user);
 
-        await dbContext.Users.AddAsync(newUser);
-        await dbContext.SaveChangesAsync();
+        await dbContext.UserRoles.AddAsync(new UserRole
+        {
+            User = user,       // 🔥 EF сам поставит UserId
+            RoleId = role.Id
+        });
 
-        await dbContext.UserRoles.AddAsync(new()
-            { UserId = newUser.Id, RoleId = existingRole.Id });
+        await dbContext.SaveChangesAsync(); // ✅ один раз
 
-        await dbContext.SaveChangesAsync();
         return BaseResult.Success();
     }
 
