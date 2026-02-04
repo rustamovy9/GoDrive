@@ -83,7 +83,6 @@ public static class RegisterService
         builder.Services.AddDbContext<DataContext>(x =>
         {
             var connection =
-                builder.Configuration.GetConnectionString("Default") ??
                 builder.Configuration["DATABASE_URL"];
 
             x.UseNpgsql(connection);
