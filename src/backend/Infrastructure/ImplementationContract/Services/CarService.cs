@@ -17,8 +17,6 @@ public class CarService (ICarRepository repository,IFileService fileService) : I
 {
      public async Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter)
     {
-        return await Task.Run(() =>
-        {
                 Expression<Func<Car, bool>> filterExpression = car =>
                     (string.IsNullOrEmpty(filter.Brand) || car.Brand.ToLower().Contains(filter.Brand.ToLower())) &&
                     (string.IsNullOrEmpty(filter.Model) || car.Model.ToLower().Contains(filter.Model.ToLower())) &&
@@ -45,7 +43,6 @@ public class CarService (ICarRepository repository,IFileService fileService) : I
                 PagedResponse<IEnumerable<CarReadInfo>>.Create(filter.PageNumber, filter.PageSize, count, car);
 
             return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Success(res);
-        });
     }
 
     public async Task<Result<CarReadInfo>> GetByIdAsync(int id)
@@ -61,12 +58,6 @@ public class CarService (ICarRepository repository,IFileService fileService) : I
         bool conflict = (await repository.GetAllAsync()).Value!.Any(car => car.RegistrationNumber == createInfo.RegistrationNumber);
 
         if (conflict) return BaseResult.Failure(Error.Conflict("Registration number already exists."));
-        
-        if (createInfo.Year < 1886 || createInfo.Year > DateTime.Now.Year)
-            return BaseResult.Failure(Error.BadRequest("Invalid year provided."));
-
-        if (string.IsNullOrWhiteSpace(createInfo.Brand) || string.IsNullOrWhiteSpace(createInfo.Model))
-            return BaseResult.Failure(Error.BadRequest("Brand and Model are required."));
 
         Result<int> res = await repository.AddAsync(createInfo.ToEntity());
 
@@ -81,11 +72,6 @@ public class CarService (ICarRepository repository,IFileService fileService) : I
 
         if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
         
-        if (updateInfo.Year < 1886 || updateInfo.Year > DateTime.Now.Year)
-            return BaseResult.Failure(Error.BadRequest("Invalid year provided."));
-
-        if (string.IsNullOrWhiteSpace(updateInfo.Brand) || string.IsNullOrWhiteSpace(updateInfo.Model))
-            return BaseResult.Failure(Error.BadRequest("Brand and Model are required."));
         Result<int> result = await repository.UpdateAsync(res.Value!.ToEntity(updateInfo));
 
         return result.IsSuccess

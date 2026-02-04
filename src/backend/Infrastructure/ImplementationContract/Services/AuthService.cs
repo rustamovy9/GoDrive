@@ -40,14 +40,7 @@ public class AuthService(DataContext dbContext, IAuthenticationService service) 
         if (conflict)
             return BaseResult.Failure(Error.Conflict("User already exists"));
 
-        string roleName = request.Role;
-
-        if (roleName == DefaultRoles.Admin)
-            return BaseResult.Failure(Error.BadRequest("You cannot register as Admin"));
-
-        if (roleName != DefaultRoles.User &&
-            roleName != DefaultRoles.Owner)
-            return BaseResult.Failure(Error.BadRequest("Invalid role"));
+        string roleName = DefaultRoles.User;
 
         var role = await dbContext.Roles
             .FirstOrDefaultAsync(r => r.Name == roleName);
@@ -64,11 +57,11 @@ public class AuthService(DataContext dbContext, IAuthenticationService service) 
 
         await dbContext.UserRoles.AddAsync(new UserRole
         {
-            User = user,       // 🔥 EF сам поставит UserId
+            User = user,       
             RoleId = role.Id
         });
 
-        await dbContext.SaveChangesAsync(); // ✅ один раз
+        await dbContext.SaveChangesAsync();
 
         return BaseResult.Success();
     }

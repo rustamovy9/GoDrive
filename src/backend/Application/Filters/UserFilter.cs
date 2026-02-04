@@ -3,11 +3,22 @@
 namespace Application.Filters;
 
 public record UserFilter(
+    string? Search,
+
     string? UserName,
     string? FirstName,
     string? LastName,
-    DateTimeOffset? MinDateOfBirth,
-    DateTimeOffset? MaxDateOfBirth,
+
     string? Email,
     string? PhoneNumber,
-    string? Address) : BaseFilter;
+    string? Address,
+
+    DateTimeOffset? MinDateOfBirth,
+    DateTimeOffset? MaxDateOfBirth,
+
+    int? RoleId,
+
+    bool? HasCars,
+    bool? HasDriverLicense,
+    bool? IsDeleted
+) : BaseFilter;
