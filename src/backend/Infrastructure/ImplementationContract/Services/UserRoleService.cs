@@ -15,33 +15,31 @@ namespace Infrastructure.ImplementationContract.Services;
 
 public class UserRoleService(IUserRoleRepository repository) : IUserRoleService
 {
-    public async Task<Result<PagedResponse<IEnumerable<UserRoleReadInfo>>>> GetAllAsync(UserRoleFilter filter)
-    {
-        return await Task.Run(() =>
-        {
-            Expression<Func<UserRole, bool>> filterExpression = spec =>
-                (filter.RoleId == null || spec.RoleId == filter.RoleId) &&
-                (filter.UserId == null || spec.UserId == filter.UserId);
-
-            Result<IQueryable<UserRole>> request = repository
-                .Find(filterExpression);
-
-            if (!request.IsSuccess)
-                return Result<PagedResponse<IEnumerable<UserRoleReadInfo>>>.Failure(request.Error);
-
-            List<UserRoleReadInfo> query = request.Value!.Select(x => x.ToRead()).ToList();
-
-            int count = query.Count;
-
-            IEnumerable<UserRoleReadInfo> spec =
-                query.Page(filter.PageNumber, filter.PageSize);
-
-            PagedResponse<IEnumerable<UserRoleReadInfo>> res =
-                PagedResponse<IEnumerable<UserRoleReadInfo>>.Create(filter.PageNumber, filter.PageSize, count, spec);
-
-            return Result<PagedResponse<IEnumerable<UserRoleReadInfo>>>.Success(res);
-        });
-    }
+    // public async Task<Result<PagedResponse<IEnumerable<UserRoleReadInfo>>>> GetAllAsync( )
+    // {
+    //     return await Task.Run(() =>
+    //     {
+    //      
+    //
+    //         Result<IQueryable<UserRole>> request = repository
+    //             .Find();
+    //
+    //         if (!request.IsSuccess)
+    //             return Result<PagedResponse<IEnumerable<UserRoleReadInfo>>>.Failure(request.Error);
+    //
+    //         List<UserRoleReadInfo> query = request.Value!.Select(x => x.ToRead()).ToList();
+    //
+    //         int count = query.Count;
+    //
+    //         IEnumerable<UserRoleReadInfo> spec =
+    //             query.Page(filter.PageNumber, filter.PageSize);
+    //
+    //         PagedResponse<IEnumerable<UserRoleReadInfo>> res =
+    //             PagedResponse<IEnumerable<UserRoleReadInfo>>.Create(filter.PageNumber, filter.PageSize, count, spec);
+    //
+    //         return Result<PagedResponse<IEnumerable<UserRoleReadInfo>>>.Success(res);
+    //     });
+    // }
 
     public async Task<Result<UserRoleReadInfo?>> GetByIdAsync(int id)
     {

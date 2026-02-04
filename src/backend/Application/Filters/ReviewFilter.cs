@@ -6,5 +6,5 @@ public record ReviewFilter(
     int? UserId,
     int? CarId,
     int? Rating,
-    DateTimeOffset? ReviewDateStart,
-    DateTimeOffset? ReviewDateEnd) : BaseFilter;
+    DateTimeOffset? FromDate,
+    DateTimeOffset? ToDate) : BaseFilter;

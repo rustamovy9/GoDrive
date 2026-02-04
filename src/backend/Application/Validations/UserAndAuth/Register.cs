@@ -45,11 +45,5 @@ public class RegisterInfoValidator : AbstractValidator<RegisterRequest>
         RuleFor(user => user.ConfirmPassword)
             .NotEmpty().WithMessage("Confirm is required")
             .Equal(x=>x.Password).WithMessage("Passwords do not match");
-
-
-        RuleFor(x => x.Role)
-            .NotEmpty()
-            .Must(role => role == DefaultRoles.User || role == DefaultRoles.Owner)
-            .WithMessage($"Role must be either '{DefaultRoles.User}' or '{DefaultRoles.Owner}'.");
     }
 }

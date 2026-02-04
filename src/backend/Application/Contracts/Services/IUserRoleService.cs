@@ -7,7 +7,7 @@ namespace Application.Contracts.Services;
 
 public interface IUserRoleService
 {
-    Task<Result<PagedResponse<IEnumerable<UserRoleReadInfo>>>> GetAllAsync(UserRoleFilter filter);
+    // Task<Result<PagedResponse<IEnumerable<UserRoleReadInfo>>>> GetAllAsync();
     Task<Result<UserRoleReadInfo?>> GetByIdAsync(int userRoleId);
     Task<BaseResult> CreateAsync(UserRoleCreateInfo userRoleCreateInfo);
     Task<BaseResult> DeleteAsync(int userRoleId);

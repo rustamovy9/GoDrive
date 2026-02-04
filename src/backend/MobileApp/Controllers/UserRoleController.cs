@@ -14,8 +14,8 @@ namespace MobileApp.Controllers;
 [Authorize(Roles = DefaultRoles.Admin)]
 public class UserRoleController (IUserRoleService service) : BaseController
 {
-    [HttpGet] public async Task<IActionResult> Get([FromQuery] UserRoleFilter filter)
-        => (await service.GetAllAsync(filter)).ToActionResult();
+    // [HttpGet] public async Task<IActionResult> Get([FromQuery] UserRoleFilter filter)
+    //     => (await service.GetAllAsync(filter)).ToActionResult();
 
     [HttpGet("{id:int}")] public async Task<IActionResult> Get([FromRoute] int id)
         => (await service.GetByIdAsync(id)).ToActionResult();

@@ -1,13 +1,24 @@
 ﻿using Domain.Common;
+using Domain.Enums;
 
 namespace Application.Filters;
 
 public  record CarFilter(
-    string? Brand = null,           // Фильтрация по бренду
-    string? Model = null,           // Фильтрация по модели
-    int? YearFrom = null,           // Фильтрация по минимальному году
-    int? YearTo = null,             // Фильтрация по максимальному году
-    int? CategoryId = null,        // Фильтрация по категории
-    int? LocationId = null,        // Фильтрация по местоположению
-    string? RegistrationNumber = null // Фильтрация по регистрационному номеру
+    string? Search,
+    string? Brand,
+    string? Model, 
+    
+    int? YearFrom,          
+    int? YearTo,    
+    
+    int? CategoryId,    
+    int? LocationId,
+    int? OwnerId,
+    
+    string? RegistrationNumber,
+    
+    decimal? MinPrice,
+    decimal? MaxPrice,
+    
+    CarStatus? Status
 ) : BaseFilter;
