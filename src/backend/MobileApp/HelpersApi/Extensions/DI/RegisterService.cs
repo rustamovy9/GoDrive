@@ -82,7 +82,11 @@ public static class RegisterService
 
         builder.Services.AddDbContext<DataContext>(x =>
         {
-            x.UseNpgsql(builder.Configuration.GetConnectionString("Default"));
+            var connection =
+                builder.Configuration.GetConnectionString("Default") ??
+                builder.Configuration["DATABASE_URL"];
+
+            x.UseNpgsql(connection);
             x.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             x.LogTo(Console.WriteLine);
         });
