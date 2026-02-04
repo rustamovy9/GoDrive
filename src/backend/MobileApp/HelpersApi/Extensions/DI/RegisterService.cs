@@ -85,7 +85,8 @@ public static class RegisterService
             var connection =
                 builder.Configuration["DATABASE_URL"];
 
-            x.UseNpgsql(connection);
+            x.UseNpgsql(connection, o =>
+                o.EnableRetryOnFailure());
             x.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             x.LogTo(Console.WriteLine);
         });
@@ -162,6 +163,10 @@ public static class RegisterService
     {
         using (IServiceScope scope = app.Services.CreateScope())
         {
+            var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+            await db.Database.MigrateAsync(); // ← ВАЖНО
+
             var seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
             await seeder.Initial();
         }
