@@ -37,6 +37,7 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
     // ⭐ Reviews
     public DbSet<Review> Reviews { get; set; }
     
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

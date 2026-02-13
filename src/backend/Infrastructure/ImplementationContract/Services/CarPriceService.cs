@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class CarPriceService(CarPriceRepository repository,ICarRepository carRepository) : ICarPriceService
+public class CarPriceService(ICarPriceRepository repository,ICarRepository carRepository) : ICarPriceService
 {
     public async Task<Result<CarPriceReadInfo>> GetByCarIdAsync(int carId)
     {

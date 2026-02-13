@@ -5,14 +5,16 @@ using Application.Extensions.Mappers;
 using Application.Extensions.Responses.PagedResponse;
 using Application.Extensions.ResultPattern;
 using Domain.Common;
-using Domain.Entities;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class NotificationService(INotificationRepository repository) 
+public class NotificationService(INotificationRepository repository,IRealtimeNotifier realtimeNotifier) 
     : INotificationService
 {
+    
+    
     public async Task<Result<PagedResponse<IEnumerable<NotificationReadInfo>>>> 
         GetByUserIdAsync(int userId, BaseFilter filter)
     {
@@ -48,6 +50,8 @@ public class NotificationService(INotificationRepository repository)
     {
         var notification = createInfo.ToEntity();
         var result = await repository.AddAsync(notification);
+
+        await realtimeNotifier.SendNotificationAsync(createInfo.UserId,createInfo.Title,createInfo.Message);
 
         return result.IsSuccess
             ? BaseResult.Success()

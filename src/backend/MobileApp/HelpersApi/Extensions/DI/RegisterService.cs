@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MobileApp.HelpersApi.Extensions.Seed;
+using MobileApp.HelpersApi.SignalR;
+using MobileApp.Hubs;
 
 namespace MobileApp.HelpersApi.Extensions.DI;
 
@@ -155,12 +157,15 @@ public static class RegisterService
         builder.Services.AddScoped<Seeder>();
         builder.Services.AddScoped<IRentalCompanyService, RentalCompanyService>();
         builder.Services.AddScoped<IReviewService, ReviewService>();
+        builder.Services.AddScoped<IRealtimeNotifier, SignalRNotifier>();
 
         //registration validation
         
         builder.Services.AddValidatorsFromAssemblyContaining<Application.Validations.Booking.Create>();
         builder.Services.AddFluentValidationAutoValidation();
         
+        //register SignalR
+        builder.Services.AddSignalR();
 
         // добавляем сервисы CORS
         builder.Services.AddCors();
@@ -185,6 +190,7 @@ public static class RegisterService
             app.UseSwagger();
             app.UseSwaggerUI();
             app.UseExceptionHandler("/error");
+            app.MapHub<NotificationHub>("/hubs/notifications");
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
