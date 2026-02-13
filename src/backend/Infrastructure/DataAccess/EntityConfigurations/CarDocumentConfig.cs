@@ -39,5 +39,10 @@ public sealed class CarDocumentConfig : IEntityTypeConfiguration<CarDocument>
         
         builder.HasIndex(cd => new { cd.CarId, cd.DocumentType })
             .IsUnique();
+        
+        builder.HasOne(d => d.VerifiedByAdmin)
+            .WithMany()
+            .HasForeignKey(d => d.VerifiedByAdminId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

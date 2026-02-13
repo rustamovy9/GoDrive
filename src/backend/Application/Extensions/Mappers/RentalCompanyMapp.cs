@@ -12,6 +12,9 @@ public static class RentalCompanyMapper
             Name: rentalCompany.Name,
             ContactInfo: rentalCompany.ContactInfo,
             OwnerId: rentalCompany.OwnerId,
+            LocationId: rentalCompany.LocationId,
+            City: rentalCompany.Location.City,
+            County: rentalCompany.Location.Country,
             CreatedAt: rentalCompany.CreatedAt
         );
     }
@@ -22,7 +25,8 @@ public static class RentalCompanyMapper
         {
             Name = createInfo.Name,
             ContactInfo = createInfo.ContactInfo,
-            OwnerId = ownerId
+            OwnerId = ownerId,
+            LocationId = createInfo.LocationId
         };
     }
 
@@ -33,6 +37,9 @@ public static class RentalCompanyMapper
 
         if (updateInfo.ContactInfo is not null)
             entity.ContactInfo = updateInfo.ContactInfo;
+        
+        if (updateInfo.LocationId is not null)
+            entity.LocationId = (int)updateInfo.LocationId;
 
         entity.Version++;
         entity.UpdatedAt = DateTimeOffset.UtcNow;

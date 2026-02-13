@@ -12,7 +12,8 @@ public static class CarImageMap
         return new CarImageReadInfo(
             Id: image.Id,
             CarId: image.CarId,
-            ImagePath: image.ImagePath);
+            ImagePath: image.ImagePath,
+            IsMain: image.IsMain);
     }
 
     public static async Task<CarImage> ToEntity(
@@ -20,13 +21,14 @@ public static class CarImageMap
         IFileService fileService)
     {
         var path = await fileService.CreateFile(
-            createInfo.ImagePath,
+            createInfo.File,
             MediaFolders.Images);
 
         return new CarImage
         {
             CarId = createInfo.CarId,
-            ImagePath = path
+            ImagePath = path,
+            IsMain = createInfo.IsMain
         };
     }
 }

@@ -7,6 +7,6 @@ public class CarImage : BaseEntity
 {
     public int CarId { get; set; }
     public string ImagePath { get; set; } = FileData.Default;
-
+    public bool IsMain { get; set; }
     public Car Car { get; set; } = null!;
 }

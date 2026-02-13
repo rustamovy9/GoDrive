@@ -1,5 +1,6 @@
 ﻿using Application.DTO_s;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Extensions.Mappers;
 
@@ -15,6 +16,17 @@ public static class PaymentMap
             PaymentStatus: payment.Status,
             CreatedAt: payment.CreatedAt
         );
+    }
+
+    public static Payment ToEntity(this PaymentCreateInfo createInfo)
+    {
+        return new Payment()
+        {
+            BookingId = createInfo.BookingId,
+            Amount = createInfo.Amount,
+            PaymentMethod = PaymentMethod.Offline,
+            Status = PaymentStatus.PendingAgreement
+        };
     }
     
     public static Payment ToEntity(

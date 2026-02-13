@@ -10,7 +10,8 @@ public sealed record CarPriceReadInfo(
     
 public sealed record CarPriceCreateInfo(
     int CarId,
-    decimal PricePerDay);
+    decimal PricePerDay,
+    Currency Currency);
     
 public sealed record CarPriceUpdateInfo(
     decimal? PricePerDay);

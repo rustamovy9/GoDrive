@@ -43,13 +43,13 @@ public static class UserMapper
         if (updateInfo.DriverLicense is not null)
             entity.DriverLicense = updateInfo.DriverLicense;
 
-        if (updateInfo.AvatarPath is not null)
+        if (updateInfo.File is not null)
         {
             if (!string.IsNullOrWhiteSpace(entity.AvatarPath))
                 fileService.DeleteFile(entity.AvatarPath, MediaFolders.Images);
 
             entity.AvatarPath = await fileService.CreateFile(
-                updateInfo.AvatarPath,
+                updateInfo.File,
                 MediaFolders.Images);
         }
 

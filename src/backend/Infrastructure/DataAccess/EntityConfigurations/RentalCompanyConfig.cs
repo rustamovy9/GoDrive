@@ -18,7 +18,8 @@ public sealed class RentalCompanyConfig : IEntityTypeConfiguration<RentalCompany
 
         builder.HasIndex(rc => rc.Name);
         
-        builder.HasIndex(rc => new {rc.OwnerId ,rc.Name}).IsUnique();
+        builder.HasIndex(rc => rc.OwnerId)
+            .IsUnique();
         
         builder.Property(rc => rc.ContactInfo)
             .HasMaxLength(500);

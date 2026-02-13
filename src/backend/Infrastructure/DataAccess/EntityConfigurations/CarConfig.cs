@@ -31,6 +31,9 @@ public sealed class CarConfig : IEntityTypeConfiguration<Car>
             .IsUnique();
         
         builder.Property(c => c.CarStatus)
+            .IsRequired();  
+        
+        builder.Property(c => c.ApprovalStatus)
             .IsRequired();
 
         builder.HasOne(c => c.Category)

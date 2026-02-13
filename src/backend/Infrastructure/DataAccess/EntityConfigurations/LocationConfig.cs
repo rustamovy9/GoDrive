@@ -27,7 +27,7 @@ public sealed class LocationConfig : IEntityTypeConfiguration<Location>
         builder.Property(l => l.Longitude)
             .IsRequired();
 
-        builder.HasIndex(l => new { l.Country, l.City });
+        builder.HasIndex(l => new { l.Country, l.City }).IsUnique();
 
         builder.ToTable("Locations", t =>
         {

@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using Application.Contracts.Repositories;
+﻿using Application.Contracts.Repositories;
 using Application.Contracts.Services;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
@@ -9,40 +8,79 @@ using Application.Filters;
 using Domain.Common;
 using Domain.Constants;
 using Domain.Entities;
-using Infrastructure.Extensions;
+using Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class CarService (ICarRepository repository,IFileService fileService) : ICarService
+public class CarService(ICarRepository repository, INotificationService notificationService) : ICarService
 {
-     public async Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter)
+    public async Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter,string role ,int userId)
     {
-                Expression<Func<Car, bool>> filterExpression = car =>
-                    (string.IsNullOrEmpty(filter.Brand) || car.Brand.ToLower().Contains(filter.Brand.ToLower())) &&
-                    (string.IsNullOrEmpty(filter.Model) || car.Model.ToLower().Contains(filter.Model.ToLower())) &&
-                    (filter.YearFrom == null || car.Year >= filter.YearFrom) &&
-                    (filter.YearTo == null || car.Year <= filter.YearTo) &&
-                    (filter.CategoryId == null || car.CategoryId ==  filter.CategoryId ) &&
-                    (filter.LocationId == null || car.LocationId ==  filter.LocationId) &&
-                    (string.IsNullOrEmpty(filter.RegistrationNumber) || car.RegistrationNumber.ToLower().Contains(filter.RegistrationNumber.ToLower()));
+        var result = repository.Find(car =>
+            (string.IsNullOrEmpty(filter.Search) ||
+             EF.Functions.ILike(car.Brand, $"%{filter.Search}%") ||
+             EF.Functions.ILike(car.Model, $"%{filter.Search}%") ||
+             EF.Functions.ILike(car.RegistrationNumber, $"%{filter.Search}%")) &&
+            (string.IsNullOrEmpty(filter.Brand) ||
+             EF.Functions.ILike(car.Brand, $"%{filter.Brand}%")) &&
+            (string.IsNullOrEmpty(filter.Model) ||
+             EF.Functions.ILike(car.Model, $"%{filter.Model}%")) &&
+            (filter.YearFrom == null || car.Year >= filter.YearFrom) &&
+            (filter.YearTo == null || car.Year <= filter.YearTo) &&
+            (filter.CategoryId == null || car.CategoryId == filter.CategoryId) &&
+            (filter.LocationId == null || car.LocationId == filter.LocationId) &&
+            (filter.OwnerId == null || car.OwnerId == filter.OwnerId) &&
+            (filter.Status == null || car.CarStatus == filter.Status) &&
+            (string.IsNullOrEmpty(filter.RegistrationNumber) ||
+             EF.Functions.ILike(car.RegistrationNumber, $"%{filter.RegistrationNumber}%"))
+        );
 
-            Result<IQueryable<Car>> request = repository
-                .Find(filterExpression);
+        if (!result.IsSuccess)
+            return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Failure(result.Error);
 
-            if (!request.IsSuccess)
-                return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Failure(request.Error);
+        var query = result.Value!.AsNoTracking();
+        
+        if (role == DefaultRoles.User)
+        {
+            query = query.Where(c => c.CarStatus == CarStatus.Available);
+        }
+        else if (role == DefaultRoles.Owner)
+        {
+            query = query.Where(c => c.OwnerId == userId);
+        }
 
-            List<CarReadInfo> query = request.Value!.Select(x => x.ToRead()).ToList();
+        if (filter.MinPrice != null)
+        {
+            query = query.Where(c =>
+                c.CarPrices
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Select(p => p.PricePerDay)
+                    .FirstOrDefault() >= filter.MinPrice);
+        }
 
-            int count = query.Count;
+        if (filter.MaxPrice != null)
+        {
+            query = query.Where(c =>
+                c.CarPrices
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Select(p => p.PricePerDay)
+                    .FirstOrDefault() <= filter.MaxPrice);
+        }
 
-            IEnumerable<CarReadInfo> car =
-                query.Page(filter.PageNumber, filter.PageSize);
 
-            PagedResponse<IEnumerable<CarReadInfo>> res =
-                PagedResponse<IEnumerable<CarReadInfo>>.Create(filter.PageNumber, filter.PageSize, count, car);
+        int count = await query.CountAsync();
 
-            return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Success(res);
+        var data = await query
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .Select(c => c.ToRead())
+            .ToListAsync();
+
+        var response = PagedResponse<IEnumerable<CarReadInfo>>
+            .Create(filter.PageSize, filter.PageNumber, count, data);
+
+        return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Success(response);
     }
 
     public async Task<Result<CarReadInfo>> GetByIdAsync(int id)
@@ -53,25 +91,47 @@ public class CarService (ICarRepository repository,IFileService fileService) : I
         return Result<CarReadInfo>.Success(res.Value!.ToRead());
     }
 
-    public async Task<BaseResult> CreateAsync(CarCreateInfo createInfo)
+    public async Task<BaseResult> CreateAsync(CarCreateInfo createInfo,int ownerId)
     {
-        bool conflict = (await repository.GetAllAsync()).Value!.Any(car => car.RegistrationNumber == createInfo.RegistrationNumber);
+        Result<IQueryable<Car>> conflict = repository.Find(x => x.RegistrationNumber == createInfo.RegistrationNumber);
 
-        if (conflict) return BaseResult.Failure(Error.Conflict("Registration number already exists."));
+        if (conflict.IsSuccess && await conflict.Value!.AnyAsync())
+            return BaseResult.Failure(Error.Conflict("Registration number already exists."));
 
-        Result<int> res = await repository.AddAsync(createInfo.ToEntity());
+        Car car = createInfo.ToEntity();
 
-        return res.IsSuccess
-            ? BaseResult.Success()
-            : BaseResult.Failure(res.Error);
+        car.CarStatus = CarStatus.Blocked;
+        car.OwnerId = ownerId;
+
+        Result<int> res = await repository.AddAsync(car);
+
+        if (!res.IsSuccess)
+            return BaseResult.Failure(res.Error);
+
+        await notificationService.CreateAsync(
+            new NotificationCreateInfo(
+                car.OwnerId,
+                "Car created",
+                "Your car has been created and is waiting for document verification."));
+
+        return BaseResult.Success();
     }
 
-    public async Task<BaseResult> UpdateAsync(int id, CarUpdateInfo updateInfo)
+    public async Task<BaseResult> UpdateAsync(int id, CarUpdateInfo updateInfo,int currentUserId,bool isAdmin)
     {
         Result<Car?> res = await repository.GetByIdAsync(id);
 
-        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
+        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Car not found"));
         
+        var car = res.Value;
+
+        if (!isAdmin && car.OwnerId != currentUserId)
+            return BaseResult.Failure(Error.Forbidden());
+
+        if (car.CarStatus == CarStatus.Blocked)
+            return BaseResult.Failure(
+                Error.BadRequest("Archived car cannot be updated"));
+
         Result<int> result = await repository.UpdateAsync(res.Value!.ToEntity(updateInfo));
 
         return result.IsSuccess
@@ -79,14 +139,64 @@ public class CarService (ICarRepository repository,IFileService fileService) : I
             : BaseResult.Failure(result.Error);
     }
 
-    public async Task<BaseResult> DeleteAsync(int id)
+    public async Task<BaseResult> DeleteAsync(int id,int currentUserId,bool isAdmin)
     {
         Result<Car?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
+        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound("Car not found"));
         
+        var car = res.Value;
+
+        if (!isAdmin && car.OwnerId != currentUserId)
+            return BaseResult.Failure(Error.Forbidden());
+
+        if (!isAdmin && car.CarStatus != CarStatus.Blocked)
+            return BaseResult.Failure(
+                Error.BadRequest("Only blocked car can be deleted"));
+
         Result<int> result = await repository.DeleteAsync(id);
-        return result.IsSuccess
-            ? BaseResult.Success()
-            : BaseResult.Failure(result.Error);
+
+        if (!result.IsSuccess)
+            return BaseResult.Failure(result.Error);
+
+        await notificationService.CreateAsync(
+            new NotificationCreateInfo(
+                res.Value!.OwnerId,
+                "Car deleted",
+                "Your car has been deleted from the system."));
+
+        return BaseResult.Success();
+    }
+
+    public async Task<BaseResult> UpdateStatusAsync(int id, CarUpdateStatusInfo status,bool isAdmin)
+    {
+        if (!isAdmin)
+            return BaseResult.Failure(Error.Forbidden());
+        
+        Result<Car?> res = await repository.GetByIdAsync(id);
+
+        if (!res.IsSuccess || res.Value is null)
+            return BaseResult.Failure(Error.NotFound("Car not found"));
+
+        Car car = res.Value;
+        
+        if (!isAdmin)
+            return BaseResult.Failure(Error.Forbidden());
+
+        car.CarStatus = status.Status;
+        car.UpdatedAt = DateTimeOffset.UtcNow;
+        car.Version++;
+
+        Result<int> update = await repository.UpdateAsync(car);
+
+        if (!update.IsSuccess)
+            return BaseResult.Failure(update.Error);
+
+        await notificationService.CreateAsync(
+            new NotificationCreateInfo(
+                car.OwnerId,
+                "Car status updated",
+                $"Your car status changed to {status}."));
+
+        return BaseResult.Success();
     }
 }

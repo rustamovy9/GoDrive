@@ -19,7 +19,8 @@ public class GenericAddRepository<T>(DataContext dbContext) : IGenericAddReposit
         }
         catch (Exception ex)
         {
-            return Result<int>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<int>.Failure(Error.InternalServerError());
         }
     }
 
@@ -35,7 +36,8 @@ public class GenericAddRepository<T>(DataContext dbContext) : IGenericAddReposit
         }
         catch (Exception ex)
         {
-            return Result<int>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<int>.Failure(Error.InternalServerError());
         }
     }
 }

@@ -37,6 +37,6 @@ public sealed record CarCreateInfo(
     int? RentalCompanyId);
 
 
-    
-    
-    
+public sealed record CarUpdateStatusInfo(
+    CarStatus Status
+);

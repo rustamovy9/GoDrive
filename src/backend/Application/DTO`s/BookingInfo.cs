@@ -21,6 +21,10 @@ public sealed record BookingUpdateInfo(
     int? DropOffLocationId,
     string? Comment);
 
+public sealed record BookingUpdateStatusInfo(
+    BookingStatus Status,
+    string? Reason);
+
 public sealed record BookingCreateInfo(
     int CarId,
     DateTimeOffset StartDateTime,

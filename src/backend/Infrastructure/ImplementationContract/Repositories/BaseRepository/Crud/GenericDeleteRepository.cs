@@ -25,7 +25,8 @@ public class GenericDeleteRepository<T>(DataContext dbContext) : IGenericDeleteR
         }
         catch (Exception ex)
         {
-            return Result<int>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<int>.Failure(Error.InternalServerError());
         }
     }
 
@@ -45,7 +46,8 @@ public class GenericDeleteRepository<T>(DataContext dbContext) : IGenericDeleteR
         }
         catch (Exception ex)
         {
-            return Result<int>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<int>.Failure(Error.InternalServerError());
         }
     }
 }

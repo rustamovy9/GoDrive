@@ -13,27 +13,41 @@ namespace MobileApp.Controllers;
 [Authorize]
 public class ReviewController(IReviewService service) : BaseController
 {
-    private int UserId =>
+    private int CurrentUserId =>
         int.Parse(User.FindFirst(CustomClaimTypes.Id)?.Value
-            ?? throw new UnauthorizedAccessException("UserId not found"));
-    
+                  ?? throw new UnauthorizedAccessException("UserId not found"));
+
+    private bool IsAdmin => User.IsInRole(DefaultRoles.Admin);
+
+    // -------------------- GET ALL --------------------
+
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> Get([FromQuery] ReviewFilter filter)
         => (await service.GetAllAsync(filter)).ToActionResult();
 
+    // -------------------- GET BY ID --------------------
+
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> Get([FromRoute] int id)
+    [AllowAnonymous]
+    public async Task<IActionResult> Get(int id)
         => (await service.GetByIdAsync(id)).ToActionResult();
+
+    // -------------------- CREATE --------------------
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] ReviewCreateInfo entity)
-        => (await service.CreateAsync(UserId,entity)).ToActionResult();
+        => (await service.CreateAsync(CurrentUserId, entity)).ToActionResult();
+
+    // -------------------- UPDATE --------------------
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ReviewUpdateInfo entity)
+    public async Task<IActionResult> Update(int id, [FromBody] ReviewUpdateInfo entity)
         => (await service.UpdateAsync(id, entity)).ToActionResult();
 
+    // -------------------- DELETE --------------------
+
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete([FromRoute] int id)
+    public async Task<IActionResult> Delete(int id)
         => (await service.DeleteAsync(id)).ToActionResult();
 }

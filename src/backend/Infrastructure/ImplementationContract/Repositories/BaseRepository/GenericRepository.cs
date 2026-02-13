@@ -22,7 +22,8 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         }
         catch (Exception ex)
         {
-            return Result<int>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<int>.Failure(Error.InternalServerError());
         }
     }
 
@@ -38,7 +39,8 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         }
         catch (Exception ex)
         {
-            return Result<int>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<int>.Failure(Error.InternalServerError());
         }
     }
 
@@ -58,7 +60,8 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         }
         catch (Exception ex)
         {
-            return Result<int>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<int>.Failure(Error.InternalServerError());
         }
     }
 
@@ -78,7 +81,8 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         }
         catch (Exception ex)
         {
-            return Result<int>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<int>.Failure(Error.InternalServerError());
         }
     }
 
@@ -92,7 +96,8 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         }
         catch (Exception ex)
         {
-            return Result<IQueryable<T>>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<IQueryable<T>>.Failure(Error.InternalServerError());
         }
     }
 
@@ -106,7 +111,8 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<T>>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<IEnumerable<T>>.Failure(Error.InternalServerError());
         }
     }
 
@@ -122,7 +128,8 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         }
         catch (Exception ex)
         {
-            return Result<T?>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<T?>.Failure(Error.InternalServerError());
         }
     }
 
@@ -147,7 +154,8 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         }
         catch (Exception ex)
         {
-            return Result<int>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<int>.Failure(Error.InternalServerError());
         }
     }
 }
