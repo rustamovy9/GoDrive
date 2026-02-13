@@ -27,12 +27,19 @@ public class UserController(IUserService service) : BaseController
 
     // -------------------- GET BY ID --------------------
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> Get(int id)
     {
         if (!IsAdmin && id != CurrentUserId)
             return Forbid();
 
         return (await service.GetByIdAsync(id)).ToActionResult();
+    }
+    
+    [HttpGet("/my-profile")]
+    public async Task<IActionResult> Get()
+    {
+       
+        return (await service.GetByIdAsync(CurrentUserId)).ToActionResult();
     }
 
     // -------------------- UPDATE --------------------
