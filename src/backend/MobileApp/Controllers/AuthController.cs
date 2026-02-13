@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MobileApp.Controllers;
 
-[Route("/api/auth/")]
+[Route("api/auth")]
 public sealed class AuthController(IAuthService service) : BaseController
 {
     private int GetUserIdFromClaims() =>
@@ -30,7 +30,7 @@ public sealed class AuthController(IAuthService service) : BaseController
         return result.IsSuccess ? Ok("User registered successfully.") : BadRequest(result.Error.Message ?? "User not registered.");
     }
 
-    [Authorize(Roles = DefaultRoles.Admin + "," + DefaultRoles.User)]
+    [Authorize(Roles = $"{DefaultRoles.Admin},{DefaultRoles.User}")]
     [HttpDelete]
     public async Task<IActionResult> DeleteSelfAsync()
     {
@@ -40,7 +40,7 @@ public sealed class AuthController(IAuthService service) : BaseController
     }
 
     [Authorize(Roles = DefaultRoles.Admin)]
-    [HttpDelete("/delete-user/{id:int}")]
+    [HttpDelete("delete-user/{id:int}")]
     
     public async Task<IActionResult> DeleteUserAsync(int id)
     {
@@ -48,8 +48,8 @@ public sealed class AuthController(IAuthService service) : BaseController
         return result.IsSuccess ? Ok("User deleted successfully.") : BadRequest(result.Error.Message ?? "User not deleted.");
     }
 
-    [Authorize(Roles = DefaultRoles.Admin + "," + DefaultRoles.User)]
-    [Route("/change-password")]
+    [Authorize(Roles = $"{DefaultRoles.Admin},{DefaultRoles.User}")]
+    [Route("change-password")]
     [HttpPut]
     public async Task<IActionResult> ChangeOwnPassword([FromBody] ChangePasswordRequest request)
     {
@@ -59,7 +59,7 @@ public sealed class AuthController(IAuthService service) : BaseController
     }
 
     [Authorize(Roles = DefaultRoles.Admin)]
-    [HttpPut("/change-password/{id:int}")]
+    [HttpPut("change-password/{id:int}")]
     public async Task<IActionResult> ChangeUserPassword([FromBody] ChangePasswordRequest request, [FromRoute] int id)
     {
         var result = await service.ChangePasswordAsync(id, request);

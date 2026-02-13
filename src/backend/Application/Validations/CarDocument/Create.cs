@@ -18,7 +18,7 @@ public class Create : AbstractValidator<CarDocumentCreateInfo>
             .Must(x => x != CarDocumentType.Unknown)
             .WithMessage("DocumentType must be a valid document type.");
 
-        RuleFor(x => x.FilePath)
+        RuleFor(x => x.File)
             .NotNull().WithMessage("Document Image is required.")
             .Must(BeValidImage)
             .WithMessage("File must be a valid image (jpg, png, jpeg, webp) and less than 5MB.");

@@ -24,7 +24,7 @@ public static class CarDocumentMap
     public static async Task<CarDocument> ToEntity(this CarDocumentCreateInfo createInfo, IFileService fileService)
     {
         var path = await fileService.CreateFile(
-            createInfo.FilePath,
+            createInfo.File,
             MediaFolders.Documents);
         return new CarDocument
         {
@@ -37,10 +37,11 @@ public static class CarDocumentMap
 
     public static CarDocument ToEntity(
         this CarDocument entity,
-        CarDocumentUpdateInfo updateInfo)
+        CarDocumentUpdateInfo updateInfo,int adminId)
     {
         entity.VerificationStatus = updateInfo.VerificationStatus;
-
+        entity.VerifiedByAdminId = adminId;
+        entity.VerifiedAt = DateTimeOffset.UtcNow;
         entity.Version++;
         entity.UpdatedAt = DateTimeOffset.UtcNow;
 

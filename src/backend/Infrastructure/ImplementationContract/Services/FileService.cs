@@ -68,4 +68,20 @@ public class FileService(IWebHostEnvironment hostEnvironment) : IFileService
             throw new InvalidOperationException("An error occurred while delete the file.");
         }
     }
+
+    public async Task<(byte[] FileBytes, string FileName)> GetFileAsync(string path)
+    {
+        if (!File.Exists(path))
+            throw new FileNotFoundException("File not found");
+
+        var bytes = await File.ReadAllBytesAsync(path);
+        var fileName = Path.GetFileName(path);
+
+        return (bytes, fileName);
+    }
+
+    public bool FileExists(string path)
+    {
+        return File.Exists(path);
+    }
 }

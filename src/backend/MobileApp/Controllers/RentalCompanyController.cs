@@ -11,29 +11,47 @@ namespace MobileApp.Controllers;
 [ApiController]
 [Route("api/rental-companies")]
 [Authorize]
-public class RentalCompanyController(IRentalCompanyService service) : BaseController
+public sealed class RentalCompanyController(IRentalCompanyService service) : BaseController
 {
-    private int OwnerId =>
+    private int CurrentUserId =>
         int.Parse(User.FindFirst(CustomClaimTypes.Id)?.Value
-            ?? throw new UnauthorizedAccessException("OwnerId not found"));
-    
+                  ?? throw new UnauthorizedAccessException("UserId not found"));
+
+    private bool IsAdmin => User.IsInRole(DefaultRoles.Admin);
+    private bool IsOwner => User.IsInRole(DefaultRoles.Owner);
+
+    // -------------------- GET ALL --------------------
+
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> Get([FromQuery] RentalCompanyFilter filter)
         => (await service.GetAllAsync(filter)).ToActionResult();
 
+    // -------------------- GET BY ID --------------------
+
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> Get([FromRoute] int id)
+    [AllowAnonymous]
+    public async Task<IActionResult> Get(int id)
         => (await service.GetByIdAsync(id)).ToActionResult();
 
+    // -------------------- CREATE --------------------
+
     [HttpPost]
+    [Authorize(Roles = DefaultRoles.Owner)]
     public async Task<IActionResult> Create([FromBody] RentalCompanyCreateInfo entity)
-        => (await service.CreateAsync(entity,OwnerId)).ToActionResult();
+        => (await service.CreateAsync(entity, CurrentUserId)).ToActionResult();
+
+    // -------------------- UPDATE --------------------
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] RentalCompanyUpdateInfo entity)
+    [Authorize(Roles = DefaultRoles.Owner + "," + DefaultRoles.Admin)]
+    public async Task<IActionResult> Update(int id, [FromBody] RentalCompanyUpdateInfo entity)
         => (await service.UpdateAsync(id, entity)).ToActionResult();
 
+    // -------------------- DELETE --------------------
+
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete([FromRoute] int id)
+    [Authorize(Roles = DefaultRoles.Owner + "," + DefaultRoles.Admin)]
+    public async Task<IActionResult> Delete(int id)
         => (await service.DeleteAsync(id)).ToActionResult();
 }

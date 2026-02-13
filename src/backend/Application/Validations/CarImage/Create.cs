@@ -12,7 +12,7 @@ public class Create : AbstractValidator<CarImageCreateInfo>
             .GreaterThan(0)
             .WithMessage("CarId must be greater than 0.");
 
-        RuleFor(x => x.ImagePath)
+        RuleFor(x => x.File)
             .NotNull().WithMessage("Car Image is required.")
             .Must(BeValidImage)
             .WithMessage("File must be a valid image (jpg, png, jpeg, webp) and less than 5MB.");

@@ -24,6 +24,7 @@ public class Booking : BaseEntity
     public int DropOffLocationId { get; set; } 
     
     
+    
     public Location PickupLocation { get; set; } = null!; 
     public Location DropOffLocation { get; set; } = null!; 
     public User User { get; set; } = null!;

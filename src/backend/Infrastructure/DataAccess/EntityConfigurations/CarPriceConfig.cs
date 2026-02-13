@@ -25,7 +25,7 @@ public sealed class CarPriceConfig : IEntityTypeConfiguration<CarPrice>
             .HasForeignKey(cp => cp.CarId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasIndex(cp => cp.CarId);
+        builder.HasIndex(cp => cp.CarId).IsUnique();
 
         builder.ToTable("CarPrices", t =>
         {

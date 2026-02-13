@@ -7,7 +7,9 @@ public class RentalCompany : BaseEntity
     public string Name { get; set; } = null!;
     public string? ContactInfo { get; set; }
     public int OwnerId { get; set; }
+    public int LocationId { get; set; }
 
+    public Location Location { get; set; } = null!;
     public User Owner { get; set; } = null!; 
     public ICollection<Car> Cars { get; set; } = [];
 }

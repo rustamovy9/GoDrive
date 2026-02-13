@@ -7,3 +7,8 @@ public sealed record NotificationReadInfo(
     string Message,
     bool IsRead,
     DateTimeOffset CreatedAt);
+
+public sealed record NotificationCreateInfo(
+    int UserId,
+    string Title,
+    string Message);

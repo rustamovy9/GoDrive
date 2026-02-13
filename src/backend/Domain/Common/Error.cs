@@ -30,7 +30,9 @@ public sealed record Error
         => new(404, message, ErrorType.NotFound);
 
     public static Error BadRequest(string? message = "Bad request!")
-        => new(400, message, ErrorType.BadRequest);
+        => new(400, message, ErrorType.BadRequest); 
+    public static Error Forbidden(string? message = "Forbidden!")
+        => new(403, message, ErrorType.BadRequest);
 
     public static Error AlreadyExist(string? message = "Already exist!")
         => new(409, message, ErrorType.AlreadyExist);

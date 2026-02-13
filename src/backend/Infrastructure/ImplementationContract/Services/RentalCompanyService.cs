@@ -8,51 +8,84 @@ using Application.Extensions.ResultPattern;
 using Application.Filters;
 using Domain.Common;
 using Domain.Entities;
-using Infrastructure.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class RentalCompanyService(IRentalCompanyRepository repository) : IRentalCompanyService
+public class RentalCompanyService(IRentalCompanyRepository repository, ILocationRepository locationRepository)
+    : IRentalCompanyService
 {
     public async Task<Result<PagedResponse<IEnumerable<RentalCompanyReadInfo>>>> GetAllAsync(
         RentalCompanyFilter filter)
     {
-        return await Task.Run(() =>
-        {
-            Expression<Func<RentalCompany, bool>> filterExpression = spec =>
-                (string.IsNullOrEmpty(filter.Name) || spec.Name.ToLower().Contains(filter.Name.ToLower())) &&
-                (string.IsNullOrEmpty(filter.ContactInfo) || spec.ContactInfo.ToLower().Contains(filter.ContactInfo.ToLower()));
+        Expression<Func<RentalCompany, bool>> filterExpression = spec =>
+            (string.IsNullOrEmpty(filter.Search) ||
+             EF.Functions.ILike(spec.Name, $"%{filter.Search}%") &&
+             (string.IsNullOrEmpty(filter.Name) ||
+              EF.Functions.ILike(spec.Name, $"%{filter.Name}%")) &&
+             (string.IsNullOrEmpty(filter.City) ||
+              EF.Functions.ILike(spec.Location.City, $"%{filter.City}%")) &&
+             (string.IsNullOrEmpty(filter.Country) ||
+              EF.Functions.ILike(spec.Location.Country, $"%{filter.Country}%")) &&
+             (string.IsNullOrEmpty(filter.ContactInfo) ||
+              EF.Functions.ILike(spec.ContactInfo!, $"%{filter.ContactInfo}%")) &&
+             (filter.OwnerId == null || spec.OwnerId == filter.OwnerId) &&
+             (filter.LocationId == null || spec.LocationId == filter.LocationId) &&
+             (filter.CreatedFrom == null || spec.CreatedAt >= filter.CreatedFrom) &&
+             (filter.CreatedTo == null || spec.CreatedAt <= filter.CreatedTo) &&
+             (filter.HasCars == null ||
+              (filter.HasCars == true
+                  ? spec.Cars.Any()
+                  : !spec.Cars.Any()))
+            );
 
-            Result<IQueryable<RentalCompany>> request = repository.Find(filterExpression);
+        Result<IQueryable<RentalCompany>> request = repository.Find(filterExpression);
 
-            if (!request.IsSuccess)
-                return Result<PagedResponse<IEnumerable<RentalCompanyReadInfo>>>.Failure(request.Error);
+        if (!request.IsSuccess)
+            return Result<PagedResponse<IEnumerable<RentalCompanyReadInfo>>>.Failure(request.Error);
 
-            List<RentalCompanyReadInfo> query = request.Value!.Select(x => x.ToRead()).ToList();
+        var query = request.Value!.Include(x => x.Location)
+            .AsNoTracking();
 
-            int count = query.Count;
+        query = query.OrderByDescending(x => x.CreatedAt);
 
-            IEnumerable<RentalCompanyReadInfo> spec =
-                query.Page(filter.PageNumber, filter.PageSize);
+        int count = await query.CountAsync();
 
-            PagedResponse<IEnumerable<RentalCompanyReadInfo>> res =
-                PagedResponse<IEnumerable<RentalCompanyReadInfo>>.Create(filter.PageNumber, filter.PageSize, count, spec);
+        var data = await query.Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .Select(x => x.ToRead()).ToListAsync();
 
-            return Result<PagedResponse<IEnumerable<RentalCompanyReadInfo>>>.Success(res);
-        });
+        PagedResponse<IEnumerable<RentalCompanyReadInfo>> res =
+            PagedResponse<IEnumerable<RentalCompanyReadInfo>>.Create(filter.PageNumber, filter.PageSize, count, data);
+
+        return Result<PagedResponse<IEnumerable<RentalCompanyReadInfo>>>.Success(res);
     }
 
     public async Task<Result<RentalCompanyReadInfo>> GetByIdAsync(int id)
     {
         Result<RentalCompany?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess) return Result<RentalCompanyReadInfo>.Failure(res.Error);
+        if (!res.IsSuccess || res.Value is null) return Result<RentalCompanyReadInfo>.Failure(Error.NotFound("Rental company not found"));
 
-        return Result<RentalCompanyReadInfo>.Success(res.Value!.ToRead());
+        return Result<RentalCompanyReadInfo>.Success(res.Value.ToRead());
     }
 
-    public async Task<BaseResult> CreateAsync(RentalCompanyCreateInfo createInfo,int ownerId)
+    public async Task<BaseResult> CreateAsync(RentalCompanyCreateInfo createInfo, int ownerId)
     {
-        Result<int> res = await repository.AddAsync(createInfo.ToEntity(ownerId));
+        var locationExists = await locationRepository
+            .Find(x => x.Id == createInfo.LocationId)
+            .Value!
+            .AnyAsync();
+
+        if (!locationExists)
+            return BaseResult.Failure(Error.NotFound("Location not found"));
+
+        var exists = repository.Find(x => x.OwnerId == ownerId);
+        
+        if(exists.IsSuccess && await exists.Value!.AnyAsync())
+            return BaseResult.Failure(Error.Conflict("Owner already has a rental company"));
+        var entity = createInfo.ToEntity(ownerId);
+
+        var res = await repository.AddAsync(entity);
 
         return res.IsSuccess
             ? BaseResult.Success()
@@ -63,9 +96,24 @@ public class RentalCompanyService(IRentalCompanyRepository repository) : IRental
     {
         Result<RentalCompany?> res = await repository.GetByIdAsync(id);
 
-        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
+        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Rental Company not found "));
 
-        Result<int> result = await repository.UpdateAsync(res.Value!.ToEntity(updateInfo));
+        var company = res.Value;
+
+        if (updateInfo.LocationId.HasValue)
+        {
+            var locationExists = await locationRepository
+                .Find(x => x.Id == updateInfo.LocationId)
+                .Value!
+                .AnyAsync();
+
+            if (!locationExists)
+                return BaseResult.Failure(Error.NotFound("Location not found"));
+        }
+
+        company = company.ToEntity(updateInfo);
+        
+        Result<int> result = await repository.UpdateAsync(company);
 
         return result.IsSuccess
             ? BaseResult.Success()
@@ -75,8 +123,14 @@ public class RentalCompanyService(IRentalCompanyRepository repository) : IRental
     public async Task<BaseResult> DeleteAsync(int id)
     {
         Result<RentalCompany?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
+        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Rental company not found"));
 
+        var company = res.Value;
+
+        if (company.Cars.Any())
+            return BaseResult.Failure(Error.BadRequest("Cannot delete company with existing cars"));
+
+        
         Result<int> result = await repository.DeleteAsync(id);
 
         return result.IsSuccess

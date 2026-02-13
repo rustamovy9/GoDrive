@@ -24,7 +24,8 @@ public class GenericUpdateRepository<T>(DataContext dbContext) : IGenericUpdateR
         }
         catch (Exception ex)
         {
-            return Result<int>.Failure(Error.InternalServerError(ex.Message));
+            Console.WriteLine(ex.Message);
+            return Result<int>.Failure(Error.InternalServerError());
         }
     }
 }

@@ -5,8 +5,10 @@ namespace Application.DTO_s;
 public sealed record CarImageReadInfo(
     int Id,
     int CarId,
-    string ImagePath);
+    string ImagePath,
+    bool IsMain);
     
 public sealed record CarImageCreateInfo(
     int CarId,
-    IFormFile ImagePath);
+    IFormFile File,
+    bool IsMain);

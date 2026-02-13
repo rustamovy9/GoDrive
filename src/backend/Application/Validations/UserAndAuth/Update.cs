@@ -45,9 +45,9 @@ public class UserUpdateInfoValidator : AbstractValidator<UserUpdateInfo>
                 .WithMessage("DriverLicense must not exceed 50 characters.");
         });
 
-        When(x => x.AvatarPath is not null, () =>
+        When(x => x.File is not null, () =>
         {
-            RuleFor(x => x.AvatarPath!)
+            RuleFor(x => x.File!)
                 .Must(BeValidImage)
                 .WithMessage("Avatar must be a valid image file.");
         });

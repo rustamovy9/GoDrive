@@ -11,6 +11,7 @@ public class Car : BaseEntity
     public int Year { get; set; }
     public string RegistrationNumber { get; set; } = null!;
     public CarStatus CarStatus { get; set; }
+    public CarApprovalStatus ApprovalStatus { get; set;}
 
     public int CategoryId { get; set; }  
     public int OwnerId { get; set; }
@@ -21,6 +22,7 @@ public class Car : BaseEntity
     public Location Location { get; set; } = null!;
     public RentalCompany? RentalCompany { get; set; }
     public Category Category { get; set; } = null!;
+    public ICollection<CarPrice> CarPrices { get; set; } = [];
 
     public ICollection<Booking> Bookings { get; set; } = [];
     public ICollection<Review> Reviews { get; set; } = [];

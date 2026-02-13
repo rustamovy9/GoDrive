@@ -3,6 +3,7 @@ using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.BaseRepository;
 using Application.Contracts.Repositories.BaseRepository.CRUD;
 using Application.Contracts.Services;
+using Application.DTO_s;
 using FluentValidation;
 using Infrastructure.DataAccess;
 using Infrastructure.Extensions.Authentication;
@@ -125,6 +126,13 @@ public static class RegisterService
         //registration repository
         builder.Services.AddScoped<IBookingRepository, BookingRepository>();
         builder.Services.AddScoped<ICarRepository, CarRepository>();
+        builder.Services.AddScoped<ICarDocumentRepository, CarDocumentRepository>();
+        builder.Services.AddScoped<ICarPriceRepository, CarPriceRepository>();
+        builder.Services.AddScoped<ICarImageRepository, CarImageRepository>();
+        builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+        builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+        builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+        builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
         builder.Services.AddScoped<IRoleRepository, RoleRepository>();
@@ -136,8 +144,14 @@ public static class RegisterService
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IBookingService, BookingService>();
         builder.Services.AddScoped<ICarService, CarService>();
+        builder.Services.AddScoped<ICarDocumentService, CarDocumentService>();
+        builder.Services.AddScoped<ICarImageService, CarImageService>();
+        builder.Services.AddScoped<ICategoryService, CategoryService>();
+        builder.Services.AddScoped<ICarPriceService, CarPriceService>();
+        builder.Services.AddScoped<ILocationService, LocationService>();
+        builder.Services.AddScoped<INotificationService, NotificationService>();
+        builder.Services.AddScoped<IPaymentService, PaymentService>();
         builder.Services.AddScoped<IUserService, UserService>();
-        builder.Services.AddScoped<IUserRoleService, UserRoleService>();
         builder.Services.AddScoped<IRoleService, RoleService>();
         builder.Services.AddScoped<IFileService, FileService>();
         builder.Services.AddScoped<Seeder>();

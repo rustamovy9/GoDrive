@@ -16,8 +16,13 @@ public sealed record CarDocumentReadInfo(
 public sealed record CarDocumentCreateInfo(
     int CarId,
     CarDocumentType DocumentType,
-    IFormFile FilePath);
+    IFormFile File);
 
 
 public sealed record CarDocumentUpdateInfo(
     DocumentVerificationStatus VerificationStatus);
+
+public sealed record FileResultInfo(
+    byte[] Bytes,
+    string FilNam,
+    string ContentType); 

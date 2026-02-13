@@ -3,12 +3,16 @@ using Domain.Common;
 namespace Application.Filters;
 
 public record RentalCompanyFilter(
-    string? Search,
     string? Name,
     string? ContactInfo,
-
+    string? City,
+    string? Country, 
+    
     int? OwnerId,
-    int? CarId,
+    int? LocationId,
+    
+    DateTimeOffset? CreatedFrom,
+    DateTimeOffset? CreatedTo,
 
     bool? HasCars
 ) : BaseFilter;

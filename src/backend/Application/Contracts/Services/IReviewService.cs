@@ -8,7 +8,7 @@ namespace Application.Contracts.Services;
 public interface IReviewService
 {
     Task<Result<PagedResponse<IEnumerable<ReviewReadInfo>>>> GetAllAsync(ReviewFilter filter);
-
+    Task<Result<IEnumerable<ReviewReadInfo>>> GetByCarIdAsync(int carId);
     Task<Result<ReviewReadInfo>> GetByIdAsync(int id);
 
     Task<BaseResult> CreateAsync(int userId,ReviewCreateInfo createInfo);

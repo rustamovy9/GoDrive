@@ -2,6 +2,7 @@
 
 public record BaseFilter
 {
+    public string? Search { get; init; }
     public int PageSize { get; init; }
     public int PageNumber { get; init; }
 

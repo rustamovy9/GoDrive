@@ -14,4 +14,15 @@ public static class NotificationMap
             IsRead: notification.IsRead,
             CreatedAt: notification.CreatedAt);
     }
+
+    public static Notification ToEntity(this NotificationCreateInfo createInfo)
+    {
+        return new Notification()
+        {
+            UserId = createInfo.UserId,
+            Title = createInfo.Title,
+            Message = createInfo.Message,
+            IsRead = false
+        };      
+    }
 }

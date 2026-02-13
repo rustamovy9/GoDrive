@@ -35,7 +35,7 @@ public static class BookingMapper
             DropOffLocationId = createInfo.DropOffLocationId,
             
             BookingStatus = BookingStatus.Pending,
-            PaymentStatus = PaymentStatus.Pending,
+            PaymentStatus = PaymentStatus.PendingAgreement,
             IsContactShared = false
         };
     }

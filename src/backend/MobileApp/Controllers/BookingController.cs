@@ -8,27 +8,59 @@ using MobileApp.HelpersApi.Extensions.ResultPattern;
 
 namespace MobileApp.Controllers;
 
-
 [ApiController]
 [Route("api/bookings")]
 [Authorize]
-public class BookingController (IBookingService service) : BaseController
+public sealed class BookingController(IBookingService service) : BaseController
 {
-    private int UserId =>
+    private int CurrentUserId =>
         int.Parse(User.FindFirst(CustomClaimTypes.Id)?.Value
-            ?? throw new UnauthorizedAccessException("UserId not found"));
-    [HttpGet] public async Task<IActionResult> Get([FromQuery] BookingFilter filter)
-        => (await service.GetAllAsync(filter)).ToActionResult();
+                  ?? throw new UnauthorizedAccessException("UserId not found"));
 
-    [HttpGet("{id:int}")] public async Task<IActionResult> Get([FromRoute] int id)
-        => (await service.GetByIdAsync(id)).ToActionResult();
+    private bool IsAdmin =>
+        User.IsInRole(DefaultRoles.Admin);
 
-    [HttpPost] public async Task<IActionResult> Create([FromBody] BookingCreateInfo entity)
-        => (await service.CreateAsync(entity,UserId)).ToActionResult();
+    // 🔍 GET ALL
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] BookingFilter filter)
+        => (await service.GetAllAsync(filter, CurrentUserId, IsAdmin))
+            .ToActionResult();
 
-    [HttpPut("{id:int}")] public async Task<IActionResult> Update([FromRoute] int id, [FromBody] BookingUpdateInfo entity)
-        => (await service.UpdateAsync(id, entity)).ToActionResult();
+    // 🔍 GET BY ID
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById([FromRoute]int id)
+        => (await service.GetByIdAsync(id, CurrentUserId, IsAdmin))
+            .ToActionResult();
 
-    [HttpDelete("{id:int}")] public async Task<IActionResult> Delete([FromRoute] int id)
-        => (await service.DeleteAsync(id)).ToActionResult();
+    // ➕ CREATE
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] BookingCreateInfo info)
+        => (await service.CreateAsync(info, CurrentUserId))
+            .ToActionResult();
+
+    // ✏ UPDATE (только Pending и только владелец booking)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(
+        int id,
+        [FromBody] BookingUpdateInfo info)
+        => (await service.UpdateAsync(id, info, CurrentUserId))
+            .ToActionResult();
+
+    // 🔄 UPDATE STATUS (Pending → Confirmed/Rejected/Cancelled и т.д.)
+    [HttpPatch("{id:int}/status")]
+    public async Task<IActionResult> UpdateStatus(
+        int id,
+        [FromBody] BookingUpdateStatusInfo info)
+        => (await service.UpdateStatusAsync(
+                id,
+                info,
+                CurrentUserId,
+                IsAdmin))
+            .ToActionResult();
+
+    // ❌ DELETE (только Pending)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+        => (await service.DeleteAsync(id, CurrentUserId, IsAdmin))
+            .ToActionResult();
 }

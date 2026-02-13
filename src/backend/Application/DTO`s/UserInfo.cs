@@ -22,4 +22,4 @@ public sealed record UserUpdateInfo(
     string? PhoneNumber,
     string? Address,
     string? DriverLicense,
-    IFormFile? AvatarPath);
+    IFormFile? File);
