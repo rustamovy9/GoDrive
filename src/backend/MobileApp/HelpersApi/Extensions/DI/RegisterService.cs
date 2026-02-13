@@ -1,10 +1,9 @@
-﻿using System.Reflection;
-using Application.Contracts.Repositories;
+﻿using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.BaseRepository;
 using Application.Contracts.Repositories.BaseRepository.CRUD;
 using Application.Contracts.Services;
-using Application.DTO_s;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Infrastructure.DataAccess;
 using Infrastructure.Extensions.Authentication;
 using Infrastructure.ImplementationContract.Repositories;
@@ -15,7 +14,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using MobileApp.HelpersApi.Extensions.FluentValidation;
 using MobileApp.HelpersApi.Extensions.Seed;
 
 namespace MobileApp.HelpersApi.Extensions.DI;
@@ -159,13 +157,10 @@ public static class RegisterService
         builder.Services.AddScoped<IReviewService, ReviewService>();
 
         //registration validation
-        builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
-        builder.Services.AddMediatR(x =>
-        {
-            x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-            x.AddOpenBehavior(typeof(ValidationBehavior<,>));
-        });
+        
+        builder.Services.AddValidatorsFromAssemblyContaining<Application.Validations.Booking.Create>();
+        builder.Services.AddFluentValidationAutoValidation();
+        
 
         // добавляем сервисы CORS
         builder.Services.AddCors();
