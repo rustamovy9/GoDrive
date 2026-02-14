@@ -31,8 +31,7 @@ public sealed class CarController(ICarService service) : BaseController
     [HttpGet("{id:int}")]
     public async Task<IActionResult> Get([FromRoute]int id)
         => (await service.GetByIdAsync(id)).ToActionResult();
-
-    [Authorize(Roles = DefaultRoles.Owner)]
+    
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CarCreateInfo entity)
         => (await service.CreateAsync(entity,UserId)).ToActionResult();
