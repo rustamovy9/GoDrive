@@ -19,7 +19,6 @@ public static class UserMapper
             user.Email,
             user.PhoneNumber,
             user.Address,
-            user.DriverLicense,
             user.AvatarPath,
             user.CreatedAt
         );
@@ -39,9 +38,6 @@ public static class UserMapper
 
         if (updateInfo.Address is not null)
             entity.Address = updateInfo.Address;
-
-        if (updateInfo.DriverLicense is not null)
-            entity.DriverLicense = updateInfo.DriverLicense;
 
         if (updateInfo.File is not null)
         {

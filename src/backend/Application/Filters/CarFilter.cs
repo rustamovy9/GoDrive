@@ -4,7 +4,6 @@ using Domain.Enums;
 namespace Application.Filters;
 
 public  record CarFilter(
-    string? Search,
     string? Brand,
     string? Model, 
     

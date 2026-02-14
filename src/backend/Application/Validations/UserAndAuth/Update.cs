@@ -38,12 +38,7 @@ public class UserUpdateInfoValidator : AbstractValidator<UserUpdateInfo>
                 .WithMessage("Address must not exceed 200 characters.");
         });
 
-        When(x => x.DriverLicense != null, () =>
-        {
-            RuleFor(x => x.DriverLicense!)
-                .MaximumLength(50)
-                .WithMessage("DriverLicense must not exceed 50 characters.");
-        });
+  
 
         When(x => x.File is not null, () =>
         {

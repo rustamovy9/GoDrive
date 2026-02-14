@@ -43,9 +43,6 @@ public sealed class UserConfig : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.Address)
             .HasMaxLength(300);
-        
-        builder.Property(u => u.DriverLicense)
-            .HasMaxLength(100);
 
         builder.Property(u => u.DateOfBirth)
             .IsRequired();

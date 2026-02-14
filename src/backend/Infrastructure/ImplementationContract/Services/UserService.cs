@@ -35,7 +35,14 @@ public class UserService(
             (string.IsNullOrEmpty(filter.PhoneNumber) ||
              EF.Functions.ILike(user.PhoneNumber!, $"%{filter.PhoneNumber}%")) &&
             (string.IsNullOrEmpty(filter.Address) ||
-             EF.Functions.ILike(user.Address!, $"%{filter.Address}%"));
+             EF.Functions.ILike(user.Address!, $"%{filter.Address}%")) &&
+
+            (filter.RoleId == null || user.UserRoles.Any(u=>u.RoleId == filter.RoleId)) &&
+            (filter.HasCars == null || filter.HasCars == true
+                ? user.OwnedCars!.Any() 
+                : !user.OwnedCars!.Any()) && 
+            (filter.IsDeleted == null ||
+             user.IsDeleted == filter.IsDeleted);
 
         var result = repository.Find(filterExpression);
 

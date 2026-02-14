@@ -3,8 +3,6 @@
 namespace Application.Filters;
 
 public record UserFilter(
-    string? Search,
-
     string? UserName,
     string? FirstName,
     string? LastName,

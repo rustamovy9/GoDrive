@@ -12,7 +12,6 @@ public class User : BaseEntity
     public string Email { get; set; } = null!; 
     public string? PhoneNumber { get; set; } 
     public string? Address { get; set; } 
-    public string? DriverLicense { get; set; }
     public string AvatarPath { get; set; } = FileData.Default;
     public string PasswordHash { get; set; } = null!;
     
