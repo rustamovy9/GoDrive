@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class CarService(ICarRepository repository, INotificationService notificationService) : ICarService
+public class CarService(ICarRepository repository, INotificationService notificationService,IUserRoleRepository userRoleRepository,IUserService userService) : ICarService
 {
     public async Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter,string role ,int userId)
     {
@@ -99,7 +99,14 @@ public class CarService(ICarRepository repository, INotificationService notifica
             return BaseResult.Failure(Error.Conflict("Registration number already exists."));
 
         Car car = createInfo.ToEntity();
+        
+        var userRoles = userRoleRepository.Find(x => x.UserId == ownerId);
 
+        if (!await userRoles.Value!.AnyAsync(x => x.Role.Name == DefaultRoles.Owner))
+        {
+            await userService.AssignRoleAsync(ownerId, DefaultRoles.Owner);
+        }
+        
         car.CarStatus = CarStatus.Blocked;
         car.OwnerId = ownerId;
 
