@@ -17,5 +17,5 @@ public class User : BaseEntity
     
     public ICollection<UserRole> UserRoles { get; set; } = [];
     public ICollection<Booking> Bookings { get; set; } = [];
-    public ICollection<Car>? OwnedCars { get; set; } = [];
+    public ICollection<Car> OwnedCars { get; set; } = [];
 }

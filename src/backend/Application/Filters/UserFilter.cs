@@ -17,6 +17,5 @@ public record UserFilter(
     int? RoleId,
 
     bool? HasCars,
-    bool? HasDriverLicense,
     bool? IsDeleted
 ) : BaseFilter;
