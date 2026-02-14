@@ -12,7 +12,6 @@ public sealed record UserReadInfo(
     string Email,
     string? PhoneNumber,
     string? Address,
-    string? DriverLicense,
     string AvatarPath,
     DateTimeOffset CreatedAt);
 
@@ -21,5 +20,4 @@ public sealed record UserUpdateInfo(
     string? LastName,
     string? PhoneNumber,
     string? Address,
-    string? DriverLicense,
     IFormFile? File);
