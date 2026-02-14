@@ -31,12 +31,6 @@ public class Create : AbstractValidator<CarCreateInfo>
         RuleFor(x => x.LocationId)
             .GreaterThan(0)
             .WithMessage("LocationId must be greater than 0.");
-        
-        When(x => x.RentalCompanyId.HasValue, () =>
-        {
-            RuleFor(x => x.RentalCompanyId!.Value)
-                .GreaterThan(0)
-                .WithMessage("RentalCompanyId must be greater than 0.");
-        });
+      
     }
 }
