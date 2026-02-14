@@ -13,7 +13,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class UserService(IUserRepository repository, IFileService fileService,IRoleRepository roleRepository,IUserRoleRepository userRoleRepository) : IUserService
+public class UserService(
+    IUserRepository repository,
+    IFileService fileService,
+    IRoleRepository roleRepository,
+    IUserRoleRepository userRoleRepository) : IUserService
 {
     public async Task<Result<PagedResponse<IEnumerable<UserReadInfo>>>> GetAllAsync(UserFilter filter)
     {
@@ -63,10 +67,21 @@ public class UserService(IUserRepository repository, IFileService fileService,IR
         return Result<UserReadInfo>.Success(res.Value!.ToRead());
     }
 
-
-    public async Task<BaseResult> UpdateAsync(int id, UserUpdateInfo updateInfo)
+    public async Task<Result<UserReadInfo>> GetByIdAsync(int id, int currentUserId, bool isAdmin)
     {
         Result<User?> res = await repository.GetByIdAsync(id);
+        if (!res.IsSuccess) return Result<UserReadInfo>.Failure(res.Error);
+
+        return Result<UserReadInfo>.Success(res.Value!.ToRead());
+    }
+
+
+    public async Task<BaseResult> UpdateAsync(int id, UserUpdateInfo updateInfo, int currentUserId, bool isAdmin)
+    {
+        Result<User?> res = await repository.GetByIdAsync(id);
+
+        if (!isAdmin && id != currentUserId)
+            return BaseResult.Failure(Error.Forbidden());
 
         if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
 
@@ -88,9 +103,13 @@ public class UserService(IUserRepository repository, IFileService fileService,IR
             : BaseResult.Failure(result.Error);
     }
 
-    public async Task<BaseResult> DeleteAsync(int id)
+    public async Task<BaseResult> DeleteAsync(int id,int currentUserId,bool isAdmin)
     {
         Result<User?> res = await repository.GetByIdAsync(id);
+        
+        if (!isAdmin && id != currentUserId)
+            return BaseResult.Failure(Error.Forbidden());
+        
         if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
 
         if (res.Value!.AvatarPath != FileData.Default)

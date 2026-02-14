@@ -29,10 +29,7 @@ public class UserController(IUserService service) : BaseController
     [HttpGet("{id:int}")]
     public async Task<IActionResult> Get(int id)
     {
-        if (!IsAdmin && id != CurrentUserId)
-            return Forbid();
-
-        return (await service.GetByIdAsync(id)).ToActionResult();
+        return (await service.GetByIdAsync(id,CurrentUserId,IsAdmin)).ToActionResult();
     }
     
     [HttpGet("/my-profile")]
@@ -46,20 +43,14 @@ public class UserController(IUserService service) : BaseController
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UserUpdateInfo entity)
     {
-        if (!IsAdmin && id != CurrentUserId)
-            return Forbid();
-
-        return (await service.UpdateAsync(id, entity)).ToActionResult();
+        return (await service.UpdateAsync(id, entity,CurrentUserId,IsAdmin)).ToActionResult();
     }
 
     // -------------------- DELETE --------------------
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        if (!IsAdmin && id != CurrentUserId)
-            return Forbid();
-
-        return (await service.DeleteAsync(id)).ToActionResult();
+        return (await service.DeleteAsync(id,CurrentUserId,IsAdmin)).ToActionResult();
     }
 
     // -------------------- ASSIGN ROLE --------------------
