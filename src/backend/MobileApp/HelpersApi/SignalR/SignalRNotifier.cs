@@ -1,4 +1,5 @@
 ﻿using Application.Contracts.Services;
+using Application.DTO_s;
 using Microsoft.AspNetCore.SignalR;
 using MobileApp.Hubs;
 
@@ -6,15 +7,28 @@ namespace MobileApp.HelpersApi.SignalR;
 
 public class SignalRNotifier (IHubContext<NotificationHub> hubContext):IRealtimeNotifier
 {
-    public async Task SendNotificationAsync(int userId, string title, string message)
+    public async Task SendNotificationAsync(int userId,NotificationReadInfo readInfo)
     {
         await hubContext.Clients
             .Group($"user-{userId}")
-            .SendAsync("ReceiveNotification", new
+            .SendAsync("ReceiveNotification",readInfo);
+    }
+
+    public async Task SendUnreadCountAsync(int userId, int count)
+    {
+        await hubContext.Clients
+            .Group($"user-{userId}")
+            .SendAsync("ReceiveUnreadCount", count);
+    }
+
+    public async Task SendBookingStatusAsync(int userId, int bookingId, string status)
+    {
+        await hubContext.Clients
+            .Group($"user-{userId}")
+            .SendAsync("ReceiveBookingStatus", new
             {
-                Title = title,
-                Message = message,
-                CreatedAt = DateTimeOffset.UtcNow
+                BookingId = bookingId,
+                Status = status
             });
     }
 }

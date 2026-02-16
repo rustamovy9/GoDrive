@@ -10,12 +10,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class NotificationService(INotificationRepository repository,IRealtimeNotifier realtimeNotifier) 
+public class NotificationService(INotificationRepository repository, IRealtimeNotifier realtimeNotifier)
     : INotificationService
 {
-    
-    
-    public async Task<Result<PagedResponse<IEnumerable<NotificationReadInfo>>>> 
+    public async Task<Result<PagedResponse<IEnumerable<NotificationReadInfo>>>>
         GetByUserIdAsync(int userId, BaseFilter filter)
     {
         var result = repository.Find(x =>
@@ -36,7 +34,7 @@ public class NotificationService(INotificationRepository repository,IRealtimeNot
             .OrderByDescending(x => x.CreatedAt)
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(x =>x.ToRead())
+            .Select(x => x.ToRead())
             .ToListAsync();
 
         var response = PagedResponse<IEnumerable<NotificationReadInfo>>
@@ -51,11 +49,22 @@ public class NotificationService(INotificationRepository repository,IRealtimeNot
         var notification = createInfo.ToEntity();
         var result = await repository.AddAsync(notification);
 
-        await realtimeNotifier.SendNotificationAsync(createInfo.UserId,createInfo.Title,createInfo.Message);
+        if (!result.IsSuccess)
+            return BaseResult.Failure(result.Error);
 
-        return result.IsSuccess
-            ? BaseResult.Success()
-            : BaseResult.Failure(result.Error);
+        var dto = notification.ToRead();
+        await realtimeNotifier.SendNotificationAsync(notification.UserId, dto);
+
+        var unreadQuery = repository.Find(x =>
+            x.UserId == notification.UserId && !x.IsRead);
+
+        if (unreadQuery.IsSuccess)
+        {
+            var unreadCount = await unreadQuery.Value!.CountAsync();
+            await realtimeNotifier.SendUnreadCountAsync(notification.UserId, unreadCount);
+        }
+
+        return BaseResult.Success();
     }
 
     public async Task<BaseResult> MarkAsReadAsync(int notificationId)
@@ -76,9 +85,20 @@ public class NotificationService(INotificationRepository repository,IRealtimeNot
 
         var update = await repository.UpdateAsync(notification);
 
-        return update.IsSuccess
-            ? BaseResult.Success()
-            : BaseResult.Failure(update.Error);
+        if (!update.IsSuccess)
+            return BaseResult.Failure(update.Error);
+
+        // 🔥 realtime unread counter
+        var unreadQuery = repository.Find(x =>
+            x.UserId == notification.UserId && !x.IsRead);
+
+        if (unreadQuery.IsSuccess)
+        {
+            var unreadCount = await unreadQuery.Value!.CountAsync();
+            await realtimeNotifier.SendUnreadCountAsync(notification.UserId, unreadCount);
+        }
+
+        return BaseResult.Success();
     }
 
     public async Task<BaseResult> MarkAllAsReadAsync(int userId)
@@ -108,6 +128,8 @@ public class NotificationService(INotificationRepository repository,IRealtimeNot
             if (!update.IsSuccess)
                 return BaseResult.Failure(update.Error);
         }
+
+        await realtimeNotifier.SendUnreadCountAsync(userId, 0);
 
         return BaseResult.Success();
     }

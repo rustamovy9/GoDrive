@@ -17,49 +17,57 @@ public class UserController(IUserService service) : BaseController
         int.Parse(User.FindFirst(CustomClaimTypes.Id)?.Value
             ?? throw new UnauthorizedAccessException("UserId not found"));
 
-    private bool IsAdmin => User.IsInRole(DefaultRoles.Admin);
-
-    // -------------------- GET ALL --------------------
+    // -------------------- ADMIN --------------------
     [HttpGet]
     [Authorize(Roles = DefaultRoles.Admin)]
     public async Task<IActionResult> GetAll([FromQuery] UserFilter filter)
         => (await service.GetAllAsync(filter)).ToActionResult();
-
-    // -------------------- GET BY ID --------------------
+    
     [HttpGet("{id:int}")]
+    [Authorize(Roles = DefaultRoles.Admin)]
     public async Task<IActionResult> Get(int id)
     {
-        return (await service.GetByIdAsync(id,CurrentUserId,IsAdmin)).ToActionResult();
+        return (await service.GetByIdAsync(id)).ToActionResult();
     }
     
-    [HttpGet("/my-profile")]
-    public async Task<IActionResult> Get()
+    [HttpPut("{id:int}")]
+    [Authorize(Roles = DefaultRoles.Admin)]
+    public async Task<IActionResult> Update(int id, [FromBody] UserUpdateInfo entity)
+    {
+        return (await service.UpdateAsync(id, entity)).ToActionResult();
+    } 
+    
+    [HttpDelete("{id:int}")]
+    [Authorize(Roles = DefaultRoles.Admin)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        return (await service.DeleteAsync(id)).ToActionResult();
+    }
+
+    // -------------------- USER --------------------
+    [HttpGet("/me")]
+    public async Task<IActionResult> GetMyProfile()
     {
        
         return (await service.GetByIdAsync(CurrentUserId)).ToActionResult();
     }
-
-    // -------------------- UPDATE --------------------
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UserUpdateInfo entity)
+    
+    [HttpPut("/me")]
+    public async Task<IActionResult> UpdateMyProfile([FromBody] UserUpdateInfo entity)
     {
-        return (await service.UpdateAsync(id, entity,CurrentUserId,IsAdmin)).ToActionResult();
+        return (await service.UpdateAsync(CurrentUserId, entity)).ToActionResult();
     }
+    
+    [HttpDelete("me")]
+    public async Task<IActionResult> DeleteMyAccount()
+        => (await service.DeleteAsync(CurrentUserId)).ToActionResult();
 
-    // -------------------- DELETE --------------------
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        return (await service.DeleteAsync(id,CurrentUserId,IsAdmin)).ToActionResult();
-    }
-
-    // -------------------- ASSIGN ROLE --------------------
+    // -------------------- ROLE MANAGEMENT --------------------
     [HttpPost("{id:int}/assign-role")]
     [Authorize(Roles = DefaultRoles.Admin)]
     public async Task<IActionResult> AssignRole(int id, [FromQuery] string roleName)
         => (await service.AssignRoleAsync(id, roleName)).ToActionResult();
-
-    // -------------------- REMOVE ROLE --------------------
+    
     [HttpDelete("{id:int}/remove-role")]
     [Authorize(Roles = DefaultRoles.Admin)]
     public async Task<IActionResult> RemoveRole(int id, [FromQuery] string roleName)

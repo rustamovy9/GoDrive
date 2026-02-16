@@ -17,8 +17,6 @@ public class ReviewController(IReviewService service) : BaseController
         int.Parse(User.FindFirst(CustomClaimTypes.Id)?.Value
                   ?? throw new UnauthorizedAccessException("UserId not found"));
 
-    private bool IsAdmin => User.IsInRole(DefaultRoles.Admin);
-
     // -------------------- GET ALL --------------------
 
     [HttpGet]
