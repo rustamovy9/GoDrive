@@ -37,12 +37,15 @@ public class CarDocumentService(
         if (!carRes.IsSuccess || carRes.Value is null)
             return BaseResult.Failure(Error.NotFound("Car not found"));
 
+        
 
         var document = await createInfo.ToEntity(fileService);
 
         var result = await repository.AddAsync(document);
         if (!result.IsSuccess)
             return BaseResult.Failure(result.Error);
+
+        await RecalculateCarStatus(carRes.Value.Id);
 
         // 🔔 уведомление владельцу
         await notificationService.CreateAsync(
@@ -65,7 +68,7 @@ public class CarDocumentService(
                     new NotificationCreateInfo(
                         admin.Id,
                         "New document uploaded",
-                        $"A new car document requires verification."
+                        $"Car #{carRes.Value.Id} document requires verification."
                     )
                 );
             }
@@ -99,27 +102,16 @@ public class CarDocumentService(
         if (!updateResult.IsSuccess)
             return BaseResult.Failure(updateResult.Error);
 
+        await RecalculateCarStatus(document.CarId);
         // 🔄 Update Car Status
         var carRes = await carRepository.GetByIdAsync(document.CarId);
 
         if (carRes.IsSuccess && carRes.Value is not null)
         {
-            var car = carRes.Value;
-
-            car.CarStatus =
-                updateInfo.VerificationStatus == DocumentVerificationStatus.ApprovedByAdmin
-                    ? CarStatus.Available
-                    : CarStatus.Blocked;
-
-            car.UpdatedAt = DateTimeOffset.UtcNow;
-            car.Version++;
-
-            await carRepository.UpdateAsync(car);
-
             // 🔔 Owner notification
             await notificationService.CreateAsync(
                 new NotificationCreateInfo(
-                    car.OwnerId,
+                    carRes.Value.OwnerId,
                     "Document reviewed",
                     $"Your document has been {updateInfo.VerificationStatus.ToString().ToLowerInvariant()} by admin."
                 ));
@@ -155,10 +147,13 @@ public class CarDocumentService(
         fileService.DeleteFile(document.FilePath, MediaFolders.Documents);
 
         var deleteResult = await repository.DeleteAsync(id);
+        
+        if (!deleteResult.IsSuccess)
+            return BaseResult.Failure(deleteResult.Error);
 
-        return deleteResult.IsSuccess
-            ? BaseResult.Success()
-            : BaseResult.Failure(deleteResult.Error);
+        await RecalculateCarStatus(car.Id);
+
+        return BaseResult.Success();
     }
     
     public async Task<Result<(byte[] FileBytes, string FileName)>> DownloadAsync(
@@ -189,5 +184,44 @@ public class CarDocumentService(
         var file = await fileService.GetFileAsync(document.FilePath);
 
         return Result<(byte[], string)>.Success(file);
+    }
+    
+    private async Task RecalculateCarStatus(int carId)
+    {
+        var documentsRes = repository.Find(x => x.CarId == carId);
+
+        if (!documentsRes.IsSuccess)
+            return;
+
+        var documents = await documentsRes.Value!.ToListAsync();
+
+        var carRes = await carRepository.GetByIdAsync(carId);
+
+        if (!carRes.IsSuccess || carRes.Value is null)
+            return ;
+
+        var car = carRes.Value;
+
+        if (!documents.Any())
+        {
+            car.CarStatus = CarStatus.Blocked;
+        }
+        else if (documents.Any(d => d.VerificationStatus == DocumentVerificationStatus.Pending))
+        {
+            car.CarStatus = CarStatus.PendingApproval;
+        }
+        else if (documents.Any(d => d.VerificationStatus == DocumentVerificationStatus.RejectedByAdmin))
+        {
+            car.CarStatus = CarStatus.Blocked;
+        }
+        else if (documents.All(d => d.VerificationStatus == DocumentVerificationStatus.ApprovedByAdmin))
+        {
+            car.CarStatus = CarStatus.Available;
+        }
+
+        car.UpdatedAt = DateTimeOffset.UtcNow;
+        car.Version++;
+
+        await carRepository.UpdateAsync(car);
     }
 }

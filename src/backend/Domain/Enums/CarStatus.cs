@@ -2,7 +2,7 @@
 
 public enum CarStatus
 {
-    // PendingApproval
+    PendingApproval,
     Available,
     Rented,
     Maintenance,

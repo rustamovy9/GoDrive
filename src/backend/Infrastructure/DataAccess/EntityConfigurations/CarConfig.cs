@@ -32,9 +32,6 @@ public sealed class CarConfig : IEntityTypeConfiguration<Car>
         
         builder.Property(c => c.CarStatus)
             .IsRequired();  
-        
-        builder.Property(c => c.ApprovalStatus)
-            .IsRequired();
 
         builder.HasOne(c => c.Category)
             .WithMany()
@@ -66,6 +63,11 @@ public sealed class CarConfig : IEntityTypeConfiguration<Car>
             .OnDelete(DeleteBehavior.Cascade);
         
         builder.HasMany(c => c.CarImages)
+            .WithOne(ci => ci.Car)
+            .HasForeignKey(ci => ci.CarId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(c => c.CarDocuments)
             .WithOne(ci => ci.Car)
             .HasForeignKey(ci => ci.CarId)
             .OnDelete(DeleteBehavior.Cascade);

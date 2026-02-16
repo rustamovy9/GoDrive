@@ -39,8 +39,6 @@ public static class CarMapper
             CategoryId = createInfo.CategoryId,
             LocationId = createInfo.LocationId,
             RentalCompanyId = createInfo.RentalCompanyId, 
-            
-            CarStatus = CarStatus.Available,
         };
     }
 

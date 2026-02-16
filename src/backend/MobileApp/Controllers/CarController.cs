@@ -30,7 +30,7 @@ public sealed class CarController(ICarService service) : BaseController
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> Get([FromRoute]int id)
-        => (await service.GetByIdAsync(id)).ToActionResult();
+        => (await service.GetByIdAsync(id,UserId,IsAdmin)).ToActionResult();
     
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CarCreateInfo entity)
