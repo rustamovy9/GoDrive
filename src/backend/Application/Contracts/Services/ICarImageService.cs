@@ -5,7 +5,7 @@ namespace Application.Contracts.Services;
 
 public interface ICarImageService
 {
-    Task<Result<IEnumerable<CarImageReadInfo>>> GetByCarIdAsync(int carId);
+    Task<Result<IEnumerable<CarImageReadInfo>>> GetByCarIdAsync(int carId,int currentUserId, bool isAdmin);
 
     Task<BaseResult> CreateAsync(CarImageCreateInfo createInfo,int currentUserId);
 

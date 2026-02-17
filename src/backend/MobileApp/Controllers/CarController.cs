@@ -33,6 +33,7 @@ public sealed class CarController(ICarService service) : BaseController
         => (await service.GetByIdAsync(id,UserId,IsAdmin)).ToActionResult();
     
     [HttpPost]
+    [Authorize(Roles = DefaultRoles.Owner + "," + DefaultRoles.User)]
     public async Task<IActionResult> Create([FromBody] CarCreateInfo entity)
         => (await service.CreateAsync(entity,UserId)).ToActionResult();
 

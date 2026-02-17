@@ -86,10 +86,7 @@ public class CarDocumentService(
 
         if (!documentRes.IsSuccess || documentRes.Value is null)
             return BaseResult.Failure(Error.NotFound("Document not found"));
-
-        var adminCheck = await userRepository.IsAdminAsync(adminId);
-        if (!adminCheck.IsSuccess || !adminCheck.Value)
-            return BaseResult.Failure(Error.Forbidden("Only admin can verify documents"));
+        
 
         var document = documentRes.Value;
 
@@ -113,7 +110,7 @@ public class CarDocumentService(
                 new NotificationCreateInfo(
                     carRes.Value.OwnerId,
                     "Document reviewed",
-                    $"Your document has been {updateInfo.VerificationStatus.ToString().ToLowerInvariant()} by admin."
+                    $"Your document has been {updateInfo.VerificationStatus}."
                 ));
         }
 

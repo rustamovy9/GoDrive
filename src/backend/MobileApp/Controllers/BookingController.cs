@@ -34,12 +34,14 @@ public sealed class BookingController(IBookingService service) : BaseController
 
     // ➕ CREATE
     [HttpPost]
+    [Authorize(Roles = DefaultRoles.User)]
     public async Task<IActionResult> Create([FromBody] BookingCreateInfo info)
         => (await service.CreateAsync(info, CurrentUserId))
             .ToActionResult();
 
     // ✏ UPDATE (только Pending и только владелец booking)
     [HttpPut("{id:int}")]
+    [Authorize(Roles = DefaultRoles.User)]
     public async Task<IActionResult> Update(
         int id,
         [FromBody] BookingUpdateInfo info)

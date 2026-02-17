@@ -5,6 +5,7 @@ using Application.Extensions.Mappers;
 using Application.Extensions.ResultPattern;
 using Domain.Common;
 using Domain.Constants;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
@@ -12,20 +13,42 @@ namespace Infrastructure.ImplementationContract.Services;
 public class CarImageService(ICarImageRepository repository, ICarRepository carRepository, IFileService fileService)
     : ICarImageService
 {
-    public async Task<Result<IEnumerable<CarImageReadInfo>>> GetByCarIdAsync(int carId)
+    public async Task<Result<IEnumerable<CarImageReadInfo>>>
+        GetByCarIdAsync(int carId, int currentUserId, bool isAdmin)
     {
-        var res = repository.Find(x => x.CarId == carId);
+        // 1️⃣ Получаем машину
+        var carRes = await carRepository.GetByIdAsync(carId);
 
-        if (!res.IsSuccess)
-            return Result<IEnumerable<CarImageReadInfo>>.Failure(res.Error);
+        if (!carRes.IsSuccess || carRes.Value is null)
+            return Result<IEnumerable<CarImageReadInfo>>
+                .Failure(Error.NotFound("Car not found"));
 
-        var data = await res.Value!
-            .OrderByDescending(x=>x.IsMain)
+        var car = carRes.Value;
+
+        // 2️⃣ Проверка доступа
+        bool isOwner = car.OwnerId == currentUserId;
+        bool isPublic = car.CarStatus == CarStatus.Available;
+
+        if (!isAdmin && !isOwner && !isPublic)
+            return Result<IEnumerable<CarImageReadInfo>>
+                .Failure(Error.Forbidden());
+
+        // 3️⃣ Получаем изображения
+        var imagesRes = repository.Find(x => x.CarId == carId);
+
+        if (!imagesRes.IsSuccess)
+            return Result<IEnumerable<CarImageReadInfo>>
+                .Failure(imagesRes.Error);
+
+        var data = await imagesRes.Value!
+            .OrderByDescending(x => x.IsMain)
             .Select(x => x.ToRead())
             .ToListAsync();
 
-        return Result<IEnumerable<CarImageReadInfo>>.Success(data);
+        return Result<IEnumerable<CarImageReadInfo>>
+            .Success(data);
     }
+
 
     public async Task<BaseResult> CreateAsync(CarImageCreateInfo createInfo, int currentUserId)
     {
@@ -33,6 +56,9 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
 
         if (!carRes.IsSuccess || carRes.Value is null)
             return BaseResult.Failure(Error.NotFound("Car not found"));
+
+        if (carRes.Value.CarStatus == CarStatus.Blocked)
+            return BaseResult.Failure(Error.BadRequest("Cannot upload image for blocked car"));
 
         if (carRes.Value.OwnerId != currentUserId)
             return BaseResult.Failure(Error.Forbidden());
@@ -60,8 +86,9 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
             foreach (var img in images.Where(x => x.IsMain))
             {
                 img.IsMain = false;
-                await repository.UpdateAsync(img);
             }
+
+            await repository.UpdateRangeAsync(images);
 
             image.IsMain = true;
         }
@@ -72,7 +99,7 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
             ? BaseResult.Success()
             : BaseResult.Failure(result.Error);
     }
-    
+
     public async Task<BaseResult> SetMainAsync(int imageId, int currentUserId)
     {
         var imageRes = await repository.GetByIdAsync(imageId);
@@ -96,8 +123,9 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
         foreach (var img in images)
         {
             img.IsMain = img.Id == imageId;
-            await repository.UpdateAsync(img);
         }
+
+        await repository.UpdateRangeAsync(images);
 
         return BaseResult.Success();
     }
@@ -121,26 +149,31 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
 
         fileService.DeleteFile(imageRes.Value.ImagePath, MediaFolders.Images);
 
-        await repository.DeleteAsync(id);
+        var deleteResult = await repository.DeleteAsync(id);
+
+        if (!deleteResult.IsSuccess)
+            return BaseResult.Failure(deleteResult.Error);
 
         // если удалили главное фото → назначим новое
         if (wasMain)
         {
-            var other = await repository
-                .Find(x => x.CarId == imageRes.Value.CarId)
-                .Value!
-                .FirstOrDefaultAsync();
+            var otherRes = repository.Find(x => x.CarId == imageRes.Value.CarId);
 
-            if (other != null)
+            if (otherRes.IsSuccess)
             {
-                other.IsMain = true;
-                await repository.UpdateAsync(other);
+                var other = await otherRes.Value!.FirstOrDefaultAsync();
+
+                if (other != null)
+                {
+                    other.IsMain = true;
+                    await repository.UpdateAsync(other);
+                }
             }
         }
 
         return BaseResult.Success();
     }
-    
+
     public async Task<Result<(byte[] FileBytes, string FileName)>> DownloadAsync(
         int id,
         int currentUserId,
@@ -149,7 +182,7 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
         var carImageRes = await repository.GetByIdAsync(id);
 
         if (!carImageRes.IsSuccess || carImageRes.Value is null)
-            return Result<(byte[], string)>.Failure(Error.NotFound("Document not found"));
+            return Result<(byte[], string)>.Failure(Error.NotFound("Image not found"));
 
         var carImage = carImageRes.Value;
 
@@ -160,7 +193,10 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
 
         var car = carRes.Value;
 
-        if (!isAdmin && car.OwnerId != currentUserId)
+        bool isOwner = car.OwnerId == currentUserId;
+        bool isPublic = car.CarStatus == CarStatus.Available;
+
+        if (!isAdmin && !isOwner && !isPublic)
             return Result<(byte[], string)>.Failure(Error.Forbidden());
 
         if (!fileService.FileExists(carImage.ImagePath))
@@ -170,5 +206,4 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
 
         return Result<(byte[], string)>.Success(file);
     }
-
 }
