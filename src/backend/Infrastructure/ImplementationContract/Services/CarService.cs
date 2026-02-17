@@ -13,9 +13,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class CarService(ICarRepository repository, INotificationService notificationService,IUserRoleRepository userRoleRepository,IUserService userService) : ICarService
+public class CarService(
+    ICarRepository repository,
+    INotificationService notificationService,
+    IUserRoleRepository userRoleRepository,
+    IUserService userService) : ICarService
 {
-    public async Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter,string role ,int userId)
+    public async Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter, string role,
+        int userId)
     {
         var result = repository.Find(car =>
             (string.IsNullOrEmpty(filter.Search) ||
@@ -40,7 +45,7 @@ public class CarService(ICarRepository repository, INotificationService notifica
             return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Failure(result.Error);
 
         var query = result.Value!.AsNoTracking();
-        
+
         if (role == DefaultRoles.User)
         {
             query = query.Where(c => c.CarStatus == CarStatus.Available);
@@ -83,15 +88,32 @@ public class CarService(ICarRepository repository, INotificationService notifica
         return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Success(response);
     }
 
-    public async Task<Result<CarReadInfo>> GetByIdAsync(int id)
+    public async Task<Result<CarReadInfo>> GetByIdAsync(int id, int currentUserId, bool isAdmin)
     {
-        Result<Car?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess) return Result<CarReadInfo>.Failure(res.Error);
+        var res = await repository.GetByIdAsync(id);
 
-        return Result<CarReadInfo>.Success(res.Value!.ToRead());
+        if (!res.IsSuccess || res.Value is null)
+            return Result<CarReadInfo>.Failure(Error.NotFound());
+
+        var car = res.Value;
+
+// 👤 если не админ
+        if (!isAdmin)
+        {
+            // если не владелец
+            if (car.OwnerId != currentUserId)
+            {
+                // и не доступная машина
+                if (car.CarStatus != CarStatus.Available)
+                    return Result<CarReadInfo>.Failure(Error.NotFound());
+            }
+        }
+
+        return Result<CarReadInfo>.Success(car.ToRead());
     }
 
-    public async Task<BaseResult> CreateAsync(CarCreateInfo createInfo,int ownerId)
+
+    public async Task<BaseResult> CreateAsync(CarCreateInfo createInfo, int ownerId)
     {
         Result<IQueryable<Car>> conflict = repository.Find(x => x.RegistrationNumber == createInfo.RegistrationNumber);
 
@@ -99,14 +121,14 @@ public class CarService(ICarRepository repository, INotificationService notifica
             return BaseResult.Failure(Error.Conflict("Registration number already exists."));
 
         Car car = createInfo.ToEntity();
-        
+
         var userRoles = userRoleRepository.Find(x => x.UserId == ownerId);
 
         if (!await userRoles.Value!.AnyAsync(x => x.Role.Name == DefaultRoles.Owner))
         {
             await userService.AssignRoleAsync(ownerId, DefaultRoles.Owner);
         }
-        
+
         car.CarStatus = CarStatus.Blocked;
         car.OwnerId = ownerId;
 
@@ -124,12 +146,12 @@ public class CarService(ICarRepository repository, INotificationService notifica
         return BaseResult.Success();
     }
 
-    public async Task<BaseResult> UpdateAsync(int id, CarUpdateInfo updateInfo,int currentUserId,bool isAdmin)
+    public async Task<BaseResult> UpdateAsync(int id, CarUpdateInfo updateInfo, int currentUserId, bool isAdmin)
     {
         Result<Car?> res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Car not found"));
-        
+
         var car = res.Value;
 
         if (!isAdmin && car.OwnerId != currentUserId)
@@ -146,11 +168,11 @@ public class CarService(ICarRepository repository, INotificationService notifica
             : BaseResult.Failure(result.Error);
     }
 
-    public async Task<BaseResult> DeleteAsync(int id,int currentUserId,bool isAdmin)
+    public async Task<BaseResult> DeleteAsync(int id, int currentUserId, bool isAdmin)
     {
         Result<Car?> res = await repository.GetByIdAsync(id);
         if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound("Car not found"));
-        
+
         var car = res.Value;
 
         if (!isAdmin && car.OwnerId != currentUserId)
@@ -174,18 +196,18 @@ public class CarService(ICarRepository repository, INotificationService notifica
         return BaseResult.Success();
     }
 
-    public async Task<BaseResult> UpdateStatusAsync(int id, CarUpdateStatusInfo status,bool isAdmin)
+    public async Task<BaseResult> UpdateStatusAsync(int id, CarUpdateStatusInfo status, bool isAdmin)
     {
         if (!isAdmin)
             return BaseResult.Failure(Error.Forbidden());
-        
+
         Result<Car?> res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
             return BaseResult.Failure(Error.NotFound("Car not found"));
 
         Car car = res.Value;
-        
+
         if (!isAdmin)
             return BaseResult.Failure(Error.Forbidden());
 
