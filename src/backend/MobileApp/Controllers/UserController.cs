@@ -53,7 +53,7 @@ public class UserController(IUserService service) : BaseController
     }
     
     [HttpPut("/me")]
-    public async Task<IActionResult> UpdateMyProfile([FromBody] UserUpdateInfo entity)
+    public async Task<IActionResult> UpdateMyProfile([FromForm] UserUpdateInfo entity)
     {
         return (await service.UpdateAsync(CurrentUserId, entity)).ToActionResult();
     }

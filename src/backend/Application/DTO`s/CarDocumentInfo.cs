@@ -24,5 +24,5 @@ public sealed record CarDocumentUpdateInfo(
 
 public sealed record FileResultInfo(
     byte[] Bytes,
-    string FilNam,
+    string FilName,
     string ContentType); 
