@@ -16,6 +16,7 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
     public DbSet<Car> Cars { get; set; }
     public DbSet<CarAvailability> CarAvailabilities { get; set; }
     public DbSet<CarDocument> CarDocuments { get; set; }
+    public DbSet<CarImage> CarImages { get; set; }
     public DbSet<CarPrice> CarPrices { get; set; }
     
     //Categories

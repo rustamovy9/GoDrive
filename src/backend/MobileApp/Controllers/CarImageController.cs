@@ -1,4 +1,5 @@
 ﻿using Application.Contracts.Services;
+using Application.DTO_s;
 using Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,14 @@ public sealed class CarImageController(ICarImageService service) : BaseControlle
 
     [HttpGet("car/{carId:int}")]
     public async Task<IActionResult> Get(int carId)
-        => (await service.GetByCarIdAsync(carId)).ToActionResult();
+        => (await service.GetByCarIdAsync(carId,CurrentUserId,IsAdmin)).ToActionResult();
+    
+    
+    [HttpPost]
+    [Authorize(Roles = DefaultRoles.Owner)]
+    public async Task<IActionResult> Create([FromForm] CarImageCreateInfo createInfo)
+        => (await service.CreateAsync(createInfo, CurrentUserId))
+            .ToActionResult();
     
     [Authorize(Roles = DefaultRoles.Owner)]
     [HttpPut("{id:int}/set-main")]
@@ -40,7 +48,7 @@ public sealed class CarImageController(ICarImageService service) : BaseControlle
         var res = await service.DownloadAsync(id, CurrentUserId, IsAdmin);
 
         if (!res.IsSuccess)
-            return BadRequest(res.Error.Message);
+            return res.ToActionResult();
 
         return File(res.Value.FileBytes, "application/octet-stream", res.Value.FileName);
     }

@@ -21,23 +21,23 @@ public sealed class CarDocumentController(ICarDocumentService service) : BaseCon
         User.IsInRole(DefaultRoles.Admin);
 
 
-    [HttpGet("car/car{id:int}")]
+    [HttpGet("car/{carId:int}")]    
     public async Task<IActionResult> Get([FromRoute] int carId)
     {
         var res = await service.GetByCarIdAsync(carId);
         return res.ToActionResult();
     }
 
-    [Authorize(Roles = DefaultRoles.Owner)]
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CarDocumentCreateInfo createInfo)
+    [Authorize(Roles = DefaultRoles.Owner)]
+    public async Task<IActionResult> Create([FromForm] CarDocumentCreateInfo createInfo)
     {
         var res = await service.CreateAsync(createInfo);
         return res.ToActionResult();
     }
 
-    [Authorize(Roles = DefaultRoles.Admin)]
     [HttpPut("{id:int}/status")]
+    [Authorize(Roles = DefaultRoles.Admin)]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] CarDocumentUpdateInfo updateInfo)
     {
         var res = await service.UpdateStatusAsync(id,UserId,updateInfo);
@@ -45,6 +45,7 @@ public sealed class CarDocumentController(ICarDocumentService service) : BaseCon
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = DefaultRoles.Owner+","+DefaultRoles.Admin)]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         var res = await service.DeleteAsync(id,UserId,IsAdmin);
