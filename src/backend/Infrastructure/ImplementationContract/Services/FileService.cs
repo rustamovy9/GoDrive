@@ -20,7 +20,7 @@ public class FileService(IWebHostEnvironment hostEnvironment) : IFileService
             throw new InvalidOperationException("File size exceeds the maximum allowed size.");
 
         string fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}"; 
-        string folderPath = Path.Combine(hostEnvironment.WebRootPath, folder); 
+        string folderPath = Path.Combine(hostEnvironment.ContentRootPath, folder); 
 
         if (!Directory.Exists(folderPath))
         {
