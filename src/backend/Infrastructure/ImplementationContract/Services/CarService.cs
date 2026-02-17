@@ -129,7 +129,7 @@ public class CarService(
             await userService.AssignRoleAsync(ownerId, DefaultRoles.Owner);
         }
 
-        car.CarStatus = CarStatus.Blocked;
+        car.CarStatus = CarStatus.PendingApproval;
         car.OwnerId = ownerId;
 
         Result<int> res = await repository.AddAsync(car);
