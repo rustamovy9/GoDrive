@@ -82,6 +82,9 @@ public class FileService(IWebHostEnvironment hostEnvironment) : IFileService
 
     public bool FileExists(string path)
     {
+        if (string.IsNullOrWhiteSpace(path))
+            return false;
+        
         return File.Exists(path);
     }
 }
