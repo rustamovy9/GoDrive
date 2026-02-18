@@ -192,6 +192,7 @@ public static class RegisterService
             app.UseExceptionHandler("/error");
             app.MapHub<NotificationHub>("/hubs/notifications");
             app.UseAuthentication();
+            app.UseStaticFiles();
             app.UseAuthorization();
             app.MapControllers();
             app.UseCors(x =>
