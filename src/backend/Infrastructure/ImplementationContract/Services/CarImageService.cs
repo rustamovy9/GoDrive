@@ -202,7 +202,7 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
         if (!fileService.FileExists(carImage.ImagePath))
             return Result<(byte[], string)>.Failure(Error.NotFound("File not found"));
 
-        var file = await fileService.GetFileAsync(carImage.ImagePath);
+        var file = await fileService.GetFileAsync(carImage.ImagePath,MediaFolders.Images);
 
         return Result<(byte[], string)>.Success(file);
     }
