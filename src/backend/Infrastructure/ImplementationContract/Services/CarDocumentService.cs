@@ -178,7 +178,7 @@ public class CarDocumentService(
         if (!fileService.FileExists(document.FilePath))
             return Result<(byte[], string)>.Failure(Error.NotFound("File not found"));
 
-        var file = await fileService.GetFileAsync(document.FilePath);
+        var file = await fileService.GetFileAsync(document.FilePath,MediaFolders.Documents);
 
         return Result<(byte[], string)>.Success(file);
     }
