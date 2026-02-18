@@ -9,18 +9,21 @@ public class FileService(IWebHostEnvironment hostEnvironment) : IFileService
     private const long MaxFileSize = 50 * 1024 * 1024;
 
     private readonly HashSet<string> _allowedExtensions = new(StringComparer.OrdinalIgnoreCase)
-        { ".jpg", ".png",".jpeg",".mp4",".pdf" };  
+        { ".jpg", ".png", ".jpeg", ".mp4", ".pdf" };
 
     public async Task<string> CreateFile(IFormFile file, string folder)
     {
-        if (!_allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower())) 
+        if (file == null || file.Length == 0)
+            throw new InvalidOperationException("File is empty");
+
+        if (!_allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
             throw new InvalidOperationException("Invalid file type.");
 
         if (file.Length > MaxFileSize)
             throw new InvalidOperationException("File size exceeds the maximum allowed size.");
 
-        string fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}"; 
-        string folderPath = Path.Combine(hostEnvironment.ContentRootPath, folder); 
+        string fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+        string folderPath = Path.Combine(hostEnvironment.WebRootPath ?? "wwwroot", folder);
 
         if (!Directory.Exists(folderPath))
         {
@@ -31,10 +34,8 @@ public class FileService(IWebHostEnvironment hostEnvironment) : IFileService
 
         try
         {
-            await using (FileStream stream = new FileStream(fullPath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
+            await using FileStream stream = new FileStream(fullPath, FileMode.Create);
+            await file.CopyToAsync(stream);
 
             return fileName;
         }
@@ -47,20 +48,16 @@ public class FileService(IWebHostEnvironment hostEnvironment) : IFileService
 
     public bool DeleteFile(string file, string folder)
     {
-        string folderPath = Path.Combine(hostEnvironment.WebRootPath, folder);
+        string folderPath = Path.Combine(hostEnvironment.WebRootPath ?? "wwwroot", folder);
         string fullPath = Path.Combine(folderPath, file);
 
         try
         {
-            if (!Directory.Exists(folderPath)) return false;
+            if (!Directory.Exists(folderPath)) 
+                return false;
             
-            if (File.Exists(fullPath))
-            {
-                File.Delete(fullPath);
-                return true;
-            }
-
-            return false;
+            File.Delete(fullPath);
+            return true;
         }
         catch (Exception ex)
         {
@@ -69,13 +66,15 @@ public class FileService(IWebHostEnvironment hostEnvironment) : IFileService
         }
     }
 
-    public async Task<(byte[] FileBytes, string FileName)> GetFileAsync(string path)
+    public async Task<(byte[] FileBytes, string FileName)> GetFileAsync(string fileName,string folder)
     {
-        if (!File.Exists(path))
+        string folderPath = Path.Combine(hostEnvironment.WebRootPath ?? "wwwroot", folder);
+        string fullPath = Path.Combine(folderPath, fileName);
+        
+        if (!File.Exists(fullPath))
             throw new FileNotFoundException("File not found");
 
-        var bytes = await File.ReadAllBytesAsync(path);
-        var fileName = Path.GetFileName(path);
+        var bytes = await File.ReadAllBytesAsync(fullPath);
 
         return (bytes, fileName);
     }
@@ -84,7 +83,7 @@ public class FileService(IWebHostEnvironment hostEnvironment) : IFileService
     {
         if (string.IsNullOrWhiteSpace(path))
             return false;
-        
+
         return File.Exists(path);
     }
 }
