@@ -16,61 +16,39 @@ public class FileService(IWebHostEnvironment hostEnvironment) : IFileService
         if (file == null || file.Length == 0)
             throw new InvalidOperationException("File is empty");
 
-        if (!_allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
+        var extension = Path.GetExtension(file.FileName);
+
+        if (!_allowedExtensions.Contains(extension))
             throw new InvalidOperationException("Invalid file type.");
 
         if (file.Length > MaxFileSize)
-            throw new InvalidOperationException("File size exceeds the maximum allowed size.");
+            throw new InvalidOperationException("File size exceeds limit");
 
-        string fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-        string folderPath = Path.Combine(hostEnvironment.WebRootPath ?? "wwwroot", folder);
+        var fileName = $"{Guid.NewGuid()}{extension}";
+        var fullPath = GetFullPath(fileName, folder);
 
-        if (!Directory.Exists(folderPath))
-        {
-            Directory.CreateDirectory(folderPath);
-        }
+        await using var stream = new FileStream(fullPath, FileMode.Create);
+        await file.CopyToAsync(stream);
 
-        string fullPath = Path.Combine(folderPath, fileName);
-
-        try
-        {
-            await using FileStream stream = new FileStream(fullPath, FileMode.Create);
-            await file.CopyToAsync(stream);
-
-            return fileName;
-        }
-        catch (Exception ex)
-        {
-            await Console.Error.WriteLineAsync(ex.Message);
-            throw new InvalidOperationException("An error occurred while saving the file.");
-        }
+        return fileName; 
     }
 
-    public bool DeleteFile(string file, string folder)
-    {
-        string folderPath = Path.Combine(hostEnvironment.WebRootPath ?? "wwwroot", folder);
-        string fullPath = Path.Combine(folderPath, file);
 
-        try
-        {
-            if (!Directory.Exists(folderPath)) 
-                return false;
-            
-            File.Delete(fullPath);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine(ex.Message);
-            throw new InvalidOperationException("An error occurred while delete the file.");
-        }
+    public bool DeleteFile(string fileName, string folder)
+    {
+        var fullPath = GetFullPath(fileName, folder);
+
+        if (!File.Exists(fullPath))
+            return false;
+
+        File.Delete(fullPath);
+        return true;
     }
 
-    public async Task<(byte[] FileBytes, string FileName)> GetFileAsync(string fileName,string folder)
+    public async Task<(byte[] FileBytes, string FileName)> GetFileAsync(string fileName, string folder)
     {
-        string folderPath = Path.Combine(hostEnvironment.WebRootPath ?? "wwwroot", folder);
-        string fullPath = Path.Combine(folderPath, fileName);
-        
+        var fullPath = GetFullPath(fileName, folder);
+
         if (!File.Exists(fullPath))
             throw new FileNotFoundException("File not found");
 
@@ -85,5 +63,21 @@ public class FileService(IWebHostEnvironment hostEnvironment) : IFileService
             return false;
 
         return File.Exists(path);
+    }
+
+
+    private string GetFullPath(string fileName, string folder)
+    {
+        var root = hostEnvironment.WebRootPath;
+
+        if (string.IsNullOrEmpty(root))
+            root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+        var folderPath = Path.Combine(root, folder);
+
+        if (!Directory.Exists(folderPath))
+            Directory.CreateDirectory(folderPath);
+
+        return Path.Combine(folderPath, fileName);
     }
 }

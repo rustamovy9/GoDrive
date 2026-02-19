@@ -76,6 +76,53 @@ public class CarDocumentService(
 
         return BaseResult.Success();
     }
+    
+    public async Task<BaseResult> UpdateAsync(
+        int id,
+        CarDocumentCreateInfo updateInfo,
+        int currentUserId)
+    {
+        var documentRes = await repository.GetByIdAsync(id);
+
+        if (!documentRes.IsSuccess || documentRes.Value is null)
+            return BaseResult.Failure(Error.NotFound("Document not found"));
+
+        var document = documentRes.Value;
+
+        var carRes = await carRepository.GetByIdAsync(document.CarId);
+
+        if (!carRes.IsSuccess || carRes.Value is null)
+            return BaseResult.Failure(Error.NotFound("Car not found"));
+
+        if (carRes.Value.OwnerId != currentUserId)
+            return BaseResult.Failure(Error.Forbidden());
+
+        // удалить старый файл
+        fileService.DeleteFile(document.FilePath, MediaFolders.Documents);
+
+        // создать новый
+        var newPath = await fileService.CreateFile(
+            updateInfo.File,
+            MediaFolders.Documents);
+
+        document.FilePath = newPath;
+        document.VerificationStatus = DocumentVerificationStatus.Pending;
+        document.VerifiedAt = new DateTimeOffset();
+        document.VerifiedByAdminId = null;
+        document.UpdatedAt = DateTimeOffset.UtcNow;
+        document.Version++;
+
+        var update = await repository.UpdateAsync(document);
+
+        if (!update.IsSuccess)
+            return BaseResult.Failure(update.Error);
+
+        await RecalculateCarStatus(document.CarId);
+
+        return BaseResult.Success();
+    }
+
+    
 
     public async Task<BaseResult> UpdateStatusAsync(
         int id,
