@@ -6,7 +6,6 @@ public sealed record CarReadInfo(
     string Brand,
     string Model,
     int Year,
-    string RegistrationNumber,
     CarStatus CarStatus,
     
     int CategoryId,
@@ -14,6 +13,8 @@ public sealed record CarReadInfo(
     int? RentalCompanyId,
     
     IReadOnlyList<string> Images,
+    
+    decimal CurrentPricePerDay,
     
     DateTimeOffset CreatedAt);
 
@@ -29,11 +30,11 @@ public record CarDetailReadInfo(
     string Location,
     string OwnerName,
 
-    decimal? CurrentPricePerDay,
+    decimal CurrentPricePerDay,
 
-    List<string> Images,
+    IReadOnlyList<string> Images,
 
-    List<CarDocumentReadInfo> Documents,
+    IReadOnlyList<CarDocumentReadInfo> Documents,
 
     DateTimeOffset CreatedAt
 );
