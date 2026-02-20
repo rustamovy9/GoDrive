@@ -98,12 +98,12 @@ public class CarDocumentService(
             return BaseResult.Failure(Error.Forbidden());
 
         // удалить старый файл
-        fileService.DeleteFile(document.FilePath, MediaFolders.Documents);
+        await fileService.DeleteFile(document.FilePath, MediaFolders.Docs);
 
         // создать новый
         var newPath = await fileService.CreateFile(
             updateInfo.File,
-            MediaFolders.Documents);
+            MediaFolders.Docs);
 
         document.FilePath = newPath;
         document.VerificationStatus = DocumentVerificationStatus.Pending;
@@ -188,7 +188,7 @@ public class CarDocumentService(
         if (!isAdmin && car.OwnerId != currentUserId)
             return BaseResult.Failure(Error.Forbidden());
 
-        fileService.DeleteFile(document.FilePath, MediaFolders.Documents);
+        await fileService.DeleteFile(document.FilePath, MediaFolders.Docs);
 
         var deleteResult = await repository.DeleteAsync(id);
         
@@ -222,10 +222,11 @@ public class CarDocumentService(
         if (!isAdmin && car.OwnerId != currentUserId)
             return Result<(byte[], string)>.Failure(Error.Forbidden());
 
-        if (!fileService.FileExists(document.FilePath))
-            return Result<(byte[], string)>.Failure(Error.NotFound("File not found"));
-
-        var file = await fileService.GetFileAsync(document.FilePath,MediaFolders.Documents);
+        // 🔥 вместо FileExists + GetFileAsync
+        var file = await fileService.DownloadAsync(
+            document.FilePath,
+            MediaFolders.Docs 
+        );
 
         return Result<(byte[], string)>.Success(file);
     }

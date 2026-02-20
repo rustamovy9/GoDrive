@@ -5,7 +5,6 @@ namespace Application.Contracts.Services;
 public interface IFileService
 {
     Task<string> CreateFile(IFormFile file,string folder);
-    bool DeleteFile(string file,string folder);
-    Task<(byte[] FileBytes, string FileName)> GetFileAsync(string fileName,string folder);
-    bool FileExists(string path);
+    Task DeleteFile(string file,string folder);
+    Task<(byte[] FileBytes, string FileName)> DownloadAsync(string fileName, string bucket);
 }

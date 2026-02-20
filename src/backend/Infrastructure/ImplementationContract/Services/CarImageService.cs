@@ -147,7 +147,7 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
 
         bool wasMain = imageRes.Value.IsMain;
 
-        fileService.DeleteFile(imageRes.Value.ImagePath, MediaFolders.Images);
+        await fileService.DeleteFile(imageRes.Value.ImagePath, MediaFolders.Images);
 
         var deleteResult = await repository.DeleteAsync(id);
 
@@ -199,10 +199,9 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
         if (!isAdmin && !isOwner && !isPublic)
             return Result<(byte[], string)>.Failure(Error.Forbidden());
 
-        if (!fileService.FileExists(carImage.ImagePath))
-            return Result<(byte[], string)>.Failure(Error.NotFound("File not found"));
-
-        var file = await fileService.GetFileAsync(carImage.ImagePath,MediaFolders.Images);
+        var file = await fileService.DownloadAsync(
+            carImage.ImagePath,
+            MediaFolders.Images);
 
         return Result<(byte[], string)>.Success(file);
     }

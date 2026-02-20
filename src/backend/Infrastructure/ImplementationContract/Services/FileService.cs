@@ -1,83 +1,65 @@
 ﻿using Application.Contracts.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class FileService(IWebHostEnvironment hostEnvironment) : IFileService
+public class FileService : IFileService
 {
     private const long MaxFileSize = 50 * 1024 * 1024;
 
     private readonly HashSet<string> _allowedExtensions = new(StringComparer.OrdinalIgnoreCase)
         { ".jpg", ".png", ".jpeg", ".mp4", ".pdf" };
 
-    public async Task<string> CreateFile(IFormFile file, string folder)
+    
+    private readonly Supabase.Client _client;
+    
+    public FileService(IConfiguration config) 
+    {
+        var url = config["Supabase:Url"];
+        var key = config["Supabase:Key"];
+
+        _client = new Supabase.Client(url!, key!);
+        _client.InitializeAsync().Wait();
+    }
+    
+    
+    public async Task<string> CreateFile(IFormFile file, string bucket)
     {
         if (file == null || file.Length == 0)
             throw new InvalidOperationException("File is empty");
 
         var extension = Path.GetExtension(file.FileName);
 
-        if (!_allowedExtensions.Contains(extension))
-            throw new InvalidOperationException("Invalid file type.");
-
-        if (file.Length > MaxFileSize)
-            throw new InvalidOperationException("File size exceeds limit");
-
         var fileName = $"{Guid.NewGuid()}{extension}";
-        var fullPath = GetFullPath(fileName, folder);
 
-        await using var stream = new FileStream(fullPath, FileMode.Create);
-        await file.CopyToAsync(stream);
+        using var memoryStream = new MemoryStream();
 
-        return fileName; 
+        await file.CopyToAsync(memoryStream);
+
+        var bytes = memoryStream.ToArray();
+
+        var storage = _client.Storage.From(bucket);
+
+        await storage.Upload(bytes, fileName);          
+
+        return fileName;
     }
 
 
-    public bool DeleteFile(string fileName, string folder)
+    public async Task DeleteFile(string fileName, string bucket)
     {
-        var fullPath = GetFullPath(fileName, folder);
-
-        if (!File.Exists(fullPath))
-            return false;
-
-        File.Delete(fullPath);
-        return true;
+        var storage = _client.Storage.From(bucket);
+        await storage.Remove(fileName);
     }
 
-    public async Task<(byte[] FileBytes, string FileName)> GetFileAsync(string fileName, string folder)
+    public async Task<(byte[] FileBytes, string FileName)> DownloadAsync(string fileName, string bucket)
     {
-        var fullPath = GetFullPath(fileName, folder);
+        var storage = _client.Storage.From(bucket);
 
-        if (!File.Exists(fullPath))
-            throw new FileNotFoundException("File not found");
-
-        var bytes = await File.ReadAllBytesAsync(fullPath);
+        var bytes = await storage.Download(fileName,null);
 
         return (bytes, fileName);
-    }
-
-    public bool FileExists(string path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-            return false;
-
-        return File.Exists(path);
-    }
-
-
-    private string GetFullPath(string fileName, string folder)
-    {
-        var root = hostEnvironment.WebRootPath;
-
-        if (string.IsNullOrEmpty(root))
-            root = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-
-        var folderPath = Path.Combine(root, folder);
-
-        if (!Directory.Exists(folderPath))
-            Directory.CreateDirectory(folderPath);
-
-        return Path.Combine(folderPath, fileName);
     }
 }

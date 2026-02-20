@@ -1,5 +1,4 @@
-﻿using System.Windows.Markup;
-using Application.Contracts.Services;
+﻿using Application.Contracts.Services;
 using Application.DTO_s;
 using Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
@@ -43,6 +42,14 @@ public sealed class CarDocumentController(ICarDocumentService service) : BaseCon
         var res = await service.UpdateStatusAsync(id,UserId,updateInfo);
         return res.ToActionResult();
     }
+    
+    [HttpPut("{id:int}")]
+    [Authorize(Roles = DefaultRoles.Admin+","+DefaultRoles.Owner)]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromForm] CarDocumentCreateInfo updateInfo)
+    {
+        var res = await service.UpdateAsync(id,updateInfo,UserId);
+        return res.ToActionResult();
+    }
 
     [HttpDelete("{id:int}")]
     [Authorize(Roles = DefaultRoles.Owner+","+DefaultRoles.Admin)]
@@ -56,9 +63,9 @@ public sealed class CarDocumentController(ICarDocumentService service) : BaseCon
     public async Task<IActionResult> Download(int id)
     {
         var res = await service.DownloadAsync(id, UserId, IsAdmin);
-
+        
         if (!res.IsSuccess)
-            return BadRequest(res.Error.Message);
+            return res.ToActionResult();
 
         return File(res.Value.FileBytes, "application/octet-stream", res.Value.FileName);
     }

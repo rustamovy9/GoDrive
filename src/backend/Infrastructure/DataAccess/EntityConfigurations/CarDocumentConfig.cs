@@ -45,4 +45,4 @@ public sealed class CarDocumentConfig : IEntityTypeConfiguration<CarDocument>
             .HasForeignKey(d => d.VerifiedByAdminId)
             .OnDelete(DeleteBehavior.Restrict);
     }
-}
+}   
