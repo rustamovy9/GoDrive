@@ -80,6 +80,7 @@ public class CarService(
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .Select(c => c.ToRead())
+            .Include(x=>x.Images)
             .ToListAsync();
 
         var response = PagedResponse<IEnumerable<CarReadInfo>>
