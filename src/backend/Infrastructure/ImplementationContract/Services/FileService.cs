@@ -20,8 +20,13 @@ public class FileService : IFileService
         var url = config["Supabase:Url"];
         var key = config["Supabase:Key"];
 
-        _client = new Supabase.Client(url!, key!);
-        _client.InitializeAsync().Wait();
+        if (string.IsNullOrWhiteSpace(url))
+            throw new Exception("Supabase Url is missing");
+
+        if (string.IsNullOrWhiteSpace(key))
+            throw new Exception("Supabase Key is missing");
+
+        _client = new Supabase.Client(url, key);
     }
     
     

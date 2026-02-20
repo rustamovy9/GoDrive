@@ -81,6 +81,10 @@ public static class RegisterService
         builder.Services.AddControllers();
 
 
+        builder.Configuration
+            .AddJsonFile("appsettings.json", optional: false)
+            .AddEnvironmentVariables();
+        
         builder.Services.AddDbContext<DataContext>(x =>
         {
             var connection =
