@@ -138,7 +138,7 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
     {
         try
         {
-            T? existing = await dbContext.Set<T>().FirstOrDefaultAsync(x => x.Id == value.Id);
+            T? existing = await dbContext.Set<T>().AsTracking().FirstOrDefaultAsync(x => x.Id == value.Id && !x.IsDeleted);
             if (existing == null)
                 return Result<int>.Failure(Error.NotFound());
 

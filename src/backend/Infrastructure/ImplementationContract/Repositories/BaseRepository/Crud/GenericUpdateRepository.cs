@@ -12,7 +12,7 @@ public class GenericUpdateRepository<T>(DataContext dbContext) : IGenericUpdateR
     {
         try
         {
-            T? entity = await dbContext.Set<T>().FirstOrDefaultAsync(x => x.Id == value.Id);
+            T? entity = await dbContext.Set<T>().AsTracking().FirstOrDefaultAsync(x => x.Id == value.Id);
             if (entity == null)
                 return Result<int>.Failure(Error.NotFound());
 
