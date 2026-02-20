@@ -491,3 +491,4 @@ $RECYCLE.BIN/
 *.jpeg
 *.jpg
 *.idea
+appsettings.Development.json
