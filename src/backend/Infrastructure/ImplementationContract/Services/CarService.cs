@@ -106,13 +106,13 @@ public class CarService(
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
-        if (car != null)
+        if (car == null)
             return Result<CarDetailReadInfo>.Failure(Error.NotFound());
         
 // 👤 если не админ
         if (!isAdmin)
         {
-            bool isOwner = car!.OwnerId == currentUserId;
+            bool isOwner = car.OwnerId == currentUserId;
             bool isAvailable = car.CarStatus == CarStatus.Available;
             
             if (!isOwner && !isAvailable)
@@ -121,7 +121,7 @@ public class CarService(
             }
         }
 
-        return Result<CarDetailReadInfo>.Success(car!.ToReadDetail());
+        return Result<CarDetailReadInfo>.Success(car.ToReadDetail());
     }
 
 
