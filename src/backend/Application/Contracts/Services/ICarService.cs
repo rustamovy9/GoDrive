@@ -9,7 +9,7 @@ namespace Application.Contracts.Services;
 public interface ICarService
 {
     Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter,string role,int userId);
-    Task<Result<CarReadInfo>> GetByIdAsync(int id,int currentUserId,bool isAdmin);
+    Task<Result<CarDetailReadInfo>> GetByIdAsync(int id,int currentUserId,bool isAdmin);
     Task<BaseResult> CreateAsync(CarCreateInfo createInfo,int ownerId);
     Task<BaseResult> UpdateAsync(int id,CarUpdateInfo updateInfo,int currentUserId,bool isAdmin);
     Task<BaseResult> DeleteAsync(int id,int currentUserId,bool isAdmin);

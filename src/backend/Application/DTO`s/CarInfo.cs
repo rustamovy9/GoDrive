@@ -25,7 +25,7 @@ public record CarDetailReadInfo(
     string RegistrationNumber,
     CarStatus Status,
 
-    string Category,
+    string CategoryName,
     string Location,
     string OwnerName,
 

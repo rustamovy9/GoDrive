@@ -21,13 +21,33 @@ public static class CarMapper
             car.RentalCompanyId,
             car.CarImages
                 .Select(ci => ci.ImagePath)
-                .ToList(),  
+                .ToList(),
+            car.CreatedAt
+        );
+    }
+
+    public static CarDetailReadInfo ToReadDetail(this Car car)
+    {
+        return new CarDetailReadInfo(
+            car.Id,
+            car.Brand,
+            car.Model,
+            car.Year,
+            car.RegistrationNumber,
+            car.CarStatus,
+            car.Category.Name,
+            car.Location.Country + "," + car.Location.City,
+            car.Owner.UserName,
+            car.CarPrices.OrderByDescending(x => x.CreatedAt)
+                .FirstOrDefault()?.PricePerDay,
+            car.CarImages.Select(ci => ci.ImagePath).ToList(),
+            car.CarDocuments.Select(x => x.ToRead()).ToList(),
             car.CreatedAt
         );
     }
 
 
-    public static  Car ToEntity(this CarCreateInfo createInfo)
+    public static Car ToEntity(this CarCreateInfo createInfo)
     {
         return new Car
         {
@@ -35,10 +55,10 @@ public static class CarMapper
             Model = createInfo.Model,
             Year = createInfo.Year,
             RegistrationNumber = createInfo.RegistrationNumber,
-            
+
             CategoryId = createInfo.CategoryId,
             LocationId = createInfo.LocationId,
-            RentalCompanyId = createInfo.RentalCompanyId, 
+            RentalCompanyId = createInfo.RentalCompanyId,
         };
     }
 
