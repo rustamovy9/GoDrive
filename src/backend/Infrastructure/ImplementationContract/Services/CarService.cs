@@ -79,8 +79,8 @@ public class CarService(
         var data = await query
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
+            .Include(x=>x.CarImages)
             .Select(c => c.ToRead())
-            .Include(x=>x.Images)
             .ToListAsync();
 
         var response = PagedResponse<IEnumerable<CarReadInfo>>
@@ -89,28 +89,39 @@ public class CarService(
         return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Success(response);
     }
 
-    public async Task<Result<CarReadInfo>> GetByIdAsync(int id, int currentUserId, bool isAdmin)
+    public async Task<Result<CarDetailReadInfo>> GetByIdAsync(int id, int currentUserId, bool isAdmin)
     {
-        var res = await repository.GetByIdAsync(id);
+        var res =  repository.Find(x=>x.Id == id);
 
-        if (!res.IsSuccess || res.Value is null)
-            return Result<CarReadInfo>.Failure(Error.NotFound());
+        if (!res.IsSuccess)
+            return Result<CarDetailReadInfo>.Failure(res.Error);
 
-        var car = res.Value;
+        var car = await res.Value!
+            .Include(x=>x.Category)
+            .Include(x=>x.Location)
+            .Include(x=>x.Owner)
+            .Include(x=>x.CarPrices)
+            .Include(x=>x.CarImages)
+            .Include(x=>x.CarDocuments)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
 
+        if (car != null)
+            return Result<CarDetailReadInfo>.Failure(Error.NotFound());
+        
 // 👤 если не админ
         if (!isAdmin)
         {
-            // если не владелец
-            if (car.OwnerId != currentUserId)
+            bool isOwner = car!.OwnerId == currentUserId;
+            bool isAvailable = car.CarStatus == CarStatus.Available;
+            
+            if (!isOwner && !isAvailable)
             {
-                // и не доступная машина
-                if (car.CarStatus != CarStatus.Available)
-                    return Result<CarReadInfo>.Failure(Error.NotFound());
+                    return Result<CarDetailReadInfo>.Failure(Error.NotFound());
             }
         }
 
-        return Result<CarReadInfo>.Success(car.ToRead());
+        return Result<CarDetailReadInfo>.Success(car!.ToReadDetail());
     }
 
 
@@ -120,7 +131,7 @@ public class CarService(
 
         if (conflict.IsSuccess && await conflict.Value!.AnyAsync())
             return BaseResult.Failure(Error.Conflict("Registration number already exists."));
-
+        
         Car car = createInfo.ToEntity();
 
         var userRoles = userRoleRepository.Find(x => x.UserId == ownerId);
