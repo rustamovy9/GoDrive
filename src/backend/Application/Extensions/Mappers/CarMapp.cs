@@ -14,7 +14,6 @@ public static class CarMapper
             car.Brand,
             car.Model,
             car.Year,
-            car.RegistrationNumber,
             car.CarStatus,
             car.CategoryId,
             car.LocationId,
@@ -22,6 +21,8 @@ public static class CarMapper
             car.CarImages
                 .Select(ci => ci.ImagePath)
                 .ToList(),
+            car.CarPrices.OrderByDescending(x=>x.CreatedAt).Select(cp => cp.PricePerDay)
+                .FirstOrDefault(),
             car.CreatedAt
         );
     }
