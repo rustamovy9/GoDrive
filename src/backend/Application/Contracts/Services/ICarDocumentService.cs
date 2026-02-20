@@ -9,9 +9,11 @@ public interface ICarDocumentService
 
     Task<BaseResult> CreateAsync(CarDocumentCreateInfo createInfo);
 
-    Task<BaseResult> UpdateStatusAsync(int id,int adminId, CarDocumentUpdateInfo updateInfo);
+    Task<BaseResult> UpdateStatusAsync(int id, int adminId, CarDocumentUpdateInfo updateInfo);
 
-    Task<BaseResult> DeleteAsync(int id, int currentUserId,bool isAdmin);
+    Task<BaseResult> UpdateAsync(int id, CarDocumentCreateInfo updateInfo, int currentUserId);
 
-    Task<Result<(byte[] FileBytes, string FileName)>> DownloadAsync(int id,int currentUserId,bool isAdmin);
+    Task<BaseResult> DeleteAsync(int id, int currentUserId, bool isAdmin);
+
+    Task<Result<(byte[] FileBytes, string FileName)>> DownloadAsync(int id, int currentUserId, bool isAdmin);
 }
