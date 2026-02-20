@@ -25,7 +25,7 @@ public static class CarDocumentMap
     {
         var path = await fileService.CreateFile(
             createInfo.File,
-            MediaFolders.Documents);
+            MediaFolders.Docs);
         
         return new CarDocument
         {
