@@ -33,72 +33,72 @@ public class CarDocumentService(
         return Result<IEnumerable<CarDocumentReadInfo>>.Success(data);
     }
 
-   public async Task<BaseResult> CreateAsync(CarDocumentCreateInfo createInfo)
-{
-    var carRes = await carRepository.GetByIdAsync(createInfo.CarId);
-
-    if (!carRes.IsSuccess || carRes.Value is null)
-        return BaseResult.Failure(Error.NotFound("Car not found"));
-
-    // 1. сохраняем файл
-    var document = await createInfo.ToEntity(fileService);
-
-    // 2. AI verification
-    var aiResult = await aiDocumentService.VerifyAsync(document.FilePath);
-
-    if (aiResult.IsSuccess)
+    public async Task<BaseResult> CreateAsync(CarDocumentCreateInfo createInfo)
     {
-        document.AiConfidenceScore = aiResult.Value!.ConfidenceScore;
-        document.AiExtractedDataJson = aiResult.Value.ExtractedJson;
+        var carRes = await carRepository.GetByIdAsync(createInfo.CarId);
 
-        document.VerificationStatus = aiResult.Value.IsValid
-            ? DocumentVerificationStatus.AutoApproved
-            : DocumentVerificationStatus.AutoRejected;
-    }
-    else
-    {
-        document.VerificationStatus = DocumentVerificationStatus.Pending;
-    }
+        if (!carRes.IsSuccess || carRes.Value is null)
+            return BaseResult.Failure(Error.NotFound("Car not found"));
 
-    // 3. save document
-    var result = await repository.AddAsync(document);
+        // 1. сохраняем файл
+        var document = await createInfo.ToEntity(fileService);
 
-    if (!result.IsSuccess)
-        return BaseResult.Failure(result.Error);
+        // 2. AI verification
+        var aiResult = await aiDocumentService.VerifyAsync(document.FilePath);
 
-    await RecalculateCarStatus(carRes.Value.Id);
-
-    // уведомление owner
-    await notificationService.CreateAsync(
-        new NotificationCreateInfo(
-            carRes.Value.OwnerId,
-            "Document uploaded",
-            $"Document was automatically {document.VerificationStatus}"
-        )
-    );
-
-    // уведомление admin только если rejected
-    if (document.VerificationStatus == DocumentVerificationStatus.AutoRejected)
-    {
-        var admins = await userRepository.GetAdminsAsync();
-
-        if (admins.IsSuccess)
+        if (aiResult.IsSuccess)
         {
-            foreach (var admin in admins.Value!)
+            document.AiConfidenceScore = aiResult.Value!.ConfidenceScore;
+            document.AiExtractedDataJson = aiResult.Value.ExtractedJson;
+
+            document.VerificationStatus = aiResult.Value.IsValid
+                ? DocumentVerificationStatus.AutoApproved
+                : DocumentVerificationStatus.AutoRejected;
+        }
+        else
+        {
+            document.VerificationStatus = DocumentVerificationStatus.Pending;
+        }
+
+        // 3. save document
+        var result = await repository.AddAsync(document);
+
+        if (!result.IsSuccess)
+            return BaseResult.Failure(result.Error);
+
+        await RecalculateCarStatus(carRes.Value.Id);
+
+        // уведомление owner
+        await notificationService.CreateAsync(
+            new NotificationCreateInfo(
+                carRes.Value.OwnerId,
+                "Document uploaded",
+                $"Document was automatically {document.VerificationStatus}"
+            )
+        );
+
+        // уведомление admin только если rejected
+        if (document.VerificationStatus == DocumentVerificationStatus.AutoRejected)
+        {
+            var admins = await userRepository.GetAdminsAsync();
+
+            if (admins.IsSuccess)
             {
-                await notificationService.CreateAsync(
-                    new NotificationCreateInfo(
-                        admin.Id,
-                        "Document requires review",
-                        $"Document #{document.Id} was auto rejected by AI"
-                    )
-                );
+                foreach (var admin in admins.Value!)
+                {
+                    await notificationService.CreateAsync(
+                        new NotificationCreateInfo(
+                            admin.Id,
+                            "Document requires review",
+                            $"Document #{document.Id} was auto rejected by AI"
+                        )
+                    );
+                }
             }
         }
-    }
 
-    return BaseResult.Success();
-}
+        return BaseResult.Success();
+    }
 
     public async Task<BaseResult> UpdateAsync(
         int id,
@@ -117,21 +117,43 @@ public class CarDocumentService(
         if (!carRes.IsSuccess || carRes.Value is null)
             return BaseResult.Failure(Error.NotFound("Car not found"));
 
-        if (carRes.Value.OwnerId != currentUserId)
+        var car = carRes.Value;
+
+        if (car.OwnerId != currentUserId)
             return BaseResult.Failure(Error.Forbidden());
 
         // удалить старый файл
         await fileService.DeleteFile(document.FilePath, MediaFolders.Docs);
 
-        // создать новый
+        // сохранить новый файл
         var newPath = await fileService.CreateFile(
             updateInfo.File,
             MediaFolders.Docs);
 
         document.FilePath = newPath;
-        document.VerificationStatus = DocumentVerificationStatus.Pending;
-        document.VerifiedAt = new DateTimeOffset();
+
+        // 🔥 AI verification
+        var aiRes = await aiDocumentService.VerifyAsync(newPath);
+
+        if (aiRes.IsSuccess)
+        {
+            document.AiConfidenceScore = aiRes.Value!.ConfidenceScore;
+            document.AiExtractedDataJson = aiRes.Value.ExtractedJson;
+
+            document.VerificationStatus =
+                aiRes.Value.IsValid
+                    ? DocumentVerificationStatus.AutoApproved
+                    : DocumentVerificationStatus.AutoRejected;
+        }
+        else
+        {
+            document.VerificationStatus = DocumentVerificationStatus.Pending;
+        }
+
+        // reset admin verification
+        document.VerifiedAt = DateTimeOffset.UtcNow;
         document.VerifiedByAdminId = null;
+
         document.UpdatedAt = DateTimeOffset.UtcNow;
         document.Version++;
 
@@ -141,6 +163,32 @@ public class CarDocumentService(
             return BaseResult.Failure(update.Error);
 
         await RecalculateCarStatus(document.CarId);
+
+        // 🔔 уведомление владельцу
+        await notificationService.CreateAsync(
+            new NotificationCreateInfo(
+                car.OwnerId,
+                "Document updated",
+                $"Your document \"{document.DocumentType}\" has been updated and re-verified."
+            )
+        );
+
+        // 🔔 уведомление админам
+        var admins = await userRepository.GetAdminsAsync();
+
+        if (admins.IsSuccess)
+        {
+            foreach (var admin in admins.Value!)
+            {
+                await notificationService.CreateAsync(
+                    new NotificationCreateInfo(
+                        admin.Id,
+                        "Document updated",
+                        $"Car #{car.Id} document \"{document.DocumentType}\" requires verification."
+                    )
+                );
+            }
+        }
 
         return BaseResult.Success();
     }

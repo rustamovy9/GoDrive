@@ -32,17 +32,18 @@ public sealed class CarDocumentConfig : IEntityTypeConfiguration<CarDocument>
             .HasColumnType("jsonb");
 
         builder.Property(cd => cd.AiConfidenceScore)
-            .HasPrecision(5,4);
+            .HasPrecision(5, 4);
 
         builder.HasIndex(cd => cd.CarId);
         builder.HasIndex(cd => new { cd.CarId, cd.DocumentType });
-        
+
         builder.HasIndex(cd => new { cd.CarId, cd.DocumentType })
-            .IsUnique();
-        
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = false");
+
         builder.HasOne(d => d.VerifiedByAdmin)
             .WithMany()
             .HasForeignKey(d => d.VerifiedByAdminId)
             .OnDelete(DeleteBehavior.Restrict);
     }
-}   
+}
