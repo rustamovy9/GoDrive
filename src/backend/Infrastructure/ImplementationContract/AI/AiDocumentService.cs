@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Application.Contracts.AI;
-using Application.Contracts.Services;
 using Application.DTO_s;
 using Application.Extensions.ResultPattern;
 using Domain.Common;
