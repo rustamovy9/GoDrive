@@ -15,7 +15,8 @@ public class CarDocumentService(
     ICarRepository carRepository,
     IUserRepository userRepository,
     INotificationService notificationService,
-    IFileService fileService) : ICarDocumentService
+    IFileService fileService,
+    IAiDocumentService aiDocumentService) : ICarDocumentService
 {
     public async Task<Result<IEnumerable<CarDocumentReadInfo>>> GetByCarIdAsync(int carId)
     {
@@ -31,34 +32,54 @@ public class CarDocumentService(
         return Result<IEnumerable<CarDocumentReadInfo>>.Success(data);
     }
 
-    public async Task<BaseResult> CreateAsync(CarDocumentCreateInfo createInfo)
+   public async Task<BaseResult> CreateAsync(CarDocumentCreateInfo createInfo)
+{
+    var carRes = await carRepository.GetByIdAsync(createInfo.CarId);
+
+    if (!carRes.IsSuccess || carRes.Value is null)
+        return BaseResult.Failure(Error.NotFound("Car not found"));
+
+    // 1. сохраняем файл
+    var document = await createInfo.ToEntity(fileService);
+
+    // 2. AI verification
+    var aiResult = await aiDocumentService.VerifyAsync(document.FilePath);
+
+    if (aiResult.IsSuccess)
     {
-        var carRes = await carRepository.GetByIdAsync(createInfo.CarId);
-        if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car not found"));
+        document.AiConfidenceScore = aiResult.Value!.ConfidenceScore;
+        document.AiExtractedDataJson = aiResult.Value.ExtractedJson;
 
-        
+        document.VerificationStatus = aiResult.Value.IsValid
+            ? DocumentVerificationStatus.AutoApproved
+            : DocumentVerificationStatus.AutoRejected;
+    }
+    else
+    {
+        document.VerificationStatus = DocumentVerificationStatus.Pending;
+    }
 
-        var document = await createInfo.ToEntity(fileService);
+    // 3. save document
+    var result = await repository.AddAsync(document);
 
-        var result = await repository.AddAsync(document);
-        if (!result.IsSuccess)
-            return BaseResult.Failure(result.Error);
+    if (!result.IsSuccess)
+        return BaseResult.Failure(result.Error);
 
-        await RecalculateCarStatus(carRes.Value.Id);
+    await RecalculateCarStatus(carRes.Value.Id);
 
-        // 🔔 уведомление владельцу
-        await notificationService.CreateAsync(
-            new NotificationCreateInfo(
-                carRes.Value.OwnerId,
-                "Document submitted",
-                "Your document has been submitted and is pending verification."
-            )
-        );
+    // уведомление owner
+    await notificationService.CreateAsync(
+        new NotificationCreateInfo(
+            carRes.Value.OwnerId,
+            "Document uploaded",
+            $"Document was automatically {document.VerificationStatus}"
+        )
+    );
 
-        // 🔔 уведомление админам
+    // уведомление admin только если rejected
+    if (document.VerificationStatus == DocumentVerificationStatus.AutoRejected)
+    {
         var admins = await userRepository.GetAdminsAsync();
-
 
         if (admins.IsSuccess)
         {
@@ -67,16 +88,17 @@ public class CarDocumentService(
                 await notificationService.CreateAsync(
                     new NotificationCreateInfo(
                         admin.Id,
-                        "New document uploaded",
-                        $"Car #{carRes.Value.Id} document requires verification."
+                        "Document requires review",
+                        $"Document #{document.Id} was auto rejected by AI"
                     )
                 );
             }
         }
-
-        return BaseResult.Success();
     }
-    
+
+    return BaseResult.Success();
+}
+
     public async Task<BaseResult> UpdateAsync(
         int id,
         CarDocumentCreateInfo updateInfo,
@@ -122,7 +144,6 @@ public class CarDocumentService(
         return BaseResult.Success();
     }
 
-    
 
     public async Task<BaseResult> UpdateStatusAsync(
         int id,
@@ -133,7 +154,7 @@ public class CarDocumentService(
 
         if (!documentRes.IsSuccess || documentRes.Value is null)
             return BaseResult.Failure(Error.NotFound("Document not found"));
-        
+
 
         var document = documentRes.Value;
 
@@ -163,7 +184,7 @@ public class CarDocumentService(
 
         return BaseResult.Success();
     }
-    
+
 
     public async Task<BaseResult> DeleteAsync(
         int id,
@@ -191,7 +212,7 @@ public class CarDocumentService(
         await fileService.DeleteFile(document.FilePath, MediaFolders.Docs);
 
         var deleteResult = await repository.DeleteAsync(id);
-        
+
         if (!deleteResult.IsSuccess)
             return BaseResult.Failure(deleteResult.Error);
 
@@ -199,7 +220,7 @@ public class CarDocumentService(
 
         return BaseResult.Success();
     }
-    
+
     public async Task<Result<(byte[] FileBytes, string FileName)>> DownloadAsync(
         int id,
         int currentUserId,
@@ -225,12 +246,12 @@ public class CarDocumentService(
         // 🔥 вместо FileExists + GetFileAsync
         var file = await fileService.DownloadAsync(
             document.FilePath,
-            MediaFolders.Docs 
+            MediaFolders.Docs
         );
 
         return Result<(byte[], string)>.Success(file);
     }
-    
+
     private async Task RecalculateCarStatus(int carId)
     {
         var documentsRes = repository.Find(x => x.CarId == carId);
@@ -243,7 +264,7 @@ public class CarDocumentService(
         var carRes = await carRepository.GetByIdAsync(carId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return ;
+            return;
 
         var car = carRes.Value;
 
