@@ -13,7 +13,8 @@ public class AiDocumentService : IAiDocumentService
 
     public AiDocumentService()
     {
-        tessDataPath = Path.Combine(AppContext.BaseDirectory, "tessdata");
+        tessDataPath = Environment.GetEnvironmentVariable("TESSDATA_PREFIX")
+                       ?? "/usr/share/tesseract-ocr/4.00/tessdata";
     }
 
     public async Task<Result<AiDocumentResult>> VerifyAsync(string filePath)

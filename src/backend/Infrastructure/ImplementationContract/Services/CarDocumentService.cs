@@ -46,6 +46,10 @@ public class CarDocumentService(
         // 2. AI verification
         var aiResult = await aiDocumentService.VerifyAsync(document.FilePath);
 
+        Console.WriteLine("AI Success: " + aiResult.IsSuccess);
+        
+        Console.WriteLine("AI Success: " + aiResult.Value!.IsValid);
+        
         if (aiResult.IsSuccess)
         {
             document.AiConfidenceScore = aiResult.Value!.ConfidenceScore;
