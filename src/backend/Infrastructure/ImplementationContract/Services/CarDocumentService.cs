@@ -1,4 +1,5 @@
-﻿using Application.Contracts.Repositories;
+﻿using Application.Contracts.AI;
+using Application.Contracts.Repositories;
 using Application.Contracts.Services;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
