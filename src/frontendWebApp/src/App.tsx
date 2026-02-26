@@ -1,9 +1,19 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "./features/auth/AuthProvider";
+import { AppRouter } from "./routes/AppRouter";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 1, refetchOnWindowFocus: false },
+  },
+});
+
 export default function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-600">
-        Tailwind работает брат 🚀
-      </h1>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
