@@ -13,8 +13,16 @@ public class AiDocumentService : IAiDocumentService
 
     public AiDocumentService()
     {
-        tessDataPath = Environment.GetEnvironmentVariable("TESSDATA_PREFIX")
-                       ?? "/usr/share/tesseract-ocr/4.00/tessdata";
+        var dockerPath = "/usr/share/tesseract-ocr/5/tessdata";
+
+        if (Directory.Exists(dockerPath))
+            tessDataPath = dockerPath;
+        else
+            tessDataPath = Environment.GetEnvironmentVariable("TESSDATA_PREFIX")
+                           ?? "/usr/share/tesseract-ocr/5/tessdata";
+        
+        Console.WriteLine("TESS PATH: " + tessDataPath);
+        Console.WriteLine("DIR EXISTS: " + Directory.Exists(tessDataPath));
     }
 
     public async Task<Result<AiDocumentResult>> VerifyAsync(string filePath)
