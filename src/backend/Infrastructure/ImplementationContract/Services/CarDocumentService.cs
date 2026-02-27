@@ -47,8 +47,11 @@ public class CarDocumentService(
         var aiResult = await aiDocumentService.VerifyAsync(document.FilePath);
 
         Console.WriteLine("AI Success: " + aiResult.IsSuccess);
-        
-        Console.WriteLine("AI Success: " + aiResult.Value!.IsValid);
+
+        if (aiResult.IsSuccess)
+        {
+            Console.WriteLine("AI Valid: " + aiResult.Value!.IsValid);
+        }
         
         if (aiResult.IsSuccess)
         {
@@ -307,7 +310,7 @@ public class CarDocumentService(
 
     private async Task RecalculateCarStatus(int carId)
     {
-        var documentsRes = repository.Find(x => x.CarId == carId);
+        var documentsRes = repository.Find(x => x.CarId == carId && !x.IsDeleted);
 
         if (!documentsRes.IsSuccess)
             return;
@@ -325,15 +328,20 @@ public class CarDocumentService(
         {
             car.CarStatus = CarStatus.Blocked;
         }
-        else if (documents.Any(d => d.VerificationStatus == DocumentVerificationStatus.Pending))
+        else if (documents.Any(d =>
+                     d.VerificationStatus == DocumentVerificationStatus.Pending))
         {
             car.CarStatus = CarStatus.PendingApproval;
         }
-        else if (documents.Any(d => d.VerificationStatus == DocumentVerificationStatus.RejectedByAdmin))
+        else if (documents.Any(d =>
+                     d.VerificationStatus == DocumentVerificationStatus.AutoRejected ||
+                     d.VerificationStatus == DocumentVerificationStatus.RejectedByAdmin))
         {
             car.CarStatus = CarStatus.Blocked;
         }
-        else if (documents.All(d => d.VerificationStatus == DocumentVerificationStatus.ApprovedByAdmin))
+        else if (documents.All(d =>
+                     d.VerificationStatus == DocumentVerificationStatus.AutoApproved ||
+                     d.VerificationStatus == DocumentVerificationStatus.ApprovedByAdmin))
         {
             car.CarStatus = CarStatus.Available;
         }
