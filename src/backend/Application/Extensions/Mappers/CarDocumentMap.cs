@@ -16,7 +16,6 @@ public static class CarDocumentMap
             DocumentType: document.DocumentType,
             FilePath: document.FilePath,
             VerificationStatus: document.VerificationStatus,
-            AiConfidenceScore: document.AiConfidenceScore,
             CreatedAt: document.CreatedAt
         );
     }

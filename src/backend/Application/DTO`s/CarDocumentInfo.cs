@@ -9,7 +9,6 @@ public sealed record CarDocumentReadInfo(
     CarDocumentType DocumentType,
     string FilePath,
     DocumentVerificationStatus VerificationStatus,
-    double? AiConfidenceScore,
     DateTimeOffset CreatedAt);
     
     
