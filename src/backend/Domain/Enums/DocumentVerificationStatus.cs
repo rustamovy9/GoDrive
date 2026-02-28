@@ -3,8 +3,6 @@
 public enum DocumentVerificationStatus
 {
     Pending,
-    AutoApproved,
-    AutoRejected,
-    ApprovedByAdmin,
-    RejectedByAdmin
+    Approved,
+    Rejected
 }

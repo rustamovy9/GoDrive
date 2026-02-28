@@ -28,12 +28,6 @@ public sealed class CarDocumentConfig : IEntityTypeConfiguration<CarDocument>
         builder.Property(cd => cd.VerificationStatus)
             .IsRequired();
 
-        builder.Property(cd => cd.AiExtractedDataJson)
-            .HasColumnType("jsonb");
-
-        builder.Property(cd => cd.AiConfidenceScore)
-            .HasPrecision(5, 4);
-
         builder.HasIndex(cd => cd.CarId);
         builder.HasIndex(cd => new { cd.CarId, cd.DocumentType });
 

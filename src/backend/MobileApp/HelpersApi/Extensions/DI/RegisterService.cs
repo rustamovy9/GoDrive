@@ -1,5 +1,4 @@
-﻿using Application.Contracts.AI;
-using Application.Contracts.Repositories;
+﻿using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.BaseRepository;
 using Application.Contracts.Repositories.BaseRepository.CRUD;
 using Application.Contracts.Services;
@@ -7,7 +6,6 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Infrastructure.DataAccess;
 using Infrastructure.Extensions.Authentication;
-using Infrastructure.ImplementationContract.AI;
 using Infrastructure.ImplementationContract.Repositories;
 using Infrastructure.ImplementationContract.Repositories.BaseRepository;
 using Infrastructure.ImplementationContract.Repositories.BaseRepository.Crud;
@@ -168,7 +166,6 @@ public static class RegisterService
         builder.Services.AddScoped<IRealtimeNotifier, SignalRNotifier>();
         
         //registration AI
-        builder.Services.AddScoped<IAiDocumentService, AiDocumentService>();
 
         //registration validation
         

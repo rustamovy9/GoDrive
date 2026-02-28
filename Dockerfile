@@ -2,16 +2,7 @@
 WORKDIR /app
 EXPOSE 8080
 
-# Устанавливаем Tesseract + языки
-RUN apt-get update && \
-    apt-get install -y \
-        tesseract-ocr \
-        tesseract-ocr-rus \
-        tesseract-ocr-eng \
-        libgdiplus \
-    && rm -rf /var/lib/apt/lists/*
 
-ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
