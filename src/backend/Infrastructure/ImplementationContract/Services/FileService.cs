@@ -28,8 +28,17 @@ public class FileService : IFileService
 
         _client = new Supabase.Client(url, key);
     }
-    
-    
+
+
+    public async Task<string> GetFileUrl(string fileName, string bucket)
+    {
+        var storage = _client.Storage.From(bucket);
+
+        var publicUrl = storage.GetPublicUrl(fileName);
+
+        return await Task.FromResult(publicUrl);
+    }
+
     public async Task<string> CreateFile(IFormFile file, string bucket)
     {
         if (file == null || file.Length == 0)

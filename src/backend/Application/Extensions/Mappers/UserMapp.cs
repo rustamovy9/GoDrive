@@ -8,10 +8,15 @@ namespace Application.Extensions.Mappers;
 
 public static class UserMapper
 {
-    public static UserReadInfo ToRead(this User user)
+    public static UserReadInfo ToRead(this User user,IFileService fileService)
     {
+        var avatarUrl = string.IsNullOrWhiteSpace(user.AvatarPath)
+            ? null
+            :  fileService.GetFileUrl(user.AvatarPath, MediaFolders.Images);
+        
         return new UserReadInfo(
             user.Id,
+            user.UserName,
             user.FirstName,
             user.LastName,
             user.DateOfBirth,
