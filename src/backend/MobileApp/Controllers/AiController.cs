@@ -1,4 +1,5 @@
-﻿using Application.Contracts.AI;
+﻿using System.Diagnostics;
+using Application.Contracts.AI;
 using Application.Contracts.Repositories;
 using Application.DTO_s.AI;
 using Domain.Constants;
@@ -13,10 +14,12 @@ public sealed class AiController(IAiAssistantService aiAssistantService,ICarRepo
     int UserId =>
         int.Parse(User.FindFirst(CustomClaimTypes.Id)?.Value
                   ?? throw new UnauthorizedAccessException("UserId not found"));
+
+    private string FirstName =>
+        User.FindFirst(CustomClaimTypes.FirstName)?.Value ?? throw new Exception("FirstName not found") ;
     [HttpPost("chat")]
     public async Task<IActionResult> Chat([FromBody] AiAssistantRequest aiAssistantRequest)
     {
-        aiAssistantRequest.UserId = UserId;
         var cars = await carRepository.GetAvailableCarsAsync();
         
         var context = cars.Value!.Select(c => new CarAiContext
@@ -27,10 +30,11 @@ public sealed class AiController(IAiAssistantService aiAssistantService,ICarRepo
             PricePerDay = c.CarPrices.Select(x=>x.PricePerDay).FirstOrDefault(),
             Rating = c.Reviews.Average(x=>x.Rating),
             Year = c.Year,
-            City = c.Location.City
+            City = c.Location.City,
+            RentalName = c.RentalCompany!.Name
         }).ToList();
 
-        var res = await aiAssistantService.ChatAsync(aiAssistantRequest, context); 
+        var res = await aiAssistantService.ChatAsync(UserId,FirstName,aiAssistantRequest, context); 
         
         return Ok(res);
     }

@@ -19,6 +19,11 @@ public class CarRepository(DataContext dbContext)
         try
         {
             var data = await _dbContext.Cars
+                .AsNoTracking()
+                .Include(c=>c.RentalCompany)
+                .Include(c=>c.Reviews)
+                .Include(c=>c.CarPrices)
+                .Include(c=>c.Location)
                 .Where(c => c.IsActive && !c.IsDeleted && c.CarStatus == CarStatus.Available).ToListAsync();
 
             return Result<IEnumerable<Car>>.Success(data);
