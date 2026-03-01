@@ -12,32 +12,50 @@ public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
     private readonly string _apiKey = Environment.GetEnvironmentVariable("GOOGLE_AI_API_KEY")
                                       ?? throw new Exception("Google AI key not found");
 
-    public async Task<AiAssistantResponse> ChatAsync(AiAssistantRequest request, List<CarAiContext> cars)
+    public async Task<AiAssistantResponse> ChatAsync(int userId, string firstName, AiAssistantRequest request,
+        List<CarAiContext> cars)
     {
-        var systemPrompt = @"You are GoDrive AI Assistant.
-                            You help clients choose rental cars.
+        var systemPrompt = $@"
+                            You are GoDrive AI Assistant.
+
+                            User name: {firstName}
+
+                            You help clients:
+                            - Choose rental cars
+                            - Answer questions about bookings
+                            - Explain prices
+                            - Suggest best options
+
                             Rules:
-                            - Return ONLY JSON.
+                            - Return ONLY valid JSON.
                             - Do NOT invent cars.
                             - Use only provided CarId values.
                             - Maximum 3 recommendations.
+                            - If user just asks a question, respond normally.
+                            - Always address user by their first name.
                             - Speak in user's language.
-                                Return format:
-                                {
-                                    """"reply"""": """"message"""",
-                                    """"recommendedCarIds"""": [int]
-                                }";
+
+                            Return format:
+
+                            {{
+                              ""reply"": ""message"",
+                              ""recommendedCarIds"": [int]
+                            }}";
+
+
         var carsContext = string.Join("\n",
             cars.Select(c =>
                 $"CarId:{c.CarId}, {c.Brand} {c.Model}, Price:{c.PricePerDay}, Rating:{c.Rating}, Year:{c.Year}, City:{c.City}"
             ));
 
-        var fullPrompt = $@"{systemPrompt}
+        var fullPrompt = $@"
+                            {systemPrompt}
+
                             User message:
                             {request.Message}
                             Available cars:
                             {carsContext}";
-        
+
         var body = new
         {
             contents = new[]
@@ -62,7 +80,6 @@ public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
             content);
 
         var json = await response.Content.ReadAsStringAsync();
-
         using var doc = JsonDocument.Parse(json);
 
         var text = doc
@@ -72,7 +89,17 @@ public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
             .GetProperty("parts")[0]
             .GetProperty("text")
             .GetString();
-
-        return JsonSerializer.Deserialize<AiAssistantResponse>(text!)!;
+        try
+        {
+            return JsonSerializer.Deserialize<AiAssistantResponse>(text!)!;
+        }
+        catch (Exception e)
+        {
+            return new AiAssistantResponse
+            {
+                Reply = text ?? "Sorry, something went wrong.",
+                RecommendedCarIds = new List<int>()
+            };
+        }
     }
 }
