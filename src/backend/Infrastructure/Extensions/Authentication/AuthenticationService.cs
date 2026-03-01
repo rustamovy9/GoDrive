@@ -23,7 +23,6 @@ public class AuthenticationService(IConfiguration config, DataContext dbContext)
         List<Claim> claims =
         [
             new(CustomClaimTypes.Id, user.Id.ToString()),
-            new(CustomClaimTypes.UserName, user.UserName),
             new(CustomClaimTypes.Email, user.Email),
             new(CustomClaimTypes.Phone, user.PhoneNumber),
             new(CustomClaimTypes.FirstName, user.FirstName),

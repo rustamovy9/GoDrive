@@ -11,7 +11,7 @@ namespace MobileApp.Controllers;
 [ApiController]
 [Route("api/notifications")]
 [Authorize]
-public class NotificationController(INotificationService service) : ControllerBase
+public sealed class NotificationController(INotificationService service) : ControllerBase
 {
     private int UserId =>
         int.Parse(User.FindFirst(CustomClaimTypes.Id)?.Value

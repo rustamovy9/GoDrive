@@ -38,7 +38,8 @@ public static class CarMapper
             car.CarStatus,
             car.Category.Name,
             car.Location.Country + "," + car.Location.City,
-            car.Owner.UserName,
+            car.Owner.FirstName +" "+car.Owner.LastName,
+            
             car.CarPrices.OrderByDescending(x => x.CreatedAt)
                 .Select(x=>x.PricePerDay)
                 .FirstOrDefault(),

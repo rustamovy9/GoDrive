@@ -22,8 +22,6 @@ public class UserService(
     public async Task<Result<PagedResponse<IEnumerable<UserReadInfo>>>> GetAllAsync(UserFilter filter)
     {
         Expression<Func<User, bool>> filterExpression = user =>
-            (string.IsNullOrEmpty(filter.UserName) ||
-             EF.Functions.ILike(user.UserName, $"%{filter.UserName}%")) &&
             (string.IsNullOrEmpty(filter.FirstName) ||
              EF.Functions.ILike(user.FirstName, $"%{filter.FirstName}%")) &&
             (string.IsNullOrEmpty(filter.LastName) ||
@@ -105,7 +103,7 @@ public class UserService(
 
         if (res.Value!.AvatarPath != FileData.Default)
         {
-            fileService.DeleteFile(res.Value.AvatarPath, MediaFolders.Images);
+            await fileService.DeleteFile(res.Value.AvatarPath, MediaFolders.Images);
         }
 
         Result<int> result = await repository.DeleteAsync(id);

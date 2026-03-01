@@ -5,7 +5,6 @@ namespace Application.DTO_s;
 
 public sealed record UserReadInfo(
     int Id,
-    string UserName,
     string FirstName,
     string LastName,
     DateTimeOffset DateOfBirth,

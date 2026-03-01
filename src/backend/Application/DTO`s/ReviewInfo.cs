@@ -6,7 +6,7 @@ public sealed record ReviewReadInfo(
     int CarId,
     int Rating,
     string? Comment,
-    string UserName,
+    string FullName,
     DateTimeOffset CreatedAt);
 
 public sealed record ReviewUpdateInfo(

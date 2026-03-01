@@ -12,7 +12,7 @@ public static class ReviewMapper
             CarId: review.CarId,
             Rating: review.Rating,
             Comment: review.Comment,
-            UserName: review.User.UserName,
+            FullName: review.User.FirstName+" "+review.User.LastName,
             CreatedAt: review.CreatedAt
         );
     }

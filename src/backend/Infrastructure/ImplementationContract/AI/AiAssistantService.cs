@@ -1,0 +1,78 @@
+﻿using System.Text;
+using Application.Contracts.AI;
+using Application.DTO_s.AI;
+using System.Text.Json;
+
+namespace Infrastructure.ImplementationContract.AI;
+
+public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
+{
+    private readonly HttpClient _httpClient = httpClient;
+
+    private readonly string _apiKey = Environment.GetEnvironmentVariable("GOOGLE_AI_API_KEY")
+                                      ?? throw new Exception("Google AI key not found");
+
+    public async Task<AiAssistantResponse> ChatAsync(AiAssistantRequest request, List<CarAiContext> cars)
+    {
+        var systemPrompt = @"You are GoDrive AI Assistant.
+                            You help clients choose rental cars.
+                            Rules:
+                            - Return ONLY JSON.
+                            - Do NOT invent cars.
+                            - Use only provided CarId values.
+                            - Maximum 3 recommendations.
+                            - Speak in user's language.
+                                Return format:
+                                {
+                                    """"reply"""": """"message"""",
+                                    """"recommendedCarIds"""": [int]
+                                }";
+        var carsContext = string.Join("\n",
+            cars.Select(c =>
+                $"CarId:{c.CarId}, {c.Brand} {c.Model}, Price:{c.PricePerDay}, Rating:{c.Rating}, Year:{c.Year}, City:{c.City}"
+            ));
+
+        var fullPrompt = $@"{systemPrompt}
+                            User message:
+                            {request.Message}
+                            Available cars:
+                            {carsContext}";
+        
+        var body = new
+        {
+            contents = new[]
+            {
+                new
+                {
+                    parts = new[]
+                    {
+                        new { text = fullPrompt }
+                    }
+                }
+            }
+        };
+
+        var content = new StringContent(
+            JsonSerializer.Serialize(body),
+            Encoding.UTF8,
+            "application/json");
+
+        var response = await _httpClient.PostAsync(
+            $"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={_apiKey}",
+            content);
+
+        var json = await response.Content.ReadAsStringAsync();
+
+        using var doc = JsonDocument.Parse(json);
+
+        var text = doc
+            .RootElement
+            .GetProperty("candidates")[0]
+            .GetProperty("content")
+            .GetProperty("parts")[0]
+            .GetProperty("text")
+            .GetString();
+
+        return JsonSerializer.Deserialize<AiAssistantResponse>(text!)!;
+    }
+}

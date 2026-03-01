@@ -13,7 +13,7 @@ namespace MobileApp.Controllers;
 [ApiController]
 [Route("api/roles")]
 [Authorize(Roles = DefaultRoles.Admin)]
-public class RoleController (IRoleService service) : BaseController
+public sealed class RoleController (IRoleService service) : BaseController
 {
     [HttpGet] public async Task<IActionResult> Get([FromQuery] RoleFilter filter)
         => (await service.GetAllAsync(filter)).ToActionResult();

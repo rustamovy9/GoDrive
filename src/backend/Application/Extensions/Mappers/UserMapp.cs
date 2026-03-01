@@ -12,7 +12,6 @@ public static class UserMapper
     {
         return new UserReadInfo(
             user.Id,
-            user.UserName,
             user.FirstName,
             user.LastName,
             user.DateOfBirth,

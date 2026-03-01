@@ -10,7 +10,7 @@ namespace MobileApp.Controllers;
 
 [ApiController]
 [Route("api/locations")]
-public class LocationController(ILocationService service) : ControllerBase
+public sealed class LocationController(ILocationService service) : ControllerBase
 {
     // 🌍 Получить все локации (доступно всем)
     [HttpGet]

@@ -11,7 +11,7 @@ namespace MobileApp.Controllers;
 [ApiController]
 [Route("api/reviews")]
 [Authorize]
-public class ReviewController(IReviewService service) : BaseController
+public sealed class ReviewController(IReviewService service) : BaseController
 {
     private int CurrentUserId =>
         int.Parse(User.FindFirst(CustomClaimTypes.Id)?.Value

@@ -11,13 +11,6 @@ public sealed class UserConfig : IEntityTypeConfiguration<User>
         builder.HasKey(u => u.Id);
         builder.Property(u => u.Id).ValueGeneratedOnAdd();
 
-        builder.Property(u => u.UserName)
-            .IsRequired()
-            .HasMaxLength(100);
-        
-        builder.HasIndex(u => u.UserName)
-            .IsUnique();
-        
         builder.Property(u => u.Email)
             .IsRequired().
             HasMaxLength(200);

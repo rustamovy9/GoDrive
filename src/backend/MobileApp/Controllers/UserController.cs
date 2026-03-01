@@ -11,7 +11,7 @@ namespace MobileApp.Controllers;
 [ApiController]
 [Route("api/users")]
 [Authorize]
-public class UserController(IUserService service) : BaseController
+public sealed class UserController(IUserService service) : BaseController
 {
     private int CurrentUserId =>
         int.Parse(User.FindFirst(CustomClaimTypes.Id)?.Value

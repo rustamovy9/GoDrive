@@ -8,13 +8,6 @@ public class RegisterInfoValidator : AbstractValidator<RegisterRequest>
 {
     public RegisterInfoValidator()
     {
-        RuleFor(user => user.UserName)
-            .NotEmpty()
-            .MaximumLength(40)
-            .Matches("^[a-zA-Z0-9_]+$")
-            .WithMessage("UserName can contain only letters, numbers and underscore");
-
-
         RuleFor(user => user.FirstName)
             .NotEmpty().WithMessage("FirstName is required.")
             .MaximumLength(50).WithMessage("FirstName must not exceed 50 characters.");
@@ -23,8 +16,6 @@ public class RegisterInfoValidator : AbstractValidator<RegisterRequest>
             .NotEmpty().WithMessage("LastName is required.")
             .MaximumLength(50).WithMessage("LastName must not exceed 50 characters.");
 
-        RuleFor(user => user.DateOfBirth)
-            .LessThanOrEqualTo(DateTimeOffset.UtcNow).WithMessage("DateOfBirth cannot be in the future.");
 
         RuleFor(user => user.Email)
             .NotEmpty().WithMessage("Email is required.")
@@ -40,7 +31,7 @@ public class RegisterInfoValidator : AbstractValidator<RegisterRequest>
             .NotEmpty().WithMessage("Password is required")
             .MinimumLength(6).WithMessage("The password must contain at least 6 characters.")
             .MaximumLength(50).WithMessage("Password must not exceed 50 characters.")
-            .NotEqual(x=>x.UserName).WithMessage("Password cannot be the same as UserName");
+            .NotEqual(x=>x.Email).WithMessage("Password cannot be the same as Email");
         
         RuleFor(user => user.ConfirmPassword)
             .NotEmpty().WithMessage("Confirm is required")
