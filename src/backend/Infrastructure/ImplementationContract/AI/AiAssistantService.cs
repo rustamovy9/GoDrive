@@ -76,10 +76,15 @@ public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
             "application/json");
 
         var response = await _httpClient.PostAsync(
-            $"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={_apiKey}",
+            $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={_apiKey}",
             content);
 
         var json = await response.Content.ReadAsStringAsync();
+        
+        Console.WriteLine("==== GEMINI RAW RESPONSE ====");
+        Console.WriteLine(json);
+        Console.WriteLine("=============================");
+        
         using var doc = JsonDocument.Parse(json);
 
         if (!doc.RootElement.TryGetProperty("candidates", out var candidates))
@@ -97,8 +102,6 @@ public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
             .GetProperty("text")
             .GetString();
         
-        Console.WriteLine("Gemini RAW RESPONSE:");
-        Console.WriteLine(json);
         try
         {
             return JsonSerializer.Deserialize<AiAssistantResponse>(text!)!;
