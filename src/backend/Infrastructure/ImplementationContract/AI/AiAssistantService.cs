@@ -96,6 +96,9 @@ public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
             .GetProperty("parts")[0]
             .GetProperty("text")
             .GetString();
+        
+        Console.WriteLine("Gemini RAW RESPONSE:");
+        Console.WriteLine(json);
         try
         {
             return JsonSerializer.Deserialize<AiAssistantResponse>(text!)!;
