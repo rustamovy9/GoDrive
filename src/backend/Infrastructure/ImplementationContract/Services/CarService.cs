@@ -79,7 +79,8 @@ public class CarService(
         var data = await query
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Include(x=>x.CarImages)
+            .Include(x => x.CarImages)
+            .Include(c => c.CarPrices)
             .Select(c => c.ToRead())
             .ToListAsync();
 
@@ -91,33 +92,33 @@ public class CarService(
 
     public async Task<Result<CarDetailReadInfo>> GetByIdAsync(int id, int currentUserId, bool isAdmin)
     {
-        var res =  repository.Find(x=>x.Id == id);
+        var res = repository.Find(x => x.Id == id);
 
         if (!res.IsSuccess)
             return Result<CarDetailReadInfo>.Failure(res.Error);
 
         var car = await res.Value!
-            .Include(x=>x.Category)
-            .Include(x=>x.Location)
-            .Include(x=>x.Owner)
-            .Include(x=>x.CarPrices)
-            .Include(x=>x.CarImages)
-            .Include(x=>x.CarDocuments)
             .AsNoTracking()
+            .Include(x => x.Category)
+            .Include(x => x.Location)
+            .Include(x => x.Owner)
+            .Include(x => x.CarPrices)
+            .Include(x => x.CarImages)
+            .Include(x => x.CarDocuments)
             .FirstOrDefaultAsync();
 
         if (car == null)
             return Result<CarDetailReadInfo>.Failure(Error.NotFound());
-        
+
 // 👤 если не админ
         if (!isAdmin)
         {
             bool isOwner = car.OwnerId == currentUserId;
             bool isAvailable = car.CarStatus == CarStatus.Available;
-            
+
             if (!isOwner && !isAvailable)
             {
-                    return Result<CarDetailReadInfo>.Failure(Error.NotFound());
+                return Result<CarDetailReadInfo>.Failure(Error.NotFound());
             }
         }
 
@@ -131,7 +132,7 @@ public class CarService(
 
         if (conflict.IsSuccess && await conflict.Value!.AnyAsync())
             return BaseResult.Failure(Error.Conflict("Registration number already exists."));
-        
+
         Car car = createInfo.ToEntity();
 
         var userRoles = userRoleRepository.Find(x => x.UserId == ownerId);
