@@ -82,9 +82,16 @@ public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
         var json = await response.Content.ReadAsStringAsync();
         using var doc = JsonDocument.Parse(json);
 
-        var text = doc
-            .RootElement
-            .GetProperty("candidates")[0]
+        if (!doc.RootElement.TryGetProperty("candidates", out var candidates))
+        {
+            return new AiAssistantResponse
+            {
+                Reply = "AI service error. Please try again later.",
+                RecommendedCarIds = new List<int>()
+            };
+        }
+
+        var text = candidates[0]
             .GetProperty("content")
             .GetProperty("parts")[0]
             .GetProperty("text")
