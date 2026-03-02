@@ -12,13 +12,13 @@ public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
     private readonly string _apiKey = Environment.GetEnvironmentVariable("GOOGLE_AI_API_KEY")
                                       ?? throw new Exception("Google AI key not found");
 
-    public async Task<AiAssistantResponse> ChatAsync(int userId, string firstName, AiAssistantRequest request,
+    public async Task<AiAssistantResponse> ChatAsync(int userId, string userName, AiAssistantRequest request,
         List<CarAiContext> cars)
     {
         var systemPrompt = $@"
                             You are GoDrive AI Assistant.
 
-                            User name: {firstName}
+                            User name: {userName}
 
                             You help clients:
                             - Choose rental cars

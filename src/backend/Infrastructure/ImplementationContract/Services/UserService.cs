@@ -55,7 +55,7 @@ public class UserService(
             .OrderByDescending(x => x.CreatedAt)
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(x => x.ToRead())
+            .Select(x => x.ToRead(fileService))
             .ToListAsync();
 
         var response = PagedResponse<IEnumerable<UserReadInfo>>
@@ -69,7 +69,7 @@ public class UserService(
         Result<User?> res = await repository.GetByIdAsync(id);
         if (!res.IsSuccess) return Result<UserReadInfo>.Failure(res.Error);
 
-        return Result<UserReadInfo>.Success(res.Value!.ToRead());
+        return Result<UserReadInfo>.Success(res.Value!.ToRead(fileService));
     }
 
 
@@ -105,7 +105,7 @@ public class UserService(
 
         if (res.Value!.AvatarPath != FileData.Default)
         {
-            fileService.DeleteFile(res.Value.AvatarPath, MediaFolders.Images);
+            await fileService.DeleteFile(res.Value.AvatarPath, MediaFolders.Images);
         }
 
         Result<int> result = await repository.DeleteAsync(id);

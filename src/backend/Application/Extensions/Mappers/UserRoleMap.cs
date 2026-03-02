@@ -1,3 +1,4 @@
+using Application.Contracts.Services;
 using Application.DTO_s;
 using Domain.Entities;
 
@@ -5,14 +6,14 @@ namespace Application.Extensions.Mappers;
 
 public static class UserRoleMap
 {
-    public static UserRoleReadInfo ToRead(this UserRole userRole)
+    public static UserRoleReadInfo ToRead(this UserRole userRole,IFileService fileService)
     {
         return new UserRoleReadInfo
         (
             Id: userRole.Id,
             UserId: userRole.UserId,
             RoleId: userRole.RoleId,
-            User: userRole.User.ToRead(),
+            User: userRole.User.ToRead(fileService),
             Role: userRole.Role.ToRead()
         );
     }

@@ -42,7 +42,7 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
 
         var data = await imagesRes.Value!
             .OrderByDescending(x => x.IsMain)
-            .Select(x => x.ToRead())
+            .Select(x => x.ToRead(fileService))
             .ToListAsync();
 
         return Result<IEnumerable<CarImageReadInfo>>

@@ -16,7 +16,7 @@ public sealed class AiController(IAiAssistantService aiAssistantService,ICarRepo
                   ?? throw new UnauthorizedAccessException("UserId not found"));
 
     private string FirstName =>
-        User.FindFirst(CustomClaimTypes.FirstName)?.Value ?? throw new Exception("FirstName not found") ;
+        User.FindFirst(CustomClaimTypes.UserName)?.Value ?? throw new Exception("UserName not found") ;
     [HttpPost("chat")]
     public async Task<IActionResult> Chat([FromBody] AiAssistantRequest aiAssistantRequest)
     {
