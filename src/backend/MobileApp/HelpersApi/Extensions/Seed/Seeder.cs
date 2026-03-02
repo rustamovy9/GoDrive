@@ -91,6 +91,7 @@ file class SeedData
         new User()
         {
             Id = 1,
+            UserName = "admin1",
             FirstName = "Admin",
             LastName = "Adminov",
             Email = "admin@gmail.com",
@@ -101,6 +102,7 @@ file class SeedData
         new User()
         {
             Id = 2,
+            UserName = "user1",
             FirstName = "User",
             LastName = "Userov",
             Email = "user@gmail.com",
