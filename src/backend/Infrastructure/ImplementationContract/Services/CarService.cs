@@ -17,6 +17,7 @@ public class CarService(
     ICarRepository repository,
     INotificationService notificationService,
     IUserRoleRepository userRoleRepository,
+    IFileService fileService,
     IUserService userService) : ICarService
 {
     public async Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter, string role,
@@ -81,7 +82,7 @@ public class CarService(
             .Take(filter.PageSize)
             .Include(x => x.CarImages)
             .Include(c => c.CarPrices)
-            .Select(c => c.ToRead())
+            .Select(c => c.ToRead(fileService))
             .ToListAsync();
 
         var response = PagedResponse<IEnumerable<CarReadInfo>>
@@ -122,7 +123,7 @@ public class CarService(
             }
         }
 
-        return Result<CarDetailReadInfo>.Success(car.ToReadDetail());
+        return Result<CarDetailReadInfo>.Success(car.ToReadDetail(fileService));
     }
 
 

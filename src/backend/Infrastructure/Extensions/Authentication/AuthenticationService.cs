@@ -24,6 +24,7 @@ public class AuthenticationService(IConfiguration config, DataContext dbContext)
         [
             new(CustomClaimTypes.Id, user.Id.ToString()),
             new(CustomClaimTypes.Email, user.Email),
+            new(CustomClaimTypes.UserName, user.UserName),
             new(CustomClaimTypes.Phone, user.PhoneNumber),
             new(CustomClaimTypes.FirstName, user.FirstName),
             new(CustomClaimTypes.LastName, user.LastName),

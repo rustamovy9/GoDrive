@@ -6,7 +6,7 @@ public interface IAiAssistantService
 {
     Task<AiAssistantResponse> ChatAsync(
         int userId,
-        string firstName,
+        string userName,
         AiAssistantRequest request,
         List<CarAiContext> cars);
 }

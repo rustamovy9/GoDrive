@@ -12,10 +12,10 @@ public class FileService : IFileService
     private readonly HashSet<string> _allowedExtensions = new(StringComparer.OrdinalIgnoreCase)
         { ".jpg", ".png", ".jpeg", ".mp4", ".pdf" };
 
-    
+
     private readonly Supabase.Client _client;
-    
-    public FileService(IConfiguration config) 
+
+    public FileService(IConfiguration config)
     {
         var url = config["Supabase:Url"];
         var key = config["Supabase:Key"];
@@ -30,13 +30,13 @@ public class FileService : IFileService
     }
 
 
-    public async Task<string> GetFileUrl(string fileName, string bucket)
+    public Task<string> GetFileUrl(string fileName, string bucket)
     {
         var storage = _client.Storage.From(bucket);
 
         var publicUrl = storage.GetPublicUrl(fileName);
 
-        return await Task.FromResult(publicUrl);
+        return Task.FromResult(publicUrl);
     }
 
     public async Task<string> CreateFile(IFormFile file, string bucket)
@@ -56,7 +56,7 @@ public class FileService : IFileService
 
         var storage = _client.Storage.From(bucket);
 
-        await storage.Upload(bytes, fileName);          
+        await storage.Upload(bytes, fileName);
 
         return fileName;
     }
@@ -72,7 +72,7 @@ public class FileService : IFileService
     {
         var storage = _client.Storage.From(bucket);
 
-        var bytes = await storage.Download(fileName,null);
+        var bytes = await storage.Download(fileName, null);
 
         return (bytes, fileName);
     }

@@ -25,7 +25,7 @@ public class CarDocumentService(
             return Result<IEnumerable<CarDocumentReadInfo>>.Failure(res.Error);
 
         var data = await res.Value!
-            .Select(x => x.ToRead())
+            .Select(x => x.ToRead(fileService))
             .ToListAsync();
 
         return Result<IEnumerable<CarDocumentReadInfo>>.Success(data);

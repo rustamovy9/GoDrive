@@ -1,4 +1,5 @@
-﻿using Application.Contracts.Services;
+﻿using System.Runtime.Intrinsics.Arm;
+using Application.Contracts.Services;
 using Application.DTO_s;
 using Domain.Constants;
 using Domain.Entities;
@@ -8,8 +9,13 @@ namespace Application.Extensions.Mappers;
 
 public static class CarDocumentMap
 {
-    public static CarDocumentReadInfo ToRead(this CarDocument document)
+    public static CarDocumentReadInfo ToRead(this CarDocument document,IFileService fileService)
     {
+        var avatarUrl = string.IsNullOrWhiteSpace(document.FilePath)
+            ? null
+            :  fileService.GetFileUrl(document.FilePath, MediaFolders.Docs);
+
+        
         return new CarDocumentReadInfo(
             Id: document.Id,
             CarId: document.CarId,

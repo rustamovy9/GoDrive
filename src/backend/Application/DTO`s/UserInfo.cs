@@ -12,7 +12,7 @@ public sealed record UserReadInfo(
     string Email,
     string? PhoneNumber,
     string? Address,
-    string AvatarPath,
+    Task<string>? AvatarPath,
     DateTimeOffset CreatedAt);
 
 public sealed record UserUpdateInfo(

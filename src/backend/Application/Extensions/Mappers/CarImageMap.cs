@@ -7,8 +7,12 @@ namespace Application.Extensions.Mappers;
 
 public static class CarImageMap
 {
-    public static CarImageReadInfo ToRead(this CarImage image)
+    public static CarImageReadInfo ToRead(this CarImage image,IFileService fileService)
     {
+        var avatarUrl = string.IsNullOrWhiteSpace(image.ImagePath)
+            ? null
+            :  fileService.GetFileUrl(image.ImagePath, MediaFolders.Images);
+
         return new CarImageReadInfo(
             Id: image.Id,
             CarId: image.CarId,

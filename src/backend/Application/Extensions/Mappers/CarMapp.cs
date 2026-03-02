@@ -1,4 +1,7 @@
-﻿using Application.DTO_s;
+﻿using System.Collections.Immutable;
+using Application.Contracts.Services;
+using Application.DTO_s;
+using Domain.Constants;
 using Domain.Entities;
 using Domain.Enums;
 
@@ -7,7 +10,7 @@ namespace Application.Extensions.Mappers;
 
 public static class CarMapper
 {
-    public static CarReadInfo ToRead(this Car car)
+    public static CarReadInfo ToRead(this Car car,IFileService fileService)
     {
         return new CarReadInfo(
             car.Id,
@@ -27,7 +30,7 @@ public static class CarMapper
         );
     }
 
-    public static CarDetailReadInfo ToReadDetail(this Car car)
+    public static CarDetailReadInfo ToReadDetail(this Car car,IFileService fileService)
     {
         return new CarDetailReadInfo(
             car.Id,
@@ -44,7 +47,7 @@ public static class CarMapper
                 .Select(x=>x.PricePerDay)
                 .FirstOrDefault(),
             car.CarImages.Select(ci => ci.ImagePath).ToList(),
-            car.CarDocuments.Select(x => x.ToRead()).ToList(),
+            car.CarDocuments.Select(x => x.ToRead(fileService)).ToList(),
             car.CreatedAt
         );
     }
