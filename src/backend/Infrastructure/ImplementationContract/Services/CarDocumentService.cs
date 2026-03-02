@@ -233,17 +233,23 @@ public class CarDocumentService(
     
     private async Task RecalculateCarStatus(int carId)
     {
-        var documentsRes = repository.Find(x => x.CarId == carId);
+        var documentsRes = repository.Find(x => x.CarId == carId && !x.IsDeleted);
 
         if (!documentsRes.IsSuccess)
             return;
 
         var documents = await documentsRes.Value!.ToListAsync();
+        
+        Console.WriteLine("---- DOCS FOR CAR: " + carId + " ----");
+
+        foreach (var d in documents)
+        {
+            Console.WriteLine($"Doc {d.Id}: {d.VerificationStatus}");
+        }
 
         var carRes = await carRepository.GetByIdAsync(carId);
-
         if (!carRes.IsSuccess || carRes.Value is null)
-            return ;
+            return;
 
         var car = carRes.Value;
 
@@ -259,7 +265,7 @@ public class CarDocumentService(
         {
             car.CarStatus = CarStatus.Blocked;
         }
-        else if (documents.All(d => d.VerificationStatus == DocumentVerificationStatus.Approved))
+        else
         {
             car.CarStatus = CarStatus.Available;
         }
