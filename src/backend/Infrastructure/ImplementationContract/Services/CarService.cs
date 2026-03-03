@@ -78,10 +78,10 @@ public class CarService(
         int count = await query.CountAsync();
 
         var data = await query
-            .Skip((filter.PageNumber - 1) * filter.PageSize)
-            .Take(filter.PageSize)
             .Include(x => x.CarImages)
             .Include(c => c.CarPrices)
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
             .Select(c => c.ToRead(fileService))
             .ToListAsync();
 
@@ -189,10 +189,10 @@ public class CarService(
 
         var car = res.Value;
 
-        if (!isAdmin && car.OwnerId != currentUserId)
+        if (!isAdmin && car!.OwnerId != currentUserId)
             return BaseResult.Failure(Error.Forbidden());
 
-        if (!isAdmin && car.CarStatus != CarStatus.Blocked)
+        if (!isAdmin && car!.CarStatus != CarStatus.Blocked)
             return BaseResult.Failure(
                 Error.BadRequest("Only blocked car can be deleted"));
 

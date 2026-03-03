@@ -30,13 +30,13 @@ public class FileService : IFileService
     }
 
 
-    public Task<string> GetFileUrl(string fileName, string bucket)
+    public string GetFileUrl(string fileName, string bucket)
     {
         var storage = _client.Storage.From(bucket);
 
         var publicUrl = storage.GetPublicUrl(fileName);
 
-        return Task.FromResult(publicUrl);
+        return publicUrl;
     }
 
     public async Task<string> CreateFile(IFormFile file, string bucket)

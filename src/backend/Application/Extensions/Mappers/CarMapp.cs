@@ -1,16 +1,14 @@
-﻿using System.Collections.Immutable;
-using Application.Contracts.Services;
+﻿using Application.Contracts.Services;
 using Application.DTO_s;
 using Domain.Constants;
 using Domain.Entities;
-using Domain.Enums;
 
 
 namespace Application.Extensions.Mappers;
 
 public static class CarMapper
 {
-    public static CarReadInfo ToRead(this Car car,IFileService fileService)
+    public static CarReadInfo ToRead(this Car car, IFileService fileService)
     {
         return new CarReadInfo(
             car.Id,
@@ -22,16 +20,18 @@ public static class CarMapper
             car.LocationId,
             car.RentalCompanyId,
             car.CarImages
-                .Select(ci => ci.ImagePath)
+                .Select(ci => fileService.GetFileUrl(ci.ImagePath,MediaFolders.Images))
                 .ToList(),
-            car.CarPrices.OrderByDescending(x=>x.CreatedAt).Select(cp => cp.PricePerDay)
+            car.CarPrices.OrderByDescending(x => x.CreatedAt).Select(cp => cp.PricePerDay)
                 .FirstOrDefault(),
             car.CreatedAt
         );
     }
 
-    public static CarDetailReadInfo ToReadDetail(this Car car,IFileService fileService)
+    public static CarDetailReadInfo ToReadDetail(this Car car, IFileService fileService)
     {
+
+
         return new CarDetailReadInfo(
             car.Id,
             car.Brand,
@@ -41,13 +41,13 @@ public static class CarMapper
             car.CarStatus,
             car.Category.Name,
             car.Location.Country + "," + car.Location.City,
-            car.Owner.FirstName +" "+car.Owner.LastName,
-            
-            car.CarPrices.OrderByDescending(x => x.CreatedAt)
-                .Select(x=>x.PricePerDay)
-                .FirstOrDefault(),
-            car.CarImages.Select(ci => ci.ImagePath).ToList(),
-            car.CarDocuments.Select(x => x.ToRead(fileService)).ToList(),
+            car.Owner.UserName,
+            car.CarPrices
+            .OrderByDescending(p => p.CreatedAt)
+            .Select(p => p.PricePerDay)
+            .FirstOrDefault(),
+            car.CarImages.Select(ci =>fileService.GetFileUrl(ci.ImagePath, MediaFolders.Images)).ToList(),
+            car.CarDocuments.Select(x => fileService.GetFileUrl(x.FilePath,MediaFolders.Docs)).ToList(),
             car.CreatedAt
         );
     }
