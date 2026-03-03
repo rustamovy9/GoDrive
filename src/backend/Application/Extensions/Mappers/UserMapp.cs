@@ -23,7 +23,7 @@ public static class UserMapper
             user.Email,
             user.PhoneNumber,
             user.Address,
-            avatarUrl,
+            avatarUrl!,
             user.CreatedAt
         );
     }

@@ -18,7 +18,7 @@ public sealed record CarReadInfo(
     
     DateTimeOffset CreatedAt);
 
-public record CarDetailReadInfo(
+public sealed record CarDetailReadInfo(
     int Id,
     string Brand,
     string Model,
@@ -28,13 +28,13 @@ public record CarDetailReadInfo(
 
     string CategoryName,
     string Location,
-    string OwnerName,
+    string OwnerUserName,
 
     decimal CurrentPricePerDay,
 
-    IReadOnlyList<string> Images,
+    ICollection<string> Images,
 
-    IReadOnlyList<CarDocumentReadInfo> Documents,
+    ICollection<string> Documents,
 
     DateTimeOffset CreatedAt
 );

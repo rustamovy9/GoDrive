@@ -7,17 +7,17 @@ namespace Application.Extensions.Mappers;
 
 public static class CarImageMap
 {
-    public static CarImageReadInfo ToRead(this CarImage image,IFileService fileService)
+    public static CarImageReadInfo ToRead(this CarImage image, IFileService fileService)
     {
-        var avatarUrl = string.IsNullOrWhiteSpace(image.ImagePath)
+        var imageUrl = string.IsNullOrWhiteSpace(image.ImagePath)
             ? null
-            :  fileService.GetFileUrl(image.ImagePath, MediaFolders.Images);
+            : fileService.GetFileUrl(image.ImagePath, MediaFolders.Images);
 
         return new CarImageReadInfo(
-            Id: image.Id,
-            CarId: image.CarId,
-            ImagePath: image.ImagePath,
-            IsMain: image.IsMain);
+            image.Id,
+            image.CarId,
+            imageUrl!,
+            image.IsMain);
     }
 
     public static async Task<CarImage> ToEntity(

@@ -11,19 +11,18 @@ public static class CarDocumentMap
 {
     public static CarDocumentReadInfo ToRead(this CarDocument document,IFileService fileService)
     {
-        var avatarUrl = string.IsNullOrWhiteSpace(document.FilePath)
+        var fileUrl = string.IsNullOrWhiteSpace(document.FilePath)
             ? null
             :  fileService.GetFileUrl(document.FilePath, MediaFolders.Docs);
-
         
-        return new CarDocumentReadInfo(
-            Id: document.Id,
-            CarId: document.CarId,
-            DocumentType: document.DocumentType,
-            FilePath: document.FilePath,
-            VerificationStatus: document.VerificationStatus,
-            CreatedAt: document.CreatedAt
-        );
+            return new CarDocumentReadInfo(
+                Id: document.Id,
+                CarId: document.CarId,
+                DocumentType: document.DocumentType,
+                FilePath: fileUrl!,
+                VerificationStatus: document.VerificationStatus,
+                CreatedAt: document.CreatedAt
+            );
     }
 
     public static async Task<CarDocument> ToEntity(this CarDocumentCreateInfo createInfo, IFileService fileService)
