@@ -82,7 +82,25 @@ public class CarService(
             .Include(c => c.CarPrices)
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(c => c.ToRead(fileService))
+            .Select(c => new CarReadInfo(
+                    c.Id,
+                    c.Brand,
+                    c.Model,
+                    c.Year,
+                    c.CarStatus,
+                    c.CategoryId,
+                    c.LocationId,
+                    c.RentalCompanyId,
+                    c.CarImages.Select(ci =>
+                        fileService.GetFileUrl(ci.ImagePath, MediaFolders.Images)
+                    ).ToList(),
+                    c.CarPrices
+                        .Where(p => p.CarId == c.Id)
+                        .OrderByDescending(p => p.CreatedAt)
+                        .Select(p => p.PricePerDay)
+                        .FirstOrDefault(),
+                    c.CreatedAt
+                ))
             .ToListAsync();
 
         var response = PagedResponse<IEnumerable<CarReadInfo>>
