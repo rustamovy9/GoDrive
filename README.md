@@ -183,7 +183,7 @@ mobile app
 
 AUTHOR
 
-Akai Yusuf
+Yusuf Rustamov
 Backend Developer (.NET)
 
 GitHub
