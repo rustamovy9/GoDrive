@@ -32,10 +32,18 @@ public class AiAssistantService(
 
         return intent.Intent switch
         {
-            "recommend_cars" => await RecommendCars(userName),
-            "recommend_cars_with_filters" => await RecommendCarsWithFilters(message, userName),
-            "owner_analytics" => await OwnerAnalytics(userId),
-            "admin_stats" => await AdminStats(),
+            "recommend_cars" =>
+                await RecommendCars(userName, intent.Reply),
+
+            "recommend_cars_with_filters" =>
+                await RecommendCarsWithFilters(message, userName, intent.Reply),
+
+            "owner_analytics" =>
+                await OwnerAnalytics(userId),
+
+            "admin_stats" =>
+                await AdminStats(),
+
             _ => new AiAssistantResponse
             {
                 Reply = string.IsNullOrWhiteSpace(intent.Reply)
@@ -172,7 +180,9 @@ User message:
        CAR RECOMMENDATION
     ========================= */
 
-    private async Task<AiAssistantResponse> RecommendCars(string userName)
+    private async Task<AiAssistantResponse> RecommendCars(
+        string userName,
+        string aiReply)
     {
         var cars = await _carRepository.GetAvailableCarsAsync();
 
@@ -199,7 +209,10 @@ User message:
 
         return new AiAssistantResponse
         {
-            Reply = $"Here are some cars you may like, {userName}.",
+            Reply = string.IsNullOrWhiteSpace(aiReply)
+                ? $"Here are some cars you may like, {userName}."
+                : aiReply,
+
             RecommendedCarIds = bestCars.Select(c => c.Id).ToList()
         };
     }
@@ -252,7 +265,8 @@ Cars: {cars}
 
     private async Task<AiAssistantResponse> RecommendCarsWithFilters(
         string message,
-        string userName)
+        string userName,
+        string aiReply)
     {
         var cars = await _carRepository.GetAvailableCarsAsync();
 
@@ -279,15 +293,11 @@ Cars: {cars}
         }
 
         if (message.ToLower().Contains("family"))
-        {
             query = query.Where(c => c.Seats >= 5);
-        }
 
         if (message.ToLower().Contains("dushanbe"))
-        {
             query = query.Where(c =>
                 c.Location.City.ToLower() == "dushanbe");
-        }
 
         var result = query
             .Select(c => new
@@ -304,7 +314,10 @@ Cars: {cars}
 
         return new AiAssistantResponse
         {
-            Reply = $"Here are cars that match your request, {userName}.",
+            Reply = string.IsNullOrWhiteSpace(aiReply)
+                ? $"Here are cars that match your request, {userName}."
+                : aiReply,
+
             RecommendedCarIds = result.Select(x => x.Id).ToList()
         };
     }
