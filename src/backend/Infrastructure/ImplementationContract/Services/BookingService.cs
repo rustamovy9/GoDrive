@@ -46,12 +46,17 @@ public class BookingService(
 
         if (!isAdmin)
         {
-            query = query.Where(b => b.UserId == currentUserId);
+            query = query.Where(b =>
+                b.UserId == currentUserId ||
+                b.Car.OwnerId == currentUserId);
         }
         
         int count = await query.CountAsync();
 
         var data = await query
+            .Include(x => x.Car)
+            .Include(x => x.PickupLocation)
+            .Include(x => x.DropOffLocation)
             .OrderByDescending(x => x.CreatedAt)
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
