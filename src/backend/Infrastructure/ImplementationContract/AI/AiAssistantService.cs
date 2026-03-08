@@ -116,6 +116,11 @@ User message:
             content);
 
         var json = await response.Content.ReadAsStringAsync();
+        
+        
+        Console.WriteLine("===== GEMINI RAW RESPONSE =====");
+        Console.WriteLine(json);
+        Console.WriteLine("================================");
 
         using var doc = JsonDocument.Parse(json);
 
