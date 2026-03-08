@@ -1,60 +1,96 @@
 ﻿using System.Text;
-using Application.Contracts.AI;
-using Application.DTO_s.AI;
 using System.Text.Json;
+using Application.Contracts.AI;
+using Application.Contracts.Repositories;
+using Application.DTO_s.AI;
 
 namespace Infrastructure.ImplementationContract.AI;
 
-public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
+public class AiAssistantService(
+    HttpClient httpClient,
+    ICarRepository carRepository,
+    IBookingRepository bookingRepository,
+    IUserRepository userRepository) : IAiAssistantService
 {
     private readonly HttpClient _httpClient = httpClient;
+    private readonly ICarRepository _carRepository = carRepository;
+    private readonly IBookingRepository _bookingRepository = bookingRepository;
+    private readonly IUserRepository _userRepository = userRepository;
 
-    private readonly string _apiKey = Environment.GetEnvironmentVariable("GOOGLE_AI_API_KEY")
-                                      ?? throw new Exception("Google AI key not found");
+    private readonly string _apiKey =
+        Environment.GetEnvironmentVariable("GOOGLE_AI_API_KEY")
+        ?? throw new Exception("Google AI key not found");
 
-    public async Task<AiAssistantResponse> ChatAsync(int userId, string userName, AiAssistantRequest request,
-        List<CarAiContext> cars)
+    public async Task<AiAssistantResponse> ChatAsync(
+        int userId,
+        string userName,
+        string role,
+        string message)
     {
-        var systemPrompt = $@"
-                            You are GoDrive AI Assistant.
+        var intent = await DetectIntent(userName, role, message);
 
-                            User name: {userName}
+        switch (intent.Intent)
+        {
+            case "recommend_cars":
+            return await RecommendCars(userName);
 
-                            You help clients:
-                            - Choose rental cars
-                            - Answer questions about bookings
-                            - Explain prices
-                            - Suggest best options
+            case "recommend_cars_with_filters":
+            return await RecommendCarsWithFilters(message, userName);
 
-                            Rules:
-                            - Return ONLY valid JSON.
-                            - Do NOT invent cars.
-                            - Use only provided CarId values.
-                            - Maximum 3 recommendations.
-                            - If user just asks a question, respond normally.
-                            - Always address user by their first name.
-                            - Speak in user's language.
+            case "owner_analytics":
+            return await OwnerAnalytics(userId);
 
-                            Return format:
+            case "admin_stats":
+            return await AdminStats();
 
-                            {{
-                              ""reply"": ""message"",
-                              ""recommendedCarIds"": [int]
-                            }}";
+            default:
+            return new AiAssistantResponse
+            {
+                Reply = intent.Reply
+            };
+        }
+    }
 
+    /* ========================
+       INTENT DETECTION
+    ======================== */
 
-        var carsContext = string.Join("\n",
-            cars.Select(c =>
-                $"CarId:{c.CarId}, {c.Brand} {c.Model}, Price:{c.PricePerDay}, Rating:{c.Rating}, Year:{c.Year}, City:{c.City}"
-            ));
+    private async Task<AiIntentResponse> DetectIntent(
+        string userName,
+        string role,
+        string message)
+    {
+        var prompt = $@"
+You are GoDrive AI assistant for a car rental platform.
 
-        var fullPrompt = $@"
-                            {systemPrompt}
+User name: {userName}
+User role: {role}
 
-                            User message:
-                            {request.Message}
-                            Available cars:
-                            {carsContext}";
+Roles:
+user → car recommendations
+owner → earnings and rentals analytics
+admin → platform statistics
+
+IMPORTANT:
+Detect the language of the user and respond in the same language.
+
+Possible intents:
+
+recommend_cars
+owner_analytics
+admin_stats
+general_question
+
+Return JSON:
+
+{{
+""intent"": """",
+""reply"": """"
+}}
+
+User message:
+{message}
+";
 
         var body = new
         {
@@ -64,7 +100,7 @@ public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
                 {
                     parts = new[]
                     {
-                        new { text = fullPrompt }
+                        new { text = prompt }
                     }
                 }
             }
@@ -80,19 +116,15 @@ public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
             content);
 
         var json = await response.Content.ReadAsStringAsync();
-        
-        Console.WriteLine("==== GEMINI RAW RESPONSE ====");
-        Console.WriteLine(json);
-        Console.WriteLine("=============================");
-        
+
         using var doc = JsonDocument.Parse(json);
 
         if (!doc.RootElement.TryGetProperty("candidates", out var candidates))
         {
-            return new AiAssistantResponse
+            return new AiIntentResponse
             {
-                Reply = "AI service error. Please try again later.",
-                RecommendedCarIds = new List<int>()
+                Intent = "general_question",
+                Reply = "AI service error"
             };
         }
 
@@ -101,18 +133,142 @@ public class AiAssistantService(HttpClient httpClient) : IAiAssistantService
             .GetProperty("parts")[0]
             .GetProperty("text")
             .GetString();
-        
+
         try
         {
-            return JsonSerializer.Deserialize<AiAssistantResponse>(text!)!;
+            return JsonSerializer.Deserialize<AiIntentResponse>(text!)!;
         }
-        catch (Exception e)
+        catch
+        {
+            return new AiIntentResponse
+            {
+                Intent = "general_question",
+                Reply = text ?? "AI error"
+            };
+        }
+    }
+
+    /* ========================
+       CAR RECOMMENDATION
+    ======================== */
+
+    private async Task<AiAssistantResponse> RecommendCars(string userName)
+    {
+        var cars = await _carRepository.GetAvailableCarsAsync();
+
+        if (cars.Value == null || !cars.Value.Any())
         {
             return new AiAssistantResponse
             {
-                Reply = text ?? "Sorry, something went wrong.",
-                RecommendedCarIds = new List<int>()
+                Reply = "No cars available right now."
             };
         }
+
+        var bestCars = cars.Value
+            .Select(c => new
+            {
+                c.Id,
+                Rating = c.Reviews
+                    .Select(r => r.Rating)
+                    .DefaultIfEmpty(0)
+                    .Average()
+            })
+            .OrderByDescending(c => c.Rating)
+            .Take(3)
+            .ToList();
+
+        return new AiAssistantResponse
+        {
+            Reply = $"Here are some cars you may like, {userName}.",
+            RecommendedCarIds = bestCars.Select(c => c.Id).ToList()
+        };
+    }
+
+    /* ========================
+       OWNER ANALYTICS
+    ======================== */
+
+    private async Task<AiAssistantResponse> OwnerAnalytics(int ownerId)
+    {
+        var earnings = await _bookingRepository.GetOwnerMonthlyEarnings(ownerId);
+        var rentals = await _bookingRepository.GetActiveRentals(ownerId);
+
+        return new AiAssistantResponse
+        {
+            Reply = $@"
+Owner analytics:
+
+Active rentals: {rentals}
+Monthly earnings: ${earnings}
+"
+        };
+    }
+
+    /* ========================
+       ADMIN STATS
+    ======================== */
+
+    private async Task<AiAssistantResponse> AdminStats()
+    {
+        var users = await _userRepository.CountUsers();
+        var owners = await _userRepository.CountOwners();
+        var cars = await _carRepository.CountCars();
+
+        return new AiAssistantResponse
+        {
+            Reply = $@"
+Platform statistics:
+
+Users: {users}
+Owners: {owners}
+Cars: {cars}
+"
+        };
+    }
+    
+    private async Task<AiAssistantResponse> RecommendCarsWithFilters(
+        string message,
+        string userName)
+    {
+        var cars = await _carRepository.GetAvailableCarsAsync();
+
+        if (cars.Value == null || !cars.Value.Any())
+        {
+            return new AiAssistantResponse
+            {
+                Reply = "No cars available."
+            };
+        }
+
+        var query = cars.Value.AsQueryable();
+
+        if (message.Contains("50"))
+            query = query.Where(c =>
+                c.CarPrices.Any(p => p.PricePerDay <= 50));
+
+        if (message.ToLower().Contains("family"))
+            query = query.Where(c => c.Seats >= 5);
+
+        if (message.ToLower().Contains("dushanbe"))
+            query = query.Where(c => c.Location.City.ToLower() == "dushanbe");
+
+        var result = query
+            .Select(c => new
+            {
+                c.Id,
+                Rating = c.Reviews
+                    .Select(r => r.Rating)
+                    .DefaultIfEmpty(0)
+                    .Average()
+            })
+            .OrderByDescending(x => x.Rating)
+            .Take(3)
+            .ToList();
+
+        return new AiAssistantResponse
+        {
+            Reply = $"Here are cars that match your request, {userName}.",
+            RecommendedCarIds = result.Select(x => x.Id).ToList()
+        };
     }
 }

@@ -8,4 +8,6 @@ public interface IUserRepository : IGenericRepository<User>
 {
     Task<Result<IEnumerable<User>>> GetAdminsAsync();
     Task<Result<bool>> IsAdminAsync(int adminId);
+    Task<int> CountUsers();
+    Task<int> CountOwners();
 }

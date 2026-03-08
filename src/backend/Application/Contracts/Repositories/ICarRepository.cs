@@ -7,4 +7,5 @@ namespace Application.Contracts.Repositories;
 public interface ICarRepository : IGenericRepository<Car>
 {
     Task<Result<IEnumerable<Car>>> GetAvailableCarsAsync();
+    Task<int> CountCars();
 }

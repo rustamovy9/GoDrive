@@ -23,6 +23,9 @@ public sealed class CarConfig : IEntityTypeConfiguration<Car>
         builder.Property(c => c.Year)
             .IsRequired();
         
+           builder.Property(c => c.Seats)
+            .IsRequired();
+        
         builder.Property(c => c.RegistrationNumber)
             .IsRequired()
             .HasMaxLength(50);
