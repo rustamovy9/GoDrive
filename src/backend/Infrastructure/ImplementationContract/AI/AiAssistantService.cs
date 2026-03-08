@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Application.Contracts.AI;
 using Application.Contracts.Repositories;
 using Application.DTO_s.AI;
@@ -32,22 +33,22 @@ public class AiAssistantService(
         switch (intent.Intent)
         {
             case "recommend_cars":
-            return await RecommendCars(userName);
+                return await RecommendCars(userName);
 
             case "recommend_cars_with_filters":
-            return await RecommendCarsWithFilters(message, userName);
+                return await RecommendCarsWithFilters(message, userName);
 
             case "owner_analytics":
-            return await OwnerAnalytics(userId);
+                return await OwnerAnalytics(userId);
 
             case "admin_stats":
-            return await AdminStats();
+                return await AdminStats();
 
             default:
-            return new AiAssistantResponse
-            {
-                Reply = intent.Reply
-            };
+                return new AiAssistantResponse
+                {
+                    Reply = intent.Reply
+                };
         }
     }
 
@@ -77,6 +78,7 @@ Detect the language of the user and respond in the same language.
 Possible intents:
 
 recommend_cars
+recommend_cars_with_filters
 owner_analytics
 admin_stats
 general_question
@@ -112,12 +114,11 @@ User message:
             "application/json");
 
         var response = await _httpClient.PostAsync(
-            $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={_apiKey}",
+            $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={_apiKey}",
             content);
 
         var json = await response.Content.ReadAsStringAsync();
-        
-        
+
         Console.WriteLine("===== GEMINI RAW RESPONSE =====");
         Console.WriteLine(json);
         Console.WriteLine("================================");
@@ -133,11 +134,24 @@ User message:
             };
         }
 
+        if (candidates.GetArrayLength() == 0)
+        {
+            return new AiIntentResponse
+            {
+                Intent = "general_question",
+                Reply = "AI returned empty response"
+            };
+        }
+
         var text = candidates[0]
             .GetProperty("content")
             .GetProperty("parts")[0]
             .GetProperty("text")
             .GetString();
+
+        text = text?.Replace("```json", "")
+            .Replace("```", "")
+            .Trim();
 
         try
         {
@@ -230,7 +244,11 @@ Cars: {cars}
 "
         };
     }
-    
+
+    /* ========================
+       SMART CAR SEARCH
+    ======================== */
+
     private async Task<AiAssistantResponse> RecommendCarsWithFilters(
         string message,
         string userName)
@@ -247,15 +265,25 @@ Cars: {cars}
 
         var query = cars.Value.AsQueryable();
 
-        if (message.Contains("50"))
+        var priceMatch = Regex.Match(message, @"\d+");
+
+        if (priceMatch.Success)
+        {
+            var price = int.Parse(priceMatch.Value);
+
             query = query.Where(c =>
-                c.CarPrices.Any(p => p.PricePerDay <= 50));
+                c.CarPrices.Any(p => p.PricePerDay <= price));
+        }
 
         if (message.ToLower().Contains("family"))
+        {
             query = query.Where(c => c.Seats >= 5);
+        }
 
         if (message.ToLower().Contains("dushanbe"))
+        {
             query = query.Where(c => c.Location.City.ToLower() == "dushanbe");
+        }
 
         var result = query
             .Select(c => new
