@@ -8,7 +8,7 @@ public class AiAssistantRequest
 public class AiAssistantResponse
 {
     public string Reply { get; set; } = string.Empty;
-    public List<int> RecommendedCarIds { get; set; } = new();
+    public List<int>? RecommendedCarIds { get; set; } = new();
 }
 
 public class AiIntentResponse
