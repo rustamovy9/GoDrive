@@ -84,7 +84,7 @@ User message:
 
         var body = new
         {
-            model = "llama3-70b-8192",
+            model = "llama-3.3-70b-versatile",
             messages = new[]
             {
                 new { role = "user", content = prompt }
