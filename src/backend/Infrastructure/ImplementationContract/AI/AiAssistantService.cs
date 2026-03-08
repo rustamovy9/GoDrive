@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Application.Contracts.AI;
 using Application.Contracts.Repositories;
 using Application.DTO_s.AI;
@@ -19,8 +18,8 @@ public class AiAssistantService(
     private readonly IUserRepository _userRepository = userRepository;
 
     private readonly string _apiKey =
-        Environment.GetEnvironmentVariable("GOOGLE_AI_API_KEY")
-        ?? throw new Exception("Google AI key not found");
+        Environment.GetEnvironmentVariable("OPENROUTER_API_KEY")
+        ?? throw new Exception("Open router AI key not found");
 
     public async Task<AiAssistantResponse> ChatAsync(
         int userId,
@@ -33,22 +32,22 @@ public class AiAssistantService(
         switch (intent.Intent)
         {
             case "recommend_cars":
-                return await RecommendCars(userName);
+            return await RecommendCars(userName);
 
             case "recommend_cars_with_filters":
-                return await RecommendCarsWithFilters(message, userName);
+            return await RecommendCarsWithFilters(message, userName);
 
             case "owner_analytics":
-                return await OwnerAnalytics(userId);
+            return await OwnerAnalytics(userId);
 
             case "admin_stats":
-                return await AdminStats();
+            return await AdminStats();
 
             default:
-                return new AiAssistantResponse
-                {
-                    Reply = intent.Reply
-                };
+            return new AiAssistantResponse
+            {
+                Reply = intent.Reply
+            };
         }
     }
 
@@ -72,9 +71,6 @@ user → car recommendations
 owner → earnings and rentals analytics
 admin → platform statistics
 
-IMPORTANT:
-Detect the language of the user and respond in the same language.
-
 Possible intents:
 
 recommend_cars
@@ -96,57 +92,44 @@ User message:
 
         var body = new
         {
-            contents = new[]
+            model = "deepseek/deepseek-chat",
+            messages = new[]
             {
                 new
                 {
-                    parts = new[]
-                    {
-                        new { text = prompt }
-                    }
+                    role = "user",
+                    content = prompt
                 }
             }
         };
 
-        var content = new StringContent(
+        var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            "https://openrouter.ai/api/v1/chat/completions");
+
+        request.Headers.Add("Authorization", $"Bearer {_apiKey}");
+        request.Headers.Add("HTTP-Referer", "https://godrive.ai");
+        request.Headers.Add("X-Title", "GoDrive AI");
+
+        request.Content = new StringContent(
             JsonSerializer.Serialize(body),
             Encoding.UTF8,
             "application/json");
 
-        var response = await _httpClient.PostAsync(
-            $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={_apiKey}",
-            content);
+        var response = await _httpClient.SendAsync(request);
 
         var json = await response.Content.ReadAsStringAsync();
 
-        Console.WriteLine("===== GEMINI RAW RESPONSE =====");
+        Console.WriteLine("===== OPENROUTER RAW RESPONSE =====");
         Console.WriteLine(json);
-        Console.WriteLine("================================");
+        Console.WriteLine("===================================");
 
         using var doc = JsonDocument.Parse(json);
 
-        if (!doc.RootElement.TryGetProperty("candidates", out var candidates))
-        {
-            return new AiIntentResponse
-            {
-                Intent = "general_question",
-                Reply = "AI service error"
-            };
-        }
-
-        if (candidates.GetArrayLength() == 0)
-        {
-            return new AiIntentResponse
-            {
-                Intent = "general_question",
-                Reply = "AI returned empty response"
-            };
-        }
-
-        var text = candidates[0]
+        var text = doc.RootElement
+            .GetProperty("choices")[0]
+            .GetProperty("message")
             .GetProperty("content")
-            .GetProperty("parts")[0]
-            .GetProperty("text")
             .GetString();
 
         text = text?.Replace("```json", "")
@@ -244,11 +227,7 @@ Cars: {cars}
 "
         };
     }
-
-    /* ========================
-       SMART CAR SEARCH
-    ======================== */
-
+    
     private async Task<AiAssistantResponse> RecommendCarsWithFilters(
         string message,
         string userName)
@@ -265,25 +244,15 @@ Cars: {cars}
 
         var query = cars.Value.AsQueryable();
 
-        var priceMatch = Regex.Match(message, @"\d+");
-
-        if (priceMatch.Success)
-        {
-            var price = int.Parse(priceMatch.Value);
-
+        if (message.Contains("50"))
             query = query.Where(c =>
-                c.CarPrices.Any(p => p.PricePerDay <= price));
-        }
+                c.CarPrices.Any(p => p.PricePerDay <= 50));
 
         if (message.ToLower().Contains("family"))
-        {
             query = query.Where(c => c.Seats >= 5);
-        }
 
         if (message.ToLower().Contains("dushanbe"))
-        {
             query = query.Where(c => c.Location.City.ToLower() == "dushanbe");
-        }
 
         var result = query
             .Select(c => new
