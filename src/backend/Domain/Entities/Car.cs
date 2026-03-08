@@ -16,6 +16,7 @@ public class Car : BaseEntity
     public int OwnerId { get; set; }
     public int? RentalCompanyId { get; set; }
     public int LocationId { get; set; }
+    public int Seats { get; set; }
 
     public User Owner { get; set; } = null!;
     public Location Location { get; set; } = null!;

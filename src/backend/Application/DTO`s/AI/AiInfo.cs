@@ -27,3 +27,10 @@ public class CarAiContext
     public int Year { get; set; }
     public string City { get; set; } = "";
 }
+
+public class CarSearchFilter
+{
+    public decimal? MaxPrice { get; set; }
+    public string? City { get; set; }
+    public int? MinSeats { get; set; }
+}

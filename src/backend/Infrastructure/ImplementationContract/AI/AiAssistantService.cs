@@ -32,19 +32,22 @@ public class AiAssistantService(
         switch (intent.Intent)
         {
             case "recommend_cars":
-                return await RecommendCars(userName);
+            return await RecommendCars(userName);
+
+            case "recommend_cars_with_filters":
+            return await RecommendCarsWithFilters(message, userName);
 
             case "owner_analytics":
-                return await OwnerAnalytics(userId);
+            return await OwnerAnalytics(userId);
 
             case "admin_stats":
-                return await AdminStats();
+            return await AdminStats();
 
             default:
-                return new AiAssistantResponse
-                {
-                    Reply = intent.Reply
-                };
+            return new AiAssistantResponse
+            {
+                Reply = intent.Reply
+            };
         }
     }
 
@@ -220,6 +223,52 @@ Users: {users}
 Owners: {owners}
 Cars: {cars}
 "
+        };
+    }
+    
+    private async Task<AiAssistantResponse> RecommendCarsWithFilters(
+        string message,
+        string userName)
+    {
+        var cars = await _carRepository.GetAvailableCarsAsync();
+
+        if (cars.Value == null || !cars.Value.Any())
+        {
+            return new AiAssistantResponse
+            {
+                Reply = "No cars available."
+            };
+        }
+
+        var query = cars.Value.AsQueryable();
+
+        if (message.Contains("50"))
+            query = query.Where(c =>
+                c.CarPrices.Any(p => p.PricePerDay <= 50));
+
+        if (message.ToLower().Contains("family"))
+            query = query.Where(c => c.Seats >= 5);
+
+        if (message.ToLower().Contains("dushanbe"))
+            query = query.Where(c => c.Location.City.ToLower() == "dushanbe");
+
+        var result = query
+            .Select(c => new
+            {
+                c.Id,
+                Rating = c.Reviews
+                    .Select(r => r.Rating)
+                    .DefaultIfEmpty(0)
+                    .Average()
+            })
+            .OrderByDescending(x => x.Rating)
+            .Take(3)
+            .ToList();
+
+        return new AiAssistantResponse
+        {
+            Reply = $"Here are cars that match your request, {userName}.",
+            RecommendedCarIds = result.Select(x => x.Id).ToList()
         };
     }
 }
