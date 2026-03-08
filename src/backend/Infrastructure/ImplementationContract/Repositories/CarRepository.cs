@@ -34,4 +34,9 @@ public class CarRepository(DataContext dbContext)
             return Result<IEnumerable<Car>>.Failure(Error.InternalServerError(e.Message));
         }
     }
+    
+    public async Task<int> CountCars()
+    {
+        return await dbContext.Cars.CountAsync();
+    }
 }

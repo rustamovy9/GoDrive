@@ -51,4 +51,20 @@ public class UserRepository(DataContext dbContext)
             return Result<bool>.Failure(Error.InternalServerError());
         }
     }
+    
+    public async Task<int> CountUsers()
+    {
+        return await _dbContext.Users
+            .CountAsync(x => x.UserRoles.Any(r => r.Role.Name == DefaultRoles.User));
+    }
+
+    public async Task<int> CountOwners()
+    {
+        return await _dbContext.Users
+            .CountAsync(x => x.UserRoles.Any(r => r.Role.Name == DefaultRoles.Owner));
+    }
+    public async Task<int> CountAllUsers()
+    {
+        return await _dbContext.Users.CountAsync();
+    }
 }

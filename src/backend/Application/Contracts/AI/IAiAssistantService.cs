@@ -7,6 +7,7 @@ public interface IAiAssistantService
     Task<AiAssistantResponse> ChatAsync(
         int userId,
         string userName,
-        AiAssistantRequest request,
-        List<CarAiContext> cars);
+        string role,
+        string message
+    );
 }
