@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Application.Contracts.AI;
 using Application.Contracts.Repositories;
 using Application.DTO_s.AI;
@@ -18,8 +19,8 @@ public class AiAssistantService(
     private readonly IUserRepository _userRepository = userRepository;
 
     private readonly string _apiKey =
-        Environment.GetEnvironmentVariable("OPENROUTER_API_KEY")
-        ?? throw new Exception("Open router AI key not found");
+        Environment.GetEnvironmentVariable("GROQ_API_KEY")
+        ?? throw new Exception("GROQ API key not found");
 
     public async Task<AiAssistantResponse> ChatAsync(
         int userId,
@@ -29,31 +30,22 @@ public class AiAssistantService(
     {
         var intent = await DetectIntent(userName, role, message);
 
-        switch (intent.Intent)
+        return intent.Intent switch
         {
-            case "recommend_cars":
-            return await RecommendCars(userName);
-
-            case "recommend_cars_with_filters":
-            return await RecommendCarsWithFilters(message, userName);
-
-            case "owner_analytics":
-            return await OwnerAnalytics(userId);
-
-            case "admin_stats":
-            return await AdminStats();
-
-            default:
-            return new AiAssistantResponse
+            "recommend_cars" => await RecommendCars(userName),
+            "recommend_cars_with_filters" => await RecommendCarsWithFilters(message, userName),
+            "owner_analytics" => await OwnerAnalytics(userId),
+            "admin_stats" => await AdminStats(),
+            _ => new AiAssistantResponse
             {
                 Reply = intent.Reply
-            };
-        }
+            }
+        };
     }
 
-    /* ========================
-       INTENT DETECTION
-    ======================== */
+    /* =========================
+       INTENT DETECTION (AI)
+    ========================= */
 
     private async Task<AiIntentResponse> DetectIntent(
         string userName,
@@ -92,24 +84,18 @@ User message:
 
         var body = new
         {
-            model = "deepseek/deepseek-chat",
+            model = "llama3-70b-8192",
             messages = new[]
             {
-                new
-                {
-                    role = "user",
-                    content = prompt
-                }
+                new { role = "user", content = prompt }
             }
         };
 
         var request = new HttpRequestMessage(
             HttpMethod.Post,
-            "https://openrouter.ai/api/v1/chat/completions");
+            "https://api.groq.com/openai/v1/chat/completions");
 
         request.Headers.Add("Authorization", $"Bearer {_apiKey}");
-        request.Headers.Add("HTTP-Referer", "https://godrive.ai");
-        request.Headers.Add("X-Title", "GoDrive AI");
 
         request.Content = new StringContent(
             JsonSerializer.Serialize(body),
@@ -120,19 +106,28 @@ User message:
 
         var json = await response.Content.ReadAsStringAsync();
 
-        Console.WriteLine("===== OPENROUTER RAW RESPONSE =====");
+        Console.WriteLine("===== GROQ RESPONSE =====");
         Console.WriteLine(json);
-        Console.WriteLine("===================================");
+        Console.WriteLine("=========================");
 
         using var doc = JsonDocument.Parse(json);
 
-        var text = doc.RootElement
-            .GetProperty("choices")[0]
+        if (!doc.RootElement.TryGetProperty("choices", out var choices))
+        {
+            return new AiIntentResponse
+            {
+                Intent = "general_question",
+                Reply = "AI service temporarily unavailable."
+            };
+        }
+
+        var text = choices[0]
             .GetProperty("message")
             .GetProperty("content")
             .GetString();
 
-        text = text?.Replace("```json", "")
+        text = text?
+            .Replace("```json", "")
             .Replace("```", "")
             .Trim();
 
@@ -150,9 +145,9 @@ User message:
         }
     }
 
-    /* ========================
-       CAR RECOMMENDATION
-    ======================== */
+    /* =========================
+       CAR RECOMMENDATIONS
+    ========================= */
 
     private async Task<AiAssistantResponse> RecommendCars(string userName)
     {
@@ -186,9 +181,9 @@ User message:
         };
     }
 
-    /* ========================
+    /* =========================
        OWNER ANALYTICS
-    ======================== */
+    ========================= */
 
     private async Task<AiAssistantResponse> OwnerAnalytics(int ownerId)
     {
@@ -206,9 +201,9 @@ Monthly earnings: ${earnings}
         };
     }
 
-    /* ========================
+    /* =========================
        ADMIN STATS
-    ======================== */
+    ========================= */
 
     private async Task<AiAssistantResponse> AdminStats()
     {
@@ -227,7 +222,11 @@ Cars: {cars}
 "
         };
     }
-    
+
+    /* =========================
+       SMART CAR SEARCH
+    ========================= */
+
     private async Task<AiAssistantResponse> RecommendCarsWithFilters(
         string message,
         string userName)
@@ -244,15 +243,28 @@ Cars: {cars}
 
         var query = cars.Value.AsQueryable();
 
-        if (message.Contains("50"))
+        var numbers = Regex
+            .Matches(message, @"\d+")
+            .Select(x => int.Parse(x.Value));
+
+        var price = numbers.FirstOrDefault();
+
+        if (price > 0)
+        {
             query = query.Where(c =>
-                c.CarPrices.Any(p => p.PricePerDay <= 50));
+                c.CarPrices.Any(p => p.PricePerDay <= price));
+        }
 
         if (message.ToLower().Contains("family"))
+        {
             query = query.Where(c => c.Seats >= 5);
+        }
 
         if (message.ToLower().Contains("dushanbe"))
-            query = query.Where(c => c.Location.City.ToLower() == "dushanbe");
+        {
+            query = query.Where(c =>
+                c.Location.City.ToLower() == "dushanbe");
+        }
 
         var result = query
             .Select(c => new
