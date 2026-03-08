@@ -38,13 +38,15 @@ public class AiAssistantService(
             "admin_stats" => await AdminStats(),
             _ => new AiAssistantResponse
             {
-                Reply = intent.Reply
+                Reply = string.IsNullOrWhiteSpace(intent.Reply)
+                    ? $"Hello {userName}! How can I help you?"
+                    : intent.Reply
             }
         };
     }
 
     /* =========================
-       INTENT DETECTION (AI)
+       INTENT DETECTION
     ========================= */
 
     private async Task<AiIntentResponse> DetectIntent(
@@ -60,8 +62,18 @@ User role: {role}
 
 Roles:
 user → car recommendations
-owner → earnings and rentals analytics
+owner → earnings analytics
 admin → platform statistics
+
+IMPORTANT:
+You MUST respond ONLY with valid JSON.
+
+Example:
+
+{{
+""intent"": ""general_question"",
+""reply"": ""Hello!""
+}}
 
 Possible intents:
 
@@ -70,13 +82,6 @@ recommend_cars_with_filters
 owner_analytics
 admin_stats
 general_question
-
-Return JSON:
-
-{{
-""intent"": """",
-""reply"": """"
-}}
 
 User message:
 {message}
@@ -104,6 +109,15 @@ User message:
 
         var response = await _httpClient.SendAsync(request);
 
+        if (!response.IsSuccessStatusCode)
+        {
+            return new AiIntentResponse
+            {
+                Intent = "general_question",
+                Reply = "AI service temporarily unavailable."
+            };
+        }
+
         var json = await response.Content.ReadAsStringAsync();
 
         Console.WriteLine("===== GROQ RESPONSE =====");
@@ -117,7 +131,7 @@ User message:
             return new AiIntentResponse
             {
                 Intent = "general_question",
-                Reply = "AI service temporarily unavailable."
+                Reply = "AI service error."
             };
         }
 
@@ -131,22 +145,31 @@ User message:
             .Replace("```", "")
             .Trim();
 
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return new AiIntentResponse
+            {
+                Intent = "general_question",
+                Reply = $"Hello {userName}! How can I help you?"
+            };
+        }
+
         try
         {
-            return JsonSerializer.Deserialize<AiIntentResponse>(text!)!;
+            return JsonSerializer.Deserialize<AiIntentResponse>(text)!;
         }
         catch
         {
             return new AiIntentResponse
             {
                 Intent = "general_question",
-                Reply = text ?? "AI error"
+                Reply = text
             };
         }
     }
 
     /* =========================
-       CAR RECOMMENDATIONS
+       CAR RECOMMENDATION
     ========================= */
 
     private async Task<AiAssistantResponse> RecommendCars(string userName)
@@ -192,12 +215,12 @@ User message:
 
         return new AiAssistantResponse
         {
-            Reply = $@"
+            Reply = $"""
 Owner analytics:
 
 Active rentals: {rentals}
 Monthly earnings: ${earnings}
-"
+"""
         };
     }
 
@@ -213,13 +236,13 @@ Monthly earnings: ${earnings}
 
         return new AiAssistantResponse
         {
-            Reply = $@"
+            Reply = $"""
 Platform statistics:
 
 Users: {users}
 Owners: {owners}
 Cars: {cars}
-"
+"""
         };
     }
 
