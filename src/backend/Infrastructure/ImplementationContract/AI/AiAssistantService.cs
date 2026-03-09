@@ -100,7 +100,7 @@ User message:
             temperature = 0.5,
             messages = new[]
             {
-                new { role = "user", content = prompt }
+                new { role = role, content = prompt }
             }
         };
 
