@@ -32,11 +32,11 @@ public class AiAssistantService(
 
         return intent.Intent switch
         {
-            "recommend_cars" =>
-                await RecommendCars(userName, intent.Reply),
-
             "recommend_cars_with_filters" =>
-                await RecommendCarsWithFilters(message, userName, intent.Reply),
+                await RecommendCarsWithFilters(message, userName),
+
+            "recommend_cars" =>
+                await RecommendCars(userName),
 
             "owner_analytics" =>
                 await OwnerAnalytics(userId),
@@ -66,31 +66,28 @@ You are GoDrive AI assistant for a car rental platform.
 User name: {userName}
 User role: {role}
 
-IMPORTANT:
-Respond in the SAME language as the user.
+IMPORTANT RULES:
 
-IMPORTANT:
+Respond in the SAME language as the user.
 
 You DO NOT know the cars in the database.
 NEVER invent car models.
 
-If the user asks about cars, just say you will find suitable cars.
-The backend will provide the cars.
+If user asks about cars → say you will find suitable cars.
 
 Intent rules:
 
-If user mentions:
-car, rent, машина, аренда, авто, price, $, budget
-→ intent = recommend_cars_with_filters
+car, машина, аренда, авто, price, $, budget
+→ recommend_cars_with_filters
 
-If owner asks about earnings or rentals
-→ intent = owner_analytics
+owner earnings
+→ owner_analytics
 
-If admin asks about platform statistics
-→ intent = admin_stats
+admin statistics
+→ admin_stats
 
 Otherwise
-→ intent = general_question
+→ general_question
 
 Return ONLY JSON:
 
@@ -106,7 +103,7 @@ User message:
         var body = new
         {
             model = "llama-3.3-70b-versatile",
-            temperature = 0.7,
+            temperature = 0.6,
             messages = new[]
             {
                 new { role = "user", content = prompt }
@@ -126,95 +123,71 @@ User message:
 
         var response = await _httpClient.SendAsync(request);
 
-        if (!response.IsSuccessStatusCode)
-        {
-            return new AiIntentResponse
-            {
-                Intent = "general_question",
-                Reply = "AI временно недоступен."
-            };
-        }
-
         var json = await response.Content.ReadAsStringAsync();
 
         using var doc = JsonDocument.Parse(json);
 
-        if (!doc.RootElement.TryGetProperty("choices", out var choices))
-        {
-            return new AiIntentResponse
-            {
-                Intent = "general_question",
-                Reply = "AI error."
-            };
-        }
-
-        var text = choices[0]
+        var content = doc.RootElement
+            .GetProperty("choices")[0]
             .GetProperty("message")
             .GetProperty("content")
             .GetString();
 
-        Console.WriteLine("AI TEXT:");
-        Console.WriteLine(text);
-        
-        text = text?
-            .Replace("```json", "")
+        content = content
+            ?.Replace("```json", "")
             .Replace("```", "")
             .Trim();
 
         try
         {
-            var result = JsonSerializer.Deserialize<AiIntentResponse>(text!);
-
-            if (result == null)
-                throw new Exception();
-
-            if (string.IsNullOrWhiteSpace(result.Reply))
-                result.Reply = text!;
-
-            return result;
+            return JsonSerializer.Deserialize<AiIntentResponse>(content!)!;
         }
         catch
         {
-            try
+            return new AiIntentResponse
             {
-                var jsonDoc = JsonDocument.Parse(text!);
-
-                var intent = jsonDoc.RootElement
-                    .GetProperty("intent")
-                    .GetString();
-
-                var reply = jsonDoc.RootElement
-                    .GetProperty("reply")
-                    .GetString();
-
-                return new AiIntentResponse
-                {
-                    Intent = intent ?? "general_question",
-                    Reply = reply ?? ""
-                };
-            }
-            catch
-            {
-                return new AiIntentResponse
-                {
-                    Intent = "general_question",
-                    Reply = text ?? "Извините, я не смог ответить."
-                };
-            }
+                Intent = "general_question",
+                Reply = content ?? "AI error"
+            };
         }
     }
 
     /* =========================
-       CAR RECOMMENDATION
+       SIMPLE CAR RECOMMENDATION
     ========================= */
 
-    private async Task<AiAssistantResponse> RecommendCars(
-        string userName,
-        string aiReply)
+    private async Task<AiAssistantResponse> RecommendCars(string userName)
     {
         var cars = await _carRepository.GetAvailableCarsAsync();
 
-        if (cars.Value == null || !cars.Value.Any())
+        if (!cars.Value.Any())
+        {
+            return new AiAssistantResponse
+            {
+                Reply = "К сожалению сейчас нет доступных машин."
+            };
+        }
+
+        var bestCars = cars.Value.Take(3).Select(c => c.Id).ToList();
+
+        return new AiAssistantResponse
+        {
+            Reply = $"Я нашёл несколько машин для вас, {userName}.",
+            RecommendedCarIds = bestCars
+        };
+    }
+
+    /* =========================
+       SMART FILTER SEARCH
+    ========================= */
+
+    private async Task<AiAssistantResponse> RecommendCarsWithFilters(
+        string message,
+        string userName)
+    {
+        var cars = await _carRepository.GetAvailableCarsAsync();
+
+        if (!cars.Value.Any())
         {
             return new AiAssistantResponse
             {
@@ -222,26 +195,47 @@ User message:
             };
         }
 
-        var bestCars = cars.Value
-            .Select(c => new
+        var query = cars.Value.AsQueryable();
+
+        /* -------- price detection -------- */
+
+        var price = Regex
+            .Matches(message, @"\d+")
+            .Select(x => int.Parse(x.Value))
+            .FirstOrDefault();
+
+        if (price > 0)
+        {
+            query = query.Where(x =>
+                x.CarPrices.Any(p => p.PricePerDay <= price));
+        }
+
+        /* -------- seats -------- */
+
+        if (message.ToLower().Contains("семейн"))
+            query = query.Where(x => x.Seats >= 5);
+
+        /* -------- city -------- */
+
+        if (message.ToLower().Contains("душанбе"))
+            query = query.Where(x => x.Location.City.ToLower() == "dushanbe");
+
+        var carsResult = query.Take(3).ToList();
+
+        if (!carsResult.Any())
+        {
+            return new AiAssistantResponse
             {
-                c.Id,
-                Rating = c.Reviews
-                    .Select(r => r.Rating)
-                    .DefaultIfEmpty(0)
-                    .Average()
-            })
-            .OrderByDescending(c => c.Rating)
-            .Take(3)
-            .ToList();
+                Reply = "Я не нашёл машин с такими параметрами."
+            };
+        }
+
+        var ids = carsResult.Select(x => x.Id).ToList();
 
         return new AiAssistantResponse
         {
-            Reply = string.IsNullOrWhiteSpace(aiReply)
-                ? $"Вот несколько машин для вас, {userName}."
-                : aiReply,
-
-            RecommendedCarIds = bestCars.Select(c => c.Id).ToList()
+            Reply = $"Я нашёл {carsResult.Count} машины для вас.",
+            RecommendedCarIds = ids
         };
     }
 
@@ -256,12 +250,7 @@ User message:
 
         return new AiAssistantResponse
         {
-            Reply = $"""
-Аналитика владельца:
-
-Активные аренды: {rentals}
-Доход за месяц: ${earnings}
-"""
+            Reply = $"Активные аренды: {rentals}. Доход за месяц: ${earnings}"
         };
     }
 
@@ -277,79 +266,7 @@ User message:
 
         return new AiAssistantResponse
         {
-            Reply = $"""
-Статистика платформы:
-
-Пользователи: {users}
-Владельцы: {owners}
-Машины: {cars}
-"""
-        };
-    }
-
-    /* =========================
-       SMART CAR SEARCH
-    ========================= */
-
-    private async Task<AiAssistantResponse> RecommendCarsWithFilters(
-        string message,
-        string userName,
-        string aiReply)
-    {
-        var cars = await _carRepository.GetAvailableCarsAsync();
-
-        if (cars.Value == null || !cars.Value.Any())
-        {
-            return new AiAssistantResponse
-            {
-                Reply = "Нет доступных машин."
-            };
-        }
-
-        var query = cars.Value.AsQueryable();
-
-        var numbers = Regex
-            .Matches(message, @"\d+")
-            .Select(x => int.Parse(x.Value));
-
-        var price = numbers.FirstOrDefault();
-
-        if (price > 0)
-        {
-            query = query.Where(c =>
-                c.CarPrices.Any(p => p.PricePerDay <= price));
-        }
-
-        if (message.ToLower().Contains("семейн"))
-            query = query.Where(c => c.Seats >= 5);
-
-        if (message.ToLower().Contains("dushanbe") ||
-            message.ToLower().Contains("душанбе"))
-        {
-            query = query.Where(c =>
-                c.Location.City.ToLower() == "dushanbe");
-        }
-
-        var result = query
-            .Select(c => new
-            {
-                c.Id,
-                Rating = c.Reviews
-                    .Select(r => r.Rating)
-                    .DefaultIfEmpty(0)
-                    .Average()
-            })
-            .OrderByDescending(x => x.Rating)
-            .Take(3)
-            .ToList();
-
-        return new AiAssistantResponse
-        {
-            Reply = string.IsNullOrWhiteSpace(aiReply)
-                ? $"Вот подходящие машины, {userName}."
-                : aiReply,
-
-            RecommendedCarIds = result.Select(x => x.Id).ToList()
+            Reply = $"Пользователи: {users}, владельцы: {owners}, машины: {cars}"
         };
     }
 }
