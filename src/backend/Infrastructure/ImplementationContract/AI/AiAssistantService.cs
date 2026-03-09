@@ -289,7 +289,11 @@ Respond naturally using this data.
 
         var response = await _httpClient.SendAsync(request);
 
-        return await response.Content.ReadAsStringAsync();
+        var result = await response.Content.ReadAsStringAsync();
+
+        Console.WriteLine(result);
+
+        return result;
     }
 
     /* =========================
