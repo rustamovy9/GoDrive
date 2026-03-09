@@ -64,6 +64,14 @@ public class AiAssistantService(
         var prompt = $@"
 You are AI assistant for car rental platform GoDrive.
 
+IMPORTANT:
+Always answer in the SAME language as the user.
+
+IMPORTANT RULE:
+You DO NOT know cars in the database.
+NEVER invent car models.
+If the user asks about cars, say you will search suitable cars.
+
 User name: {userName}
 User role: {role}
 
@@ -98,18 +106,43 @@ User message:
 
         var json = await SendAiRequest(body);
 
-        var content = ExtractAiMessage(json);
+        using var doc = JsonDocument.Parse(json);
+
+        var content = doc.RootElement
+            .GetProperty("choices")[0]
+            .GetProperty("message")
+            .GetProperty("content")
+            .GetString();
+
+        content = content?
+            .Replace("```json", "")
+            .Replace("```", "")
+            .Trim();
 
         try
         {
-            return JsonSerializer.Deserialize<AiIntentResponse>(content)!;
+            using var intentDoc = JsonDocument.Parse(content!);
+
+            var intent = intentDoc.RootElement
+                .GetProperty("intent")
+                .GetString();
+
+            var reply = intentDoc.RootElement
+                .GetProperty("reply")
+                .GetString();
+
+            return new AiIntentResponse
+            {
+                Intent = intent ?? "general_question",
+                Reply = reply ?? ""
+            };
         }
         catch
         {
             return new AiIntentResponse
             {
                 Intent = "general_question",
-                Reply = content
+                Reply = content ?? "AI error"
             };
         }
     }
