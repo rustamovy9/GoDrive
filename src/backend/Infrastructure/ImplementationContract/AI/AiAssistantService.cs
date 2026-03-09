@@ -145,6 +145,9 @@ User message:
             .GetProperty("content")
             .GetString();
 
+        Console.WriteLine("AI TEXT:");
+        Console.WriteLine(text);
+        
         text = text?
             .Replace("```json", "")
             .Replace("```", "")
@@ -152,14 +155,22 @@ User message:
 
         try
         {
-            return JsonSerializer.Deserialize<AiIntentResponse>(text)!;
+            var result = JsonSerializer.Deserialize<AiIntentResponse>(text!);
+
+            if (result == null)
+                throw new Exception();
+
+            if (string.IsNullOrWhiteSpace(result.Reply))
+                result.Reply = text!;
+
+            return result;
         }
         catch
         {
             return new AiIntentResponse
             {
                 Intent = "general_question",
-                Reply = text ?? "AI error"
+                Reply = text ?? "Извините, я не смог ответить."
             };
         }
     }
