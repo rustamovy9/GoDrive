@@ -46,15 +46,13 @@ public class AiAssistantService(
 
             _ => new AiAssistantResponse
             {
-                Reply = string.IsNullOrWhiteSpace(intent.Reply)
-                    ? $"Hello {userName}! How can I help you?"
-                    : intent.Reply
+                Reply = intent.Reply
             }
         };
     }
 
     /* =========================
-       INTENT DETECTION
+       AI INTENT DETECTION
     ========================= */
 
     private async Task<AiIntentResponse> DetectIntent(
@@ -68,28 +66,30 @@ You are GoDrive AI assistant for a car rental platform.
 User name: {userName}
 User role: {role}
 
-Roles:
-user → car recommendations
-owner → earnings analytics
-admin → platform statistics
-
 IMPORTANT:
-You MUST respond ONLY with valid JSON.
+Respond in the SAME language as the user.
 
-Example:
+Intent rules:
+
+If user mentions:
+car, rent, машина, аренда, авто, price, $, budget
+→ intent = recommend_cars_with_filters
+
+If owner asks about earnings or rentals
+→ intent = owner_analytics
+
+If admin asks about platform statistics
+→ intent = admin_stats
+
+Otherwise
+→ intent = general_question
+
+Return ONLY JSON:
 
 {{
-""intent"": ""general_question"",
-""reply"": ""Hello!""
+""intent"": """",
+""reply"": """"
 }}
-
-Possible intents:
-
-recommend_cars
-recommend_cars_with_filters
-owner_analytics
-admin_stats
-general_question
 
 User message:
 {message}
@@ -98,6 +98,7 @@ User message:
         var body = new
         {
             model = "llama-3.3-70b-versatile",
+            temperature = 0.7,
             messages = new[]
             {
                 new { role = "user", content = prompt }
@@ -122,15 +123,11 @@ User message:
             return new AiIntentResponse
             {
                 Intent = "general_question",
-                Reply = "AI service temporarily unavailable."
+                Reply = "AI временно недоступен."
             };
         }
 
         var json = await response.Content.ReadAsStringAsync();
-
-        Console.WriteLine("===== GROQ RESPONSE =====");
-        Console.WriteLine(json);
-        Console.WriteLine("=========================");
 
         using var doc = JsonDocument.Parse(json);
 
@@ -139,7 +136,7 @@ User message:
             return new AiIntentResponse
             {
                 Intent = "general_question",
-                Reply = "AI service error."
+                Reply = "AI error."
             };
         }
 
@@ -153,15 +150,6 @@ User message:
             .Replace("```", "")
             .Trim();
 
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return new AiIntentResponse
-            {
-                Intent = "general_question",
-                Reply = $"Hello {userName}! How can I help you?"
-            };
-        }
-
         try
         {
             return JsonSerializer.Deserialize<AiIntentResponse>(text)!;
@@ -171,7 +159,7 @@ User message:
             return new AiIntentResponse
             {
                 Intent = "general_question",
-                Reply = text
+                Reply = text ?? "AI error"
             };
         }
     }
@@ -190,7 +178,7 @@ User message:
         {
             return new AiAssistantResponse
             {
-                Reply = "No cars available right now."
+                Reply = "Сейчас нет доступных машин."
             };
         }
 
@@ -210,7 +198,7 @@ User message:
         return new AiAssistantResponse
         {
             Reply = string.IsNullOrWhiteSpace(aiReply)
-                ? $"Here are some cars you may like, {userName}."
+                ? $"Вот несколько машин для вас, {userName}."
                 : aiReply,
 
             RecommendedCarIds = bestCars.Select(c => c.Id).ToList()
@@ -229,10 +217,10 @@ User message:
         return new AiAssistantResponse
         {
             Reply = $"""
-Owner analytics:
+Аналитика владельца:
 
-Active rentals: {rentals}
-Monthly earnings: ${earnings}
+Активные аренды: {rentals}
+Доход за месяц: ${earnings}
 """
         };
     }
@@ -250,11 +238,11 @@ Monthly earnings: ${earnings}
         return new AiAssistantResponse
         {
             Reply = $"""
-Platform statistics:
+Статистика платформы:
 
-Users: {users}
-Owners: {owners}
-Cars: {cars}
+Пользователи: {users}
+Владельцы: {owners}
+Машины: {cars}
 """
         };
     }
@@ -274,7 +262,7 @@ Cars: {cars}
         {
             return new AiAssistantResponse
             {
-                Reply = "No cars available."
+                Reply = "Нет доступных машин."
             };
         }
 
@@ -292,12 +280,15 @@ Cars: {cars}
                 c.CarPrices.Any(p => p.PricePerDay <= price));
         }
 
-        if (message.ToLower().Contains("family"))
+        if (message.ToLower().Contains("семейн"))
             query = query.Where(c => c.Seats >= 5);
 
-        if (message.ToLower().Contains("dushanbe"))
+        if (message.ToLower().Contains("dushanbe") ||
+            message.ToLower().Contains("душанбе"))
+        {
             query = query.Where(c =>
                 c.Location.City.ToLower() == "dushanbe");
+        }
 
         var result = query
             .Select(c => new
@@ -315,7 +306,7 @@ Cars: {cars}
         return new AiAssistantResponse
         {
             Reply = string.IsNullOrWhiteSpace(aiReply)
-                ? $"Here are cars that match your request, {userName}."
+                ? $"Вот подходящие машины, {userName}."
                 : aiReply,
 
             RecommendedCarIds = result.Select(x => x.Id).ToList()
