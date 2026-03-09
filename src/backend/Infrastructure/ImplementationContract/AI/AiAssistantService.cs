@@ -27,9 +27,18 @@ public class AiAssistantService(
         string message)
     {
         await chatRepository.SaveMessage(userId, "user", message);
+        
+        var history = await chatRepository.GetLastMessages(userId, 20);
+        
+        var messages = history
+            .Select(x => new
+            {
+                role = x.Role,
+                content = x.Content
+            })
+            .ToList();
 
-        var intent = await DetectIntent(userName, role, message);
-
+        var intent = await DetectIntent(userName, role, message, messages);
         AiAssistantResponse response;
 
         switch (intent.Intent)
@@ -70,7 +79,8 @@ public class AiAssistantService(
     private async Task<AiIntentResponse> DetectIntent(
         string userName,
         string role,
-        string message)
+        string message,
+        List<object> messages)
     {
         var prompt = $@"
 You are AI assistant for car rental platform GoDrive.
