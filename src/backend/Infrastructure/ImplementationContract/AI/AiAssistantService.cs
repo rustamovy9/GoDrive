@@ -187,7 +187,7 @@ User message:
     {
         var cars = await _carRepository.GetAvailableCarsAsync();
 
-        if (!cars.Value.Any())
+        if (!cars.IsSuccess || !cars.Value!.Any())
         {
             return new AiAssistantResponse
             {
@@ -195,9 +195,9 @@ User message:
             };
         }
 
-        var query = cars.Value.AsQueryable();
+        var query = cars.Value!.AsQueryable();
 
-        /* -------- price detection -------- */
+        /* -------- PRICE -------- */
 
         var price = Regex
             .Matches(message, @"\d+")
@@ -206,36 +206,43 @@ User message:
 
         if (price > 0)
         {
-            query = query.Where(x =>
-                x.CarPrices.Any(p => p.PricePerDay <= price));
+            query = query.Where(c =>
+                c.CarPrices
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Select(p => p.PricePerDay)
+                    .FirstOrDefault() <= price);
         }
 
-        /* -------- seats -------- */
+        /* -------- FAMILY -------- */
 
         if (message.ToLower().Contains("семейн"))
-            query = query.Where(x => x.Seats >= 5);
-
-        /* -------- city -------- */
-
-        if (message.ToLower().Contains("душанбе"))
-            query = query.Where(x => x.Location.City.ToLower() == "dushanbe");
-
-        var carsResult = query.Take(3).ToList();
-
-        if (!carsResult.Any())
         {
-            return new AiAssistantResponse
-            {
-                Reply = "Я не нашёл машин с такими параметрами."
-            };
+            query = query.Where(c => c.Seats >= 5);
         }
 
-        var ids = carsResult.Select(x => x.Id).ToList();
+        /* -------- CITY -------- */
+
+        if (message.ToLower().Contains("душанбе") ||
+            message.ToLower().Contains("dushanbe"))
+        {
+            query = query.Where(c =>
+                c.Location.City.ToLower() == "dushanbe");
+        }
+
+        var result = query
+            .OrderByDescending(c => c.Id)
+            .Take(3)
+            .ToList();
+
+        if (!result.Any())
+        {
+            result = cars.Value.Take(3).ToList();
+        }
 
         return new AiAssistantResponse
         {
-            Reply = $"Я нашёл {carsResult.Count} машины для вас.",
-            RecommendedCarIds = ids
+            Reply = $"Я нашёл {result.Count} машины для вас.",
+            RecommendedCarIds = result.Select(c => c.Id).ToList()
         };
     }
 
