@@ -79,7 +79,6 @@ public class CarService(
 
         var data = await query
             .Include(x => x.CarImages)
-            .Include(c => c.CarPrices)
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .Select(c => new CarReadInfo(
@@ -95,10 +94,9 @@ public class CarService(
                         fileService.GetFileUrl(ci.ImagePath, MediaFolders.Images)
                     ).ToList(),
                     c.CarPrices
-                        .Where(p => p.CarId == c.Id)
                         .OrderByDescending(p => p.CreatedAt)
-                        .Select(p => p.PricePerDay)
-                        .FirstOrDefault(),
+                        .Select(p => (decimal?)p.PricePerDay)
+                        .FirstOrDefault() ?? 0,
                     c.CreatedAt
                 ))
             .ToListAsync();

@@ -22,8 +22,10 @@ public static class CarMapper
             car.CarImages
                 .Select(ci => fileService.GetFileUrl(ci.ImagePath,MediaFolders.Images))
                 .ToList(),
-            car.CarPrices.OrderByDescending(x => x.CreatedAt).Select(cp => cp.PricePerDay)
-                .FirstOrDefault(),
+            car.CarPrices
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => (decimal?)p.PricePerDay)
+                .FirstOrDefault() ?? 0,
             car.CreatedAt
         );
     }
@@ -43,9 +45,9 @@ public static class CarMapper
             car.Location.Country + "," + car.Location.City,
             car.Owner.UserName,
             car.CarPrices
-            .OrderByDescending(p => p.CreatedAt)
-            .Select(p => p.PricePerDay)
-            .FirstOrDefault(),
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => (decimal?)p.PricePerDay)
+                .FirstOrDefault() ?? 0,
             car.CarImages.Select(ci =>fileService.GetFileUrl(ci.ImagePath, MediaFolders.Images)).ToList(),
             car.CarDocuments.Select(x => fileService.GetFileUrl(x.FilePath,MediaFolders.Docs)).ToList(),
             car.CreatedAt
