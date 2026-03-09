@@ -67,8 +67,6 @@ You are AI assistant for car rental platform GoDrive.
 User name: {userName}
 User role: {role}
 
-Your job is to detect user intent.
-
 Possible intents:
 
 recommend_cars
@@ -100,29 +98,18 @@ User message:
 
         var json = await SendAiRequest(body);
 
-        using var doc = JsonDocument.Parse(json);
-
-        var content = doc.RootElement
-            .GetProperty("choices")[0]
-            .GetProperty("message")
-            .GetProperty("content")
-            .GetString();
-
-        content = content?
-            .Replace("```json", "")
-            .Replace("```", "")
-            .Trim();
+        var content = ExtractAiMessage(json);
 
         try
         {
-            return JsonSerializer.Deserialize<AiIntentResponse>(content!)!;
+            return JsonSerializer.Deserialize<AiIntentResponse>(content)!;
         }
         catch
         {
             return new AiIntentResponse
             {
                 Intent = "general_question",
-                Reply = content ?? "AI error"
+                Reply = content
             };
         }
     }
@@ -262,10 +249,10 @@ Cars: {cars}
 User message:
 {message}
 
-Data from system:
+System data:
 {data}
 
-Respond naturally to the user using this data.
+Respond naturally using this data.
 ";
 
         var body = new
@@ -280,13 +267,7 @@ Respond naturally to the user using this data.
 
         var json = await SendAiRequest(body);
 
-        using var doc = JsonDocument.Parse(json);
-
-        return doc.RootElement
-            .GetProperty("choices")[0]
-            .GetProperty("message")
-            .GetProperty("content")
-            .GetString()!;
+        return ExtractAiMessage(json);
     }
 
     /* =========================
@@ -309,5 +290,30 @@ Respond naturally to the user using this data.
         var response = await _httpClient.SendAsync(request);
 
         return await response.Content.ReadAsStringAsync();
+    }
+
+    /* =========================
+       EXTRACT AI MESSAGE
+    ========================= */
+
+    private string ExtractAiMessage(string json)
+    {
+        using var doc = JsonDocument.Parse(json);
+
+        var content = doc.RootElement
+            .GetProperty("choices")[0]
+            .GetProperty("message")
+            .GetProperty("content")
+            .GetString();
+
+        if (string.IsNullOrWhiteSpace(content))
+            return "";
+
+        content = content
+            .Replace("```json", "")
+            .Replace("```", "")
+            .Trim();
+
+        return content;
     }
 }
