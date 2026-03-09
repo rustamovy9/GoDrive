@@ -133,7 +133,7 @@ public static class RegisterService
         builder.Services.AddScoped<IBookingRepository, BookingRepository>();
         builder.Services.AddScoped<ICarRepository, CarRepository>();
         builder.Services.AddScoped<ICarDocumentRepository, CarDocumentRepository>();
-        builder.Services.AddScoped<IChatRepository, IChatRepository>();
+        builder.Services.AddScoped<IChatRepository, ChatRepository>();
         builder.Services.AddScoped<ICarPriceRepository, CarPriceRepository>();
         builder.Services.AddScoped<ICarImageRepository, CarImageRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
