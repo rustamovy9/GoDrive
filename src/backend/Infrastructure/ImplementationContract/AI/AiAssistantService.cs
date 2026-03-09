@@ -69,6 +69,14 @@ User role: {role}
 IMPORTANT:
 Respond in the SAME language as the user.
 
+IMPORTANT:
+
+You DO NOT know the cars in the database.
+NEVER invent car models.
+
+If the user asks about cars, just say you will find suitable cars.
+The backend will provide the cars.
+
 Intent rules:
 
 If user mentions:
@@ -167,11 +175,32 @@ User message:
         }
         catch
         {
-            return new AiIntentResponse
+            try
             {
-                Intent = "general_question",
-                Reply = text ?? "Извините, я не смог ответить."
-            };
+                var jsonDoc = JsonDocument.Parse(text!);
+
+                var intent = jsonDoc.RootElement
+                    .GetProperty("intent")
+                    .GetString();
+
+                var reply = jsonDoc.RootElement
+                    .GetProperty("reply")
+                    .GetString();
+
+                return new AiIntentResponse
+                {
+                    Intent = intent ?? "general_question",
+                    Reply = reply ?? ""
+                };
+            }
+            catch
+            {
+                return new AiIntentResponse
+                {
+                    Intent = "general_question",
+                    Reply = text ?? "Извините, я не смог ответить."
+                };
+            }
         }
     }
 
