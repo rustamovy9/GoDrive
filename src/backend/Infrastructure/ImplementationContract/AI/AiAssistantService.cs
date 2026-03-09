@@ -11,12 +11,10 @@ public class AiAssistantService(
     HttpClient httpClient,
     ICarRepository carRepository,
     IBookingRepository bookingRepository,
-    IUserRepository userRepository) : IAiAssistantService
+    IUserRepository userRepository,
+    IChatRepository chatRepository) : IAiAssistantService
 {
-    private readonly HttpClient _httpClient = httpClient;
-    private readonly ICarRepository _carRepository = carRepository;
-    private readonly IBookingRepository _bookingRepository = bookingRepository;
-    private readonly IUserRepository _userRepository = userRepository;
+
 
     private readonly string _apiKey =
         Environment.GetEnvironmentVariable("GROQ_API_KEY")
@@ -28,28 +26,41 @@ public class AiAssistantService(
         string role,
         string message)
     {
+        await chatRepository.SaveMessage(userId, "user", message);
+
         var intent = await DetectIntent(userName, role, message);
+
+        AiAssistantResponse response;
 
         switch (intent.Intent)
         {
             case "recommend_cars_with_filters":
-                return await RecommendCarsWithFilters(message);
+                response = await RecommendCarsWithFilters(message);
+                break;
 
             case "recommend_cars":
-                return await RecommendCars(message);
+                response = await RecommendCars(message);
+                break;
 
             case "owner_analytics":
-                return await OwnerAnalytics(userId, message);
+                response = await OwnerAnalytics(userId, message);
+                break;
 
             case "admin_stats":
-                return await AdminStats(message);
+                response = await AdminStats(message);
+                break;
 
             default:
-                return new AiAssistantResponse
+                response = new AiAssistantResponse
                 {
                     Reply = intent.Reply
                 };
+                break;
         }
+
+        await chatRepository.SaveMessage(userId, "assistant", response.Reply);
+
+        return response;
     }
 
     /* =========================
@@ -100,7 +111,7 @@ User message:
             temperature = 0.5,
             messages = new[]
             {
-                new { role = role, content = prompt }
+                new { role = "user", content = prompt }
             }
         };
 
@@ -153,7 +164,7 @@ User message:
 
     private async Task<AiAssistantResponse> RecommendCars(string message)
     {
-        var cars = await _carRepository.GetAvailableCarsAsync();
+        var cars = await carRepository.GetAvailableCarsAsync();
 
         if (!cars.IsSuccess || !cars.Value!.Any())
         {
@@ -163,7 +174,7 @@ User message:
             };
         }
 
-        var result = cars.Value.Take(3).ToList();
+        var result = cars.Value!.Take(3).ToList();
 
         var carsText = string.Join("\n",
             result.Select(c => $"{c.Brand} {c.Model}"));
@@ -184,7 +195,7 @@ User message:
     private async Task<AiAssistantResponse> RecommendCarsWithFilters(
         string message)
     {
-        var cars = await _carRepository.GetAvailableCarsAsync();
+        var cars = await carRepository.GetAvailableCarsAsync();
 
         if (!cars.IsSuccess || !cars.Value!.Any())
         {
@@ -194,7 +205,7 @@ User message:
             };
         }
 
-        var query = cars.Value.AsQueryable();
+        var query = cars.Value!.AsQueryable();
 
         var price = Regex
             .Matches(message, @"\d+")
@@ -232,8 +243,8 @@ User message:
         int ownerId,
         string message)
     {
-        var earnings = await _bookingRepository.GetOwnerMonthlyEarnings(ownerId);
-        var rentals = await _bookingRepository.GetActiveRentals(ownerId);
+        var earnings = await bookingRepository.GetOwnerMonthlyEarnings(ownerId);
+        var rentals = await bookingRepository.GetActiveRentals(ownerId);
 
         var data = $"""
 Active rentals: {rentals}
@@ -254,9 +265,9 @@ Monthly earnings: {earnings}
 
     private async Task<AiAssistantResponse> AdminStats(string message)
     {
-        var users = await _userRepository.CountUsers();
-        var owners = await _userRepository.CountOwners();
-        var cars = await _carRepository.CountCars();
+        var users = await userRepository.CountUsers();
+        var owners = await userRepository.CountOwners();
+        var cars = await carRepository.CountCars();
 
         var data = $"""
 Users: {users}
@@ -320,7 +331,7 @@ Respond naturally using this data.
             Encoding.UTF8,
             "application/json");
 
-        var response = await _httpClient.SendAsync(request);
+        var response = await httpClient.SendAsync(request);
 
         var result = await response.Content.ReadAsStringAsync();
 
