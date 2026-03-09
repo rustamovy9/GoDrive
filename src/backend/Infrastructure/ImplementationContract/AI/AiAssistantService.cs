@@ -36,6 +36,7 @@ public class AiAssistantService(
                 role = x.Role,
                 content = x.Content
             })
+            .Cast<object>()
             .ToList();
 
         var intent = await DetectIntent(userName, role, message, messages);
@@ -82,7 +83,11 @@ public class AiAssistantService(
         string message,
         List<object> messages)
     {
-        var prompt = $@"
+        messages.Insert(0, new
+        {
+
+            role = "system",
+            content = $@"
 You are AI assistant for car rental platform GoDrive.
 
 IMPORTANT:
@@ -92,6 +97,11 @@ IMPORTANT RULE:
 You DO NOT know cars in the database.
 NEVER invent car models.
 If the user asks about cars, say you will search suitable cars.
+IMPORTANT RULE:
+You DO NOT know cars in the database.
+NEVER invent car models.
+
+If user asks about cars say you will search suitable cars.
 
 User name: {userName}
 User role: {role}
@@ -113,16 +123,25 @@ Respond ONLY JSON:
 
 User message:
 {message}
-";
+"
+        });
+
+        messages.Add(new
+        {
+            role = "user",
+            content = message
+        });
+
+        if (messages.Count > 20)
+        {
+            messages = messages.Skip(messages.Count - 20).ToList();
+        }
 
         var body = new
         {
             model = "llama-3.3-70b-versatile",
             temperature = 0.5,
-            messages = new[]
-            {
-                new { role = "user", content = prompt }
-            }
+            messages = messages
         };
 
         var json = await SendAiRequest(body);
