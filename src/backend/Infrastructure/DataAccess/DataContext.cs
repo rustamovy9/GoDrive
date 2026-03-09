@@ -37,6 +37,8 @@ public class DataContext(DbContextOptions<DataContext> options) : DbContext(opti
     // ⭐ Reviews
     public DbSet<Review> Reviews { get; set; }
     
+    // AI
+    public DbSet<ChatMessage> ChatMessages { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
