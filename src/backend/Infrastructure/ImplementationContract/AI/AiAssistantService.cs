@@ -46,7 +46,9 @@ public class AiAssistantService(
 
             _ => new AiAssistantResponse
             {
-                Reply = intent.Reply
+                Reply = string.IsNullOrWhiteSpace(intent.Reply)
+                    ? "Я помогу вам найти машину."
+                    : intent.Reply
             }
         };
     }
@@ -133,14 +135,22 @@ User message:
             .GetProperty("content")
             .GetString();
 
-        content = content
-            ?.Replace("```json", "")
+        content = content?
+            .Replace("```json", "")
             .Replace("```", "")
             .Trim();
 
         try
         {
-            return JsonSerializer.Deserialize<AiIntentResponse>(content!)!;
+            var result = JsonSerializer.Deserialize<AiIntentResponse>(content!);
+
+            if (result == null)
+                throw new Exception();
+
+            if (string.IsNullOrWhiteSpace(result.Reply))
+                result.Reply = "Я помогу вам найти машину.";
+
+            return result;
         }
         catch
         {
@@ -160,7 +170,7 @@ User message:
     {
         var cars = await _carRepository.GetAvailableCarsAsync();
 
-        if (!cars.Value.Any())
+        if (!cars.IsSuccess || !cars.Value!.Any())
         {
             return new AiAssistantResponse
             {
@@ -168,7 +178,10 @@ User message:
             };
         }
 
-        var bestCars = cars.Value.Take(3).Select(c => c.Id).ToList();
+        var bestCars = cars.Value
+            .Take(3)
+            .Select(c => c.Id)
+            .ToList();
 
         return new AiAssistantResponse
         {
@@ -195,9 +208,7 @@ User message:
             };
         }
 
-        var query = cars.Value!.AsQueryable();
-
-        /* -------- PRICE -------- */
+        var query = cars.Value.AsQueryable();
 
         var price = Regex
             .Matches(message, @"\d+")
@@ -213,14 +224,8 @@ User message:
                     .FirstOrDefault() <= price);
         }
 
-        /* -------- FAMILY -------- */
-
         if (message.ToLower().Contains("семейн"))
-        {
             query = query.Where(c => c.Seats >= 5);
-        }
-
-        /* -------- CITY -------- */
 
         if (message.ToLower().Contains("душанбе") ||
             message.ToLower().Contains("dushanbe"))
