@@ -30,31 +30,30 @@ public class AiAssistantService(
     {
         var intent = await DetectIntent(userName, role, message);
 
-        return intent.Intent switch
+        switch (intent.Intent)
         {
-            "recommend_cars_with_filters" =>
-                await RecommendCarsWithFilters(message, userName),
+            case "recommend_cars_with_filters":
+                return await RecommendCarsWithFilters(message);
 
-            "recommend_cars" =>
-                await RecommendCars(userName),
+            case "recommend_cars":
+                return await RecommendCars(message);
 
-            "owner_analytics" =>
-                await OwnerAnalytics(userId),
+            case "owner_analytics":
+                return await OwnerAnalytics(userId, message);
 
-            "admin_stats" =>
-                await AdminStats(),
+            case "admin_stats":
+                return await AdminStats(message);
 
-            _ => new AiAssistantResponse
-            {
-                Reply = string.IsNullOrWhiteSpace(intent.Reply)
-                    ? "Я помогу вам найти машину."
-                    : intent.Reply
-            }
-        };
+            default:
+                return new AiAssistantResponse
+                {
+                    Reply = intent.Reply
+                };
+        }
     }
 
     /* =========================
-       AI INTENT DETECTION
+       INTENT DETECTION
     ========================= */
 
     private async Task<AiIntentResponse> DetectIntent(
@@ -63,35 +62,22 @@ public class AiAssistantService(
         string message)
     {
         var prompt = $@"
-You are GoDrive AI assistant for a car rental platform.
+You are AI assistant for car rental platform GoDrive.
 
 User name: {userName}
 User role: {role}
 
-IMPORTANT RULES:
+Your job is to detect user intent.
 
-Respond in the SAME language as the user.
+Possible intents:
 
-You DO NOT know the cars in the database.
-NEVER invent car models.
+recommend_cars
+recommend_cars_with_filters
+owner_analytics
+admin_stats
+general_question
 
-If user asks about cars → say you will find suitable cars.
-
-Intent rules:
-
-car, машина, аренда, авто, price, $, budget
-→ recommend_cars_with_filters
-
-owner earnings
-→ owner_analytics
-
-admin statistics
-→ admin_stats
-
-Otherwise
-→ general_question
-
-Return ONLY JSON:
+Respond ONLY JSON:
 
 {{
 ""intent"": """",
@@ -105,27 +91,14 @@ User message:
         var body = new
         {
             model = "llama-3.3-70b-versatile",
-            temperature = 0.6,
+            temperature = 0.5,
             messages = new[]
             {
                 new { role = "user", content = prompt }
             }
         };
 
-        var request = new HttpRequestMessage(
-            HttpMethod.Post,
-            "https://api.groq.com/openai/v1/chat/completions");
-
-        request.Headers.Add("Authorization", $"Bearer {_apiKey}");
-
-        request.Content = new StringContent(
-            JsonSerializer.Serialize(body),
-            Encoding.UTF8,
-            "application/json");
-
-        var response = await _httpClient.SendAsync(request);
-
-        var json = await response.Content.ReadAsStringAsync();
+        var json = await SendAiRequest(body);
 
         using var doc = JsonDocument.Parse(json);
 
@@ -142,15 +115,7 @@ User message:
 
         try
         {
-            var result = JsonSerializer.Deserialize<AiIntentResponse>(content!);
-
-            if (result == null)
-                throw new Exception();
-
-            if (string.IsNullOrWhiteSpace(result.Reply))
-                result.Reply = "Я помогу вам найти машину.";
-
-            return result;
+            return JsonSerializer.Deserialize<AiIntentResponse>(content!)!;
         }
         catch
         {
@@ -163,10 +128,10 @@ User message:
     }
 
     /* =========================
-       SIMPLE CAR RECOMMENDATION
+       RECOMMEND CARS
     ========================= */
 
-    private async Task<AiAssistantResponse> RecommendCars(string userName)
+    private async Task<AiAssistantResponse> RecommendCars(string message)
     {
         var cars = await _carRepository.GetAvailableCarsAsync();
 
@@ -178,25 +143,26 @@ User message:
             };
         }
 
-        var bestCars = cars.Value
-            .Take(3)
-            .Select(c => c.Id)
-            .ToList();
+        var result = cars.Value.Take(3).ToList();
+
+        var carsText = string.Join("\n",
+            result.Select(c => $"{c.Brand} {c.Model}"));
+
+        var reply = await GenerateAiReply(message, carsText);
 
         return new AiAssistantResponse
         {
-            Reply = $"Я нашёл несколько машин для вас, {userName}.",
-            RecommendedCarIds = bestCars
+            Reply = reply,
+            RecommendedCarIds = result.Select(c => c.Id).ToList()
         };
     }
 
     /* =========================
-       SMART FILTER SEARCH
+       FILTERED SEARCH
     ========================= */
 
     private async Task<AiAssistantResponse> RecommendCarsWithFilters(
-        string message,
-        string userName)
+        string message)
     {
         var cars = await _carRepository.GetAvailableCarsAsync();
 
@@ -224,29 +190,16 @@ User message:
                     .FirstOrDefault() <= price);
         }
 
-        if (message.ToLower().Contains("семейн"))
-            query = query.Where(c => c.Seats >= 5);
+        var result = query.Take(3).ToList();
 
-        if (message.ToLower().Contains("душанбе") ||
-            message.ToLower().Contains("dushanbe"))
-        {
-            query = query.Where(c =>
-                c.Location.City.ToLower() == "dushanbe");
-        }
+        var carsText = string.Join("\n",
+            result.Select(c => $"{c.Brand} {c.Model}"));
 
-        var result = query
-            .OrderByDescending(c => c.Id)
-            .Take(3)
-            .ToList();
-
-        if (!result.Any())
-        {
-            result = cars.Value.Take(3).ToList();
-        }
+        var reply = await GenerateAiReply(message, carsText);
 
         return new AiAssistantResponse
         {
-            Reply = $"Я нашёл {result.Count} машины для вас.",
+            Reply = reply,
             RecommendedCarIds = result.Select(c => c.Id).ToList()
         };
     }
@@ -255,14 +208,23 @@ User message:
        OWNER ANALYTICS
     ========================= */
 
-    private async Task<AiAssistantResponse> OwnerAnalytics(int ownerId)
+    private async Task<AiAssistantResponse> OwnerAnalytics(
+        int ownerId,
+        string message)
     {
         var earnings = await _bookingRepository.GetOwnerMonthlyEarnings(ownerId);
         var rentals = await _bookingRepository.GetActiveRentals(ownerId);
 
+        var data = $"""
+Active rentals: {rentals}
+Monthly earnings: {earnings}
+""";
+
+        var reply = await GenerateAiReply(message, data);
+
         return new AiAssistantResponse
         {
-            Reply = $"Активные аренды: {rentals}. Доход за месяц: ${earnings}"
+            Reply = reply
         };
     }
 
@@ -270,15 +232,82 @@ User message:
        ADMIN STATS
     ========================= */
 
-    private async Task<AiAssistantResponse> AdminStats()
+    private async Task<AiAssistantResponse> AdminStats(string message)
     {
         var users = await _userRepository.CountUsers();
         var owners = await _userRepository.CountOwners();
         var cars = await _carRepository.CountCars();
 
+        var data = $"""
+Users: {users}
+Owners: {owners}
+Cars: {cars}
+""";
+
+        var reply = await GenerateAiReply(message, data);
+
         return new AiAssistantResponse
         {
-            Reply = $"Пользователи: {users}, владельцы: {owners}, машины: {cars}"
+            Reply = reply
         };
+    }
+
+    /* =========================
+       GENERATE FINAL AI REPLY
+    ========================= */
+
+    private async Task<string> GenerateAiReply(string message, string data)
+    {
+        var prompt = $@"
+User message:
+{message}
+
+Data from system:
+{data}
+
+Respond naturally to the user using this data.
+";
+
+        var body = new
+        {
+            model = "llama-3.3-70b-versatile",
+            temperature = 0.7,
+            messages = new[]
+            {
+                new { role = "user", content = prompt }
+            }
+        };
+
+        var json = await SendAiRequest(body);
+
+        using var doc = JsonDocument.Parse(json);
+
+        return doc.RootElement
+            .GetProperty("choices")[0]
+            .GetProperty("message")
+            .GetProperty("content")
+            .GetString()!;
+    }
+
+    /* =========================
+       AI HTTP REQUEST
+    ========================= */
+
+    private async Task<string> SendAiRequest(object body)
+    {
+        var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            "https://api.groq.com/openai/v1/chat/completions");
+
+        request.Headers.Add("Authorization", $"Bearer {_apiKey}");
+
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(body),
+            Encoding.UTF8,
+            "application/json");
+
+        var response = await _httpClient.SendAsync(request);
+
+        return await response.Content.ReadAsStringAsync();
     }
 }
