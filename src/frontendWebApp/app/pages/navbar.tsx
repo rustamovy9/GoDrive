@@ -2,12 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Car, Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Car, Menu, X, User } from "lucide-react";
 
 export default function Navbar() {
     const pathname = usePathname();
     const [open, setOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        setIsLoggedIn(!!token);
+    }, []);
 
     const linkStyle = (path: string) =>
         `transition-all duration-300 font-medium ${pathname === path
@@ -42,21 +48,30 @@ export default function Navbar() {
                 </div>
 
                 <div className="hidden md:flex items-center gap-6">
-                    <Link
-                        href="/login"
-                        className="text-white hover:text-cyan-400 transition"
-                    >
-                        Log in
-                    </Link>
+                    {isLoggedIn ? (
+                        <Link
+                            href="/myprofile"
+                            className="text-white hover:text-cyan-400 transition"
+                        >
+                            <User className="w-7 h-7" />
+                        </Link>
+                    ) : (
+                        <>
+                            <Link
+                                href="/login"
+                                className="text-white hover:text-cyan-400 transition"
+                            >
+                                Log in
+                            </Link>
 
-                    <Link
-                        href="/signup"
-                        className="bg-cyan-400 text-[#161b22] px-6 py-2 rounded-xl font-semibold 
-            hover:bg-cyan-500 transition-all duration-300 
-            hover:scale-105 shadow-lg shadow-cyan-500/20"
-                    >
-                        Sign up
-                    </Link>
+                            <Link
+                                href="/signup"
+                                className="bg-cyan-400 text-[#161b22] px-6 py-2 rounded-xl font-semibold hover:bg-cyan-500 transition"
+                            >
+                                Sign up
+                            </Link>
+                        </>
+                    )}
                 </div>
 
                 <button
@@ -68,33 +83,40 @@ export default function Navbar() {
             </div>
 
             {open && (
-                <div className="md:hidden bg-[#161b22] px-6 pb-6 flex flex-col gap-5 text-lg border-t border-[#30363d] animate-fadeIn">
+                <div className="md:hidden bg-[#161b22] px-6 pb-6 flex flex-col gap-5 text-lg border-t border-[#30363d]">
                     <Link href="/" className={linkStyle("/")}>
                         Home
                     </Link>
-
                     <Link href="/cars" className={linkStyle("/cars")}>
                         Browse Cars
                     </Link>
-
                     <Link href="/about" className={linkStyle("/about")}>
                         About
                     </Link>
-                    
                     <Link href="/contact" className={linkStyle("/contact")}>
                         Contact
                     </Link>
 
-                    <Link href="/login" className="text-white">
-                        Log in
-                    </Link>
-
-                    <Link
-                        href="/signup"
-                        className="bg-cyan-400 text-[#161b22] px-5 py-2 rounded-lg font-semibold w-fit"
-                    >
-                        Sign up
-                    </Link>
+                    {isLoggedIn ? (
+                        <Link
+                            href="/myprofile"
+                            className="text-white"
+                        >
+                            My Profile
+                        </Link>
+                    ) : (
+                        <>
+                            <Link href="/login" className="text-white">
+                                Log in
+                            </Link>
+                            <Link
+                                href="/signup"
+                                className="bg-cyan-400 text-[#161b22] px-5 py-2 rounded-lg w-fit"
+                            >
+                                Sign up
+                            </Link>
+                        </>
+                    )}
                 </div>
             )}
         </nav>

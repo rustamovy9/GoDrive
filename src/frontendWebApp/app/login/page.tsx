@@ -1,25 +1,66 @@
 'use client';
 
 import { useState } from 'react';
-import { Car, Eye, EyeOff } from 'lucide-react';
+import { Car, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+    const router = useRouter();
+
     const [showPassword, setShowPassword] = useState(false);
-    const [email, setEmail] = useState('');
+    const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Login:', { email, password });
+
+        setError('');
+        setIsLoading(true);
+
+        try {
+            const response = await fetch(
+                'https://godrive-ruc4.onrender.com/api/auth/login',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        UserNameOrEmail: userName,
+                        password: password,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.isAuthenticated) {
+                throw new Error('Invalid username or password');
+            }
+
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('isAuthenticated', 'true');
+
+            router.push('/');
+
+        } catch (err: any) {
+            setError(err.message || 'Login failed');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
-        <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="mt-[50px] min-h-screen bg-gray-950 flex items-center justify-center px-4">
             <div className="w-full max-w-md">
+
                 <div className="flex justify-center mb-8">
                     <Link href="/" className="flex items-center gap-2">
-                        <div className="bg-cyan-400 rounded-lg p-1.5">
+                        <div className="bg-cyan-400 rounded-lg p-2">
                             <Car className="w-6 h-6 text-gray-950" />
                         </div>
                         <span className="text-2xl font-bold text-white">
@@ -28,66 +69,66 @@ export default function LoginPage() {
                     </Link>
                 </div>
 
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">
+                <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+
+                    <h1 className="text-3xl font-bold text-white mb-6 text-center">
                         Welcome back
                     </h1>
-                    <p className="text-gray-400">
-                        Sign in to your account
-                    </p>
-                </div>
 
-                <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
+                    {error && (
+                        <div className="mb-4 bg-red-500/10 border border-red-500/50 p-4 rounded-xl flex gap-2 text-red-400">
+                            <AlertCircle className="w-5 h-5" />
+                            <p>{error}</p>
+                        </div>
+                    )}
+
                     <form onSubmit={handleSubmit} className="space-y-6">
+
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                                Email
+                            <label className="block text-sm text-gray-300 mb-2">
+                                Username or Email
                             </label>
                             <input
-                                id="email"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@example.com"
-                                className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all"
+                                type="text"
+                                value={userName}
+                                onChange={(e) => setUserName(e.target.value)}
                                 required
+                                className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                                placeholder="Enter username or email"
                             />
                         </div>
 
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                        <div className="relative">
+                            <label className="block text-sm text-gray-300 mb-2">
                                 Password
                             </label>
-                            <div className="relative">
-                                <input
-                                    id="password"
-                                    type={showPassword ? 'text' : 'password'}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                    className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all pr-12"
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
-                                >
-                                    {showPassword ? (
-                                        <EyeOff className="w-5 h-5" />
-                                    ) : (
-                                        <Eye className="w-5 h-5" />
-                                    )}
-                                </button>
-                            </div>
+
+                            <input
+                                type={showPassword ? 'text' : 'password'}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-white pr-12 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                                placeholder="Enter password"
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-[42px] text-gray-400"
+                            >
+                                {showPassword ? <EyeOff /> : <Eye />}
+                            </button>
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full bg-cyan-400 hover:bg-cyan-500 text-gray-950 font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg shadow-cyan-400/25"
+                            disabled={isLoading}
+                            className="w-full bg-cyan-400 hover:bg-cyan-500 text-gray-950 font-bold py-3 rounded-xl transition duration-300"
                         >
-                            Sign In
+                            {isLoading ? 'Signing in...' : 'Sign In'}
                         </button>
+
                     </form>
                 </div>
 
@@ -95,11 +136,12 @@ export default function LoginPage() {
                     Don&apos;t have an account?{' '}
                     <Link
                         href="/signup"
-                        className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+                        className="text-cyan-400 hover:text-cyan-300 font-medium"
                     >
                         Sign up
                     </Link>
                 </p>
+
             </div>
         </div>
     );

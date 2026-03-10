@@ -18,7 +18,7 @@ export default function Home() {
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: 'url("https://www.reliancegeneral.co.in/siteassets/rgiclassets/images/blogs-images/top-5-fastest-cars-in-the-world2.webp")',
+              backgroundImage: 'url("https://www.topgear.com/sites/default/files/news-listicle/image/2023/09/LEAD.jpg")',
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-b from-gray-950/80 via-gray-950/70 to-gray-950/90"></div>
