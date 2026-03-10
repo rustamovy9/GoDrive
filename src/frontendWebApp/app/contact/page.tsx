@@ -30,14 +30,14 @@ export default function ContactPage() {
         {
             icon: Mail,
             title: 'Email',
-            value: 'support@godrive.com',
-            href: 'mailto:support@godrive.com',
+            value: 'yusufrstmv9@gmail.com',
+            href: 'mailto:yusufrstmv9@gmail.com',
         },
         {
             icon: Phone,
             title: 'Phone',
-            value: '+1 (555) 123-4567',
-            href: 'tel:+15551234567',
+            value: '+992 203617007',
+            href: 'tel: +992203617007',
         },
         {
             icon: MapPin,
