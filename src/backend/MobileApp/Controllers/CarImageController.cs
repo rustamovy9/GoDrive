@@ -19,6 +19,7 @@ public sealed class CarImageController(ICarImageService service) : BaseControlle
     private bool IsAdmin =>
         User.IsInRole(DefaultRoles.Admin);
 
+    [AllowAnonymous]
     [HttpGet("car/{carId:int}")]
     public async Task<IActionResult> Get(int carId)
         => (await service.GetByCarIdAsync(carId,CurrentUserId,IsAdmin)).ToActionResult();
@@ -42,6 +43,7 @@ public sealed class CarImageController(ICarImageService service) : BaseControlle
         => (await service.DeleteAsync(id, CurrentUserId, IsAdmin))
             .ToActionResult();
     
+    [AllowAnonymous]
     [HttpGet("{id:int}/download")]
     public async Task<IActionResult> Download(int id)
     {
