@@ -20,6 +20,7 @@ public sealed class CarPriceController(ICarPriceService service) : BaseControlle
         User.IsInRole(DefaultRoles.Admin);
 
 
+    [AllowAnonymous]
     // 🔎 Get price by CarId
     [HttpGet("by-car/{carId:int}")]
     public async Task<IActionResult> Get(int carId)

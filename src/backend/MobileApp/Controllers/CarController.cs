@@ -24,10 +24,12 @@ public sealed class CarController(ICarService service) : BaseController
 
     private bool IsAdmin => User.IsInRole(DefaultRoles.Admin);
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] CarFilter filter)
         => (await service.GetAllAsync(filter,Role,UserId)).ToActionResult();
 
+    [AllowAnonymous]
     [HttpGet("{id:int}")]
     public async Task<IActionResult> Get([FromRoute]int id)
         => (await service.GetByIdAsync(id,UserId,IsAdmin)).ToActionResult();
