@@ -21,7 +21,7 @@ public class CarService(
     IUserService userService) : ICarService
 {
     public async Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter, string role,
-        int userId)
+        int? userId)
     {
         var result = repository.Find(car =>
             (string.IsNullOrEmpty(filter.Search) ||
@@ -47,7 +47,7 @@ public class CarService(
 
         var query = result.Value!.AsNoTracking();
 
-        if (role == DefaultRoles.User)
+        if (role != DefaultRoles.Admin)
         {
             query = query.Where(c => c.CarStatus == CarStatus.Available);
         }
@@ -82,23 +82,23 @@ public class CarService(
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
             .Select(c => new CarReadInfo(
-                    c.Id,
-                    c.Brand,
-                    c.Model,
-                    c.Year,
-                    c.CarStatus,
-                    c.CategoryId,
-                    c.LocationId,
-                    c.RentalCompanyId,
-                    c.CarImages.Select(ci =>
-                        fileService.GetFileUrl(ci.ImagePath, MediaFolders.Images)
-                    ).ToList(),
-                    c.CarPrices
-                        .OrderByDescending(p => p.CreatedAt)
-                        .Select(p => (decimal?)p.PricePerDay)
-                        .FirstOrDefault() ?? 0,
-                    c.CreatedAt
-                ))
+                c.Id,
+                c.Brand,
+                c.Model,
+                c.Year,
+                c.CarStatus,
+                c.CategoryId,
+                c.LocationId,
+                c.RentalCompanyId,
+                c.CarImages.Select(ci =>
+                    fileService.GetFileUrl(ci.ImagePath, MediaFolders.Images)
+                ).ToList(),
+                c.CarPrices
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Select(p => (decimal?)p.PricePerDay)
+                    .FirstOrDefault() ?? 0,
+                c.CreatedAt
+            ))
             .ToListAsync();
 
         var response = PagedResponse<IEnumerable<CarReadInfo>>
@@ -107,7 +107,7 @@ public class CarService(
         return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Success(response);
     }
 
-    public async Task<Result<CarDetailReadInfo>> GetByIdAsync(int id, int currentUserId, bool isAdmin)
+    public async Task<Result<CarDetailReadInfo>> GetByIdAsync(int id, int? currentUserId, bool isAdmin)
     {
         var res = repository.Find(x => x.Id == id);
 
@@ -127,10 +127,10 @@ public class CarService(
         if (car == null)
             return Result<CarDetailReadInfo>.Failure(Error.NotFound());
 
-// 👤 если не админ
+        // 👤 если не админ
         if (!isAdmin)
         {
-            bool isOwner = car.OwnerId == currentUserId;
+            bool isOwner = currentUserId != 0 && car.OwnerId == currentUserId;
             bool isAvailable = car.CarStatus == CarStatus.Available;
 
             if (!isOwner && !isAvailable)
