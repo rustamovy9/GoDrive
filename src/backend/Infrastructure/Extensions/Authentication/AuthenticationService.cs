@@ -41,7 +41,7 @@ public class AuthenticationService(IConfiguration config, DataContext dbContext)
             issuer: config["JWT:issuer"],
             audience: config["JWT:audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(30),
+            expires: DateTime.UtcNow.AddHours(4),
             signingCredentials: credentials
         );
 
