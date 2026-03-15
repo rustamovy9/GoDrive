@@ -13,14 +13,18 @@ namespace MobileApp.Controllers;
 [Authorize]
 public sealed class CarController(ICarService service) : BaseController
 {
-    int UserId =>
-        int.Parse(User.FindFirst(CustomClaimTypes.Id)?.Value
-                  ?? throw new UnauthorizedAccessException("UserId not found"));
-
+    private int UserId =>
+        int.TryParse(User.FindFirst(CustomClaimTypes.Id)?.Value, out int id)
+            ? id
+            : 0;
+        
+        
     string Role =>
-        User.IsInRole(DefaultRoles.Admin) ? DefaultRoles.Admin :
-        User.IsInRole(DefaultRoles.Owner) ? DefaultRoles.Owner :
-        DefaultRoles.User;
+        User?.Identity?.IsAuthenticated == true
+            ? User.IsInRole(DefaultRoles.Admin) ? DefaultRoles.Admin :
+            User.IsInRole(DefaultRoles.Owner) ? DefaultRoles.Owner :
+            DefaultRoles.User
+            : DefaultRoles.User;
 
     private bool IsAdmin => User.IsInRole(DefaultRoles.Admin);
 
