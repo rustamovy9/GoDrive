@@ -38,7 +38,8 @@ public class UserService(
              EF.Functions.ILike(user.Address!, $"%{filter.Address}%")) &&
 
             (filter.RoleId == null || user.UserRoles.Any(u=>u.RoleId == filter.RoleId)) &&
-            (string.IsNullOrEmpty(filter.RoleName) || EF.Functions(user.UserRoles.Select(u=>u.Role.Name.ToLower()),$"%{filter.RoleName.ToLower()}%")) &&
+            user.UserRoles.Any(r =>
+                EF.Functions.ILike(r.Role.Name, $"%{filter.RoleName}%")) &&
             (filter.HasCars == null || (user.OwnedCars!.Any() == filter.HasCars)) && 
             (filter.IsDeleted == null ||
              user.IsDeleted == filter.IsDeleted);
