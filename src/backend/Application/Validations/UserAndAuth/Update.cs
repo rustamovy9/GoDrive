@@ -40,9 +40,9 @@ public class UserUpdateInfoValidator : AbstractValidator<UserUpdateInfo>
 
   
 
-        When(x => x.File is not null, () =>
+        When(x => x.AvatarPath is not null, () =>
         {
-            RuleFor(x => x.File!)
+            RuleFor(x => x.AvatarPath!)
                 .Must(BeValidImage)
                 .WithMessage("Avatar must be a valid image file.");
         });
