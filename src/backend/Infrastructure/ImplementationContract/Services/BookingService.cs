@@ -85,7 +85,7 @@ public class BookingService(
      public async Task<BaseResult> CreateAsync(BookingCreateInfo createInfo, int userId)
     {
         if (createInfo.EndDateTime <= createInfo.StartDateTime)
-            return BaseResult.Failure(Error.BadRequest("Invalid booking period"));
+            return BaseResult.Failure(Error.BadRequest("Неверный период бронирования\n"));
 
         Expression<Func<Booking, bool>> conflictExpr = b =>
             b.CarId == createInfo.CarId &&
@@ -98,7 +98,7 @@ public class BookingService(
             return BaseResult.Failure(conflictQuery.Error);
 
         if (await conflictQuery.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("Car already booked in this period"));
+            return BaseResult.Failure(Error.Conflict("Автомобиль уже забронирован на этот период."));
 
         var priceRes = carPriceRepository.Find(p => p.CarId == createInfo.CarId);
 
@@ -110,13 +110,13 @@ public class BookingService(
             .FirstOrDefaultAsync();
 
         if (carPrice is null)
-            return BaseResult.Failure(Error.BadRequest("Car price not set"));
+            return BaseResult.Failure(Error.BadRequest("Цена автомобиля не установлена"));
 
         int days = (int)Math.Ceiling(
             (createInfo.EndDateTime - createInfo.StartDateTime).TotalDays);
 
         if (days <= 0)
-            return BaseResult.Failure(Error.BadRequest("Invalid booking duration"));
+            return BaseResult.Failure(Error.BadRequest("Неверная продолжительность бронирования"));
 
         decimal total = days * carPrice.PricePerDay;
 
@@ -132,8 +132,8 @@ public class BookingService(
         // 🔔 клиенту
         await notificationService.CreateAsync(new NotificationCreateInfo(
             userId,
-            "Booking created",
-            "Your booking has been successfully created."
+            "Бронирование создано",
+            "Ваше бронирование успешно оформлено."
         ));
 
         // 🔔 владельцу машины
@@ -142,8 +142,8 @@ public class BookingService(
         {
             await notificationService.CreateAsync(new NotificationCreateInfo(
                 carRes.Value.OwnerId,
-                "New booking",
-                $"Your car has been booked from {createInfo.StartDateTime:d} to {createInfo.EndDateTime:d}."
+                "Новое бронирование",
+                $"Ваш автомобиль забронирован на период с  {createInfo.StartDateTime:d} по  {createInfo.EndDateTime:d}."
             ));
         }
 
@@ -163,7 +163,7 @@ public class BookingService(
             return BaseResult.Failure(Error.Forbidden());
 
         if (booking.BookingStatus != BookingStatus.Pending)
-            return BaseResult.Failure(Error.BadRequest("Only pending booking can be updated"));
+            return BaseResult.Failure(Error.BadRequest("Изменять можно только информацию о незавершенных бронированиях."));
 
         Expression<Func<Booking, bool>> conflictExpr = b =>
             b.Id != id &&
@@ -177,7 +177,7 @@ public class BookingService(
             return BaseResult.Failure(conflictQuery.Error);
 
         if (await conflictQuery.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("Car already booked in this period"));
+            return BaseResult.Failure(Error.Conflict("Автомобиль уже забронирован на этот период"));
 
         var updated = existing.Value.ToEntity(updateInfo);
 
@@ -197,13 +197,13 @@ public class BookingService(
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Booking not found"));
+            return BaseResult.Failure(Error.NotFound("Бронирование не найдено"));
 
         var booking = res.Value;
 
         var carRes = await carRepository.GetByIdAsync(booking.CarId);
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car not found"));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         bool isOwner = carRes.Value.OwnerId == currentUserId;
 
@@ -216,10 +216,10 @@ public class BookingService(
                 isAdmin))
         {
             return BaseResult.Failure(
-                Error.BadRequest("Invalid booking status transition"));
+                Error.BadRequest("Неверный переход статуса бронирования"));
         }
         if (updateStatusInfo.Status == BookingStatus.Rejected && string.IsNullOrWhiteSpace(updateStatusInfo.Reason))
-            return BaseResult.Failure(Error.BadRequest("Reason is required"));
+            return BaseResult.Failure(Error.BadRequest("Требуется причина"));
         if (updateStatusInfo.Status == BookingStatus.Rejected ||
             updateStatusInfo.Status == BookingStatus.Cancelled)
         {
@@ -238,8 +238,8 @@ public class BookingService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 booking.UserId,
-                "Booking status updated",
-                $"Your booking status changed to {updateStatusInfo.Status}."
+                "Статус бронирования обновлен",
+                $"Статус вашего бронирования изменился на {updateStatusInfo.Status}."
             ));
 
         if (isOwner)
@@ -247,8 +247,8 @@ public class BookingService(
             await notificationService.CreateAsync(
                 new NotificationCreateInfo(
                     currentUserId,
-                    "Booking updated",
-                    $"Booking #{booking.Id} changed to {updateStatusInfo.Status}."
+                    "Бронирование обновлено",
+                    $"Бронирование #{booking.Id} изменено на {updateStatusInfo.Status}."
                 ));
         }
 
@@ -269,7 +269,7 @@ public class BookingService(
         
         if (existing.Value.BookingStatus != BookingStatus.Pending)
             return BaseResult.Failure(
-                Error.BadRequest("Only pending booking can be deleted"));
+                Error.BadRequest("Удалить можно только незавершенные бронирования."));
 
         Result<int> result = await repository.DeleteAsync(id);
 

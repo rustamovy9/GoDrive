@@ -20,7 +20,7 @@ public class CarPriceService(ICarPriceRepository repository,ICarRepository carRe
         var entity = await res.Value!.FirstOrDefaultAsync();
 
         if (entity is null)
-            return Result<CarPriceReadInfo>.Failure(Error.NotFound("Price not found"));
+            return Result<CarPriceReadInfo>.Failure(Error.NotFound("Цена не найдена"));
 
         return Result<CarPriceReadInfo>.Success(entity.ToRead());
     }
@@ -30,7 +30,7 @@ public class CarPriceService(ICarPriceRepository repository,ICarRepository carRe
         var carRes = await carRepository.GetByIdAsync(createInfo.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car not found"));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         // Проверяем что цена ещё не создана
         var exists = await repository
@@ -39,7 +39,7 @@ public class CarPriceService(ICarPriceRepository repository,ICarRepository carRe
             .AnyAsync();
 
         if (exists)
-            return BaseResult.Failure(Error.Conflict("Price already exists for this car"));
+            return BaseResult.Failure(Error.Conflict("Цена на этот автомобиль уже существует."));
         var car = carRes.Value;
 
         var entity = createInfo.ToEntity();
@@ -65,14 +65,14 @@ public class CarPriceService(ICarPriceRepository repository,ICarRepository carRe
 
         if (!res.IsSuccess || res.Value is null)
             return BaseResult.Failure(
-                Error.NotFound("Car price not found"));
+                Error.NotFound("Цена автомобиля не найдена"));
 
         var entity = res.Value;
 
         var carRes = await carRepository.GetByIdAsync(entity.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car not found"));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         var car = carRes.Value;
 
@@ -98,14 +98,14 @@ public class CarPriceService(ICarPriceRepository repository,ICarRepository carRe
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car price not found"));
+            return BaseResult.Failure(Error.NotFound("Цена автомобиля не найдена"));
 
         var entity = res.Value;
 
         var carRes = await carRepository.GetByIdAsync(entity.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car not found"));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         var car = carRes.Value;
 

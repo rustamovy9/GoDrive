@@ -44,7 +44,7 @@ public class RoleService(IRoleRepository repository) : IRoleService
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return Result<RoleReadInfo>.Failure(Error.NotFound("Role not found"));
+            return Result<RoleReadInfo>.Failure(Error.NotFound("Роль не найдена"));
 
         return Result<RoleReadInfo>.Success(res.Value.ToRead());
     }
@@ -54,7 +54,7 @@ public class RoleService(IRoleRepository repository) : IRoleService
         var existing = repository.Find(r => r.Name == createInfo.Name);
 
         if (existing.IsSuccess && await existing.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("Role already exists"));
+            return BaseResult.Failure(Error.Conflict("Роль уже существует"));
 
         var result = await repository.AddAsync(createInfo.ToEntity());
 
@@ -68,14 +68,14 @@ public class RoleService(IRoleRepository repository) : IRoleService
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Role not found"));
+            return BaseResult.Failure(Error.NotFound("Роль не найдена"));
 
         var existing = repository.Find(r =>
             r.Name == updateInfo.Name &&
             r.Id != id);
 
         if (existing.IsSuccess && await existing.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("Role name already exists"));
+            return BaseResult.Failure(Error.Conflict("Роль уже существует"));
 
         var updated = res.Value.ToEntity(updateInfo);
 
@@ -91,7 +91,7 @@ public class RoleService(IRoleRepository repository) : IRoleService
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Role not found"));
+            return BaseResult.Failure(Error.NotFound("Роль не найдена"));
 
         // 🔥 Запрещаем удалять системные роли
         if (res.Value.Name == DefaultRoles.Admin ||
@@ -99,7 +99,7 @@ public class RoleService(IRoleRepository repository) : IRoleService
             res.Value.Name == DefaultRoles.Owner)
         {
             return BaseResult.Failure(
-                Error.BadRequest("System roles cannot be deleted"));
+                Error.BadRequest("Системные роли удалить невозможно."));
         }
 
         var result = await repository.DeleteAsync(id);

@@ -68,7 +68,7 @@ public class ReviewService(IReviewRepository repository,IBookingRepository booki
     {
         Result<Review?> res = await repository.GetByIdAsync(id);
         
-        if (!res.IsSuccess || res.Value is null) return Result<ReviewReadInfo>.Failure(Error.NotFound("Review not found"));
+        if (!res.IsSuccess || res.Value is null) return Result<ReviewReadInfo>.Failure(Error.NotFound("Отзыв не найден"));
 
         return Result<ReviewReadInfo>.Success(res.Value.ToRead());
     }
@@ -83,7 +83,7 @@ public class ReviewService(IReviewRepository repository,IBookingRepository booki
         if (!hasCompletedBooking.IsSuccess ||
             !await hasCompletedBooking.Value!.AnyAsync())
         {
-            return BaseResult.Failure(Error.BadRequest("You can leave review only after completed booking"));
+            return BaseResult.Failure(Error.BadRequest("Оставить отзыв можно только после завершения бронирования."));
         }
         
         var exists = repository.Find(x =>
@@ -93,7 +93,7 @@ public class ReviewService(IReviewRepository repository,IBookingRepository booki
 
         if (exists.IsSuccess && await exists.Value!.AnyAsync())
             return BaseResult.Failure(
-                Error.Conflict("You already reviewed this car."));
+                Error.Conflict("Вы уже оставили отзыв об этом автомобиле."));
         
         Result<int> res = await repository.AddAsync(createInfo.ToEntity(userId));
 
@@ -106,7 +106,7 @@ public class ReviewService(IReviewRepository repository,IBookingRepository booki
     {
         Result<Review?> res = await repository.GetByIdAsync(id);
 
-        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Review not found"));
+        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Отзыв не найден"));
 
         Result<int> result = await repository.UpdateAsync(res.Value!.ToEntity(updateInfo));
 
@@ -118,7 +118,7 @@ public class ReviewService(IReviewRepository repository,IBookingRepository booki
     public async Task<BaseResult> DeleteAsync(int id)
     {
         Result<Review?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Review not found"));
+        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Отзыв не найден"));
 
         Result<int> result = await repository.DeleteAsync(id);
 

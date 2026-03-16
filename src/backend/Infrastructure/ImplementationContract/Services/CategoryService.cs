@@ -17,7 +17,7 @@ public class CategoryService(ICategoryRepository repository) : ICategoryService
     public async Task<BaseResult> CreateAsync(CategoryCreateInfo createInfo)
     {
         if (string.IsNullOrEmpty(createInfo.Name))
-            return BaseResult.Failure(Error.BadRequest("Category name is required"));
+            return BaseResult.Failure(Error.BadRequest("Укажите название категории."));
 
         var exists = await repository
             .Find(x => x.Name.ToLower() == createInfo.Name.ToLower())
@@ -25,7 +25,7 @@ public class CategoryService(ICategoryRepository repository) : ICategoryService
             .AnyAsync();
 
         if (exists)
-            return BaseResult.Failure(Error.Conflict("Category already exists"));
+            return BaseResult.Failure(Error.Conflict("Категория уже существует"));
 
         var category = createInfo.ToEntity();
 
@@ -41,7 +41,7 @@ public class CategoryService(ICategoryRepository repository) : ICategoryService
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Category not found."));
+            return BaseResult.Failure(Error.NotFound("Категория не найдена ."));
 
         var category = res.Value;
 
@@ -53,7 +53,7 @@ public class CategoryService(ICategoryRepository repository) : ICategoryService
                 .AnyAsync();
 
             if (exists)
-                return BaseResult.Failure(Error.Conflict("Category name already exists."));
+                return BaseResult.Failure(Error.Conflict("Категория с таким названием уже существует."));
 
             category.Name = updateInfo.Name;
         }

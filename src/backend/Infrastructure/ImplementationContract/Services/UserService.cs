@@ -88,7 +88,7 @@ public class UserService(
                 x.PhoneNumber == updateInfo.PhoneNumber);
 
             if (conflict.IsSuccess && await conflict.Value!.AnyAsync())
-                return BaseResult.Failure(Error.Conflict("Phone number already exists."));
+                return BaseResult.Failure(Error.Conflict("Номер телефона уже существует."));
         }
 
 
@@ -120,7 +120,7 @@ public class UserService(
     {
         var userRes = await repository.GetByIdAsync(userId);
         if (!userRes.IsSuccess || userRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("User not found"));
+            return BaseResult.Failure(Error.NotFound("Пользователь не найден"));
 
         var roleRes = roleRepository.Find(r => r.Name == roleName);
         if (!roleRes.IsSuccess)
@@ -128,13 +128,13 @@ public class UserService(
 
         var role = await roleRes.Value!.FirstOrDefaultAsync();
         if (role is null)
-            return BaseResult.Failure(Error.NotFound("Role not found"));
+            return BaseResult.Failure(Error.NotFound("Роль не найдена"));
 
         var existing = userRoleRepository.Find(x =>
             x.UserId == userId && x.RoleId == role.Id);
 
         if (existing.IsSuccess && await existing.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("User already has this role"));
+            return BaseResult.Failure(Error.Conflict("У пользователя уже есть эта роль."));
 
         await userRoleRepository.AddAsync(new UserRole
         {
@@ -159,7 +159,7 @@ public class UserService(
 
         var role = await roleRes.Value!.FirstOrDefaultAsync();
         if (role is null)
-            return BaseResult.Failure(Error.NotFound("Role not found"));
+            return BaseResult.Failure(Error.NotFound("Роль не найдена"));
 
         var userRoleRes = userRoleRepository.Find(x =>
             x.UserId == userId && x.RoleId == role.Id);
@@ -169,7 +169,7 @@ public class UserService(
 
         var userRole = await userRoleRes.Value!.FirstOrDefaultAsync();
         if (userRole is null)
-            return BaseResult.Failure(Error.NotFound("User does not have this role"));
+            return BaseResult.Failure(Error.NotFound("У пользователя нет этой роли."));
 
         await userRoleRepository.DeleteAsync(userRole.Id);
 

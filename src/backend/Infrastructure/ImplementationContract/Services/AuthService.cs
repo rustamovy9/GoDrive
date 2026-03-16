@@ -23,7 +23,7 @@ public class AuthService(DataContext dbContext, IAuthenticationService service) 
                                       && x.PasswordHash == HashAlgorithms
                                           .ConvertToHash(request.Password));
         if (user is null)
-            return Result<Tuple<string, bool>>.Failure(Error.BadRequest("Invalid username or password"));
+            return Result<Tuple<string, bool>>.Failure(Error.BadRequest("Неверное имя пользователя или пароль."));
 
         await dbContext.SaveChangesAsync();
         return Result<Tuple<string, bool>>.Success(Tuple.Create(await service.GenerateTokenAsync(user), true));
@@ -37,7 +37,7 @@ public class AuthService(DataContext dbContext, IAuthenticationService service) 
             u.PhoneNumber == request.PhoneNumber);
 
         if (conflict)
-            return BaseResult.Failure(Error.Conflict("User already exists"));
+            return BaseResult.Failure(Error.Conflict("Пользователь уже существует\n"));
 
         string roleName = DefaultRoles.User;
 
@@ -45,12 +45,12 @@ public class AuthService(DataContext dbContext, IAuthenticationService service) 
             .FirstOrDefaultAsync(r => r.Name == roleName);
 
         if (role is null)
-            return BaseResult.Failure(Error.NotFound("Role not found"));
+            return BaseResult.Failure(Error.NotFound("Роль не найдена\n"));
 
         var user = request.ToEntity();
 
         if (!IsValidDateOfBirth(request.DateOfBirth))
-            return BaseResult.Failure(Error.BadRequest("Invalid date of birth provided."));
+            return BaseResult.Failure(Error.BadRequest("Указана неверная дата рождения.\n"));
 
         await dbContext.Users.AddAsync(user);
 
@@ -82,10 +82,10 @@ public class AuthService(DataContext dbContext, IAuthenticationService service) 
 
 
         bool checkPassword = user.PasswordHash == HashAlgorithms.ConvertToHash(request.OldPassword);
-        if (!checkPassword) return BaseResult.Failure(Error.BadRequest("Password is incorrect"));
+        if (!checkPassword) return BaseResult.Failure(Error.BadRequest("Пароль неверен\n"));
 
         if (!request.NewPassword.Equals(request.ConfirmPassword))
-            return BaseResult.Failure(Error.BadRequest("Passwords do not match."));
+            return BaseResult.Failure(Error.BadRequest("Пароли не совпадают.\n"));
 
         user.PasswordHash = HashAlgorithms.ConvertToHash(request.NewPassword);
 
