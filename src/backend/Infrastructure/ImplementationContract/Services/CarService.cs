@@ -148,7 +148,7 @@ public class CarService(
         Result<IQueryable<Car>> conflict = repository.Find(x => x.RegistrationNumber == createInfo.RegistrationNumber);
 
         if (conflict.IsSuccess && await conflict.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("Registration number already exists."));
+            return BaseResult.Failure(Error.Conflict("Регистрационный номер уже существует."));
 
         Car car = createInfo.ToEntity();
 
@@ -170,8 +170,8 @@ public class CarService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 car.OwnerId,
-                "Car created",
-                "Your car has been created and is waiting for document verification."));
+                "Автомобиль создан",
+                "Ваш автомобиль создан и ожидает проверки документов."));
 
         return BaseResult.Success();
     }
@@ -180,7 +180,7 @@ public class CarService(
     {
         Result<Car?> res = await repository.GetByIdAsync(id);
 
-        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Car not found"));
+        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Автомобиль создан"));
 
         var car = res.Value;
 
@@ -189,7 +189,7 @@ public class CarService(
 
         if (car.CarStatus == CarStatus.Blocked)
             return BaseResult.Failure(
-                Error.BadRequest("Archived car cannot be updated"));
+                Error.BadRequest("Обновление архивированного автомобиля невозможно."));
 
         Result<int> result = await repository.UpdateAsync(res.Value!.ToEntity(updateInfo));
 
@@ -201,7 +201,7 @@ public class CarService(
     public async Task<BaseResult> DeleteAsync(int id, int currentUserId, bool isAdmin)
     {
         Result<Car?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound("Car not found"));
+        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         var car = res.Value;
 
@@ -210,7 +210,7 @@ public class CarService(
 
         if (!isAdmin && car!.CarStatus != CarStatus.Blocked)
             return BaseResult.Failure(
-                Error.BadRequest("Only blocked car can be deleted"));
+                Error.BadRequest("Удалить можно только заблокированный автомобиль"));
 
         Result<int> result = await repository.DeleteAsync(id);
 
@@ -220,8 +220,8 @@ public class CarService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 res.Value!.OwnerId,
-                "Car deleted",
-                "Your car has been deleted from the system."));
+                "Автомобиль удален",
+                "Ваш автомобиль был удален из системы."));
 
         return BaseResult.Success();
     }
@@ -234,7 +234,7 @@ public class CarService(
         Result<Car?> res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car not found"));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         Car car = res.Value;
 
@@ -253,8 +253,8 @@ public class CarService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 car.OwnerId,
-                "Car status updated",
-                $"Your car status changed to {status}."));
+                "Статус автомобиля обновлен",
+                $"Статус вашего автомобиля изменился на {status}."));
 
         return BaseResult.Success();
     }

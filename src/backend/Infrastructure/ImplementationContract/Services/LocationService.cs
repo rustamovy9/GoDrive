@@ -63,7 +63,7 @@ public class LocationService(ILocationRepository repository) : ILocationService
 
         if (conflict.IsSuccess && await conflict.Value!.AnyAsync())
             return BaseResult.Failure(
-                Error.Conflict("Location already exists."));
+                Error.Conflict("Местоположение уже существует."));
 
         var location = createInfo.ToEntity();
 

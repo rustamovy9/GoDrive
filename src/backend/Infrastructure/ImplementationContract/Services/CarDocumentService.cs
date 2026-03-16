@@ -35,7 +35,7 @@ public class CarDocumentService(
     {
         var carRes = await carRepository.GetByIdAsync(createInfo.CarId);
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car not found"));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         
 
@@ -51,8 +51,8 @@ public class CarDocumentService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 carRes.Value.OwnerId,
-                "Document submitted",
-                "Your document has been submitted and is pending verification."
+                "Документ отправлен",
+                "Ваш документ отправлен и ожидает проверки."
             )
         );
 
@@ -67,8 +67,8 @@ public class CarDocumentService(
                 await notificationService.CreateAsync(
                     new NotificationCreateInfo(
                         admin.Id,
-                        "New document uploaded",
-                        $"Car #{carRes.Value.Id} document requires verification."
+                        "Новый документ загружен",
+                        $"Машина #{carRes.Value.Id} документ требует проверки."
                     )
                 );
             }
@@ -85,14 +85,14 @@ public class CarDocumentService(
         var documentRes = await repository.GetByIdAsync(id);
 
         if (!documentRes.IsSuccess || documentRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Document not found"));
+            return BaseResult.Failure(Error.NotFound("Документ не найден."));
 
         var document = documentRes.Value;
 
         var carRes = await carRepository.GetByIdAsync(document.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car not found"));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         if (carRes.Value.OwnerId != currentUserId)
             return BaseResult.Failure(Error.Forbidden());
@@ -132,13 +132,13 @@ public class CarDocumentService(
         var documentRes = await repository.GetByIdAsync(id);
 
         if (!documentRes.IsSuccess || documentRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Document not found"));
+            return BaseResult.Failure(Error.NotFound("Документ не найден."));
         
 
         var document = documentRes.Value;
 
         if (document.VerificationStatus != DocumentVerificationStatus.Pending)
-            return BaseResult.Failure(Error.BadRequest("Document already reviewed"));
+            return BaseResult.Failure(Error.BadRequest("Документ уже проверен"));
 
         document.ToEntity(updateInfo, adminId);
 
@@ -156,8 +156,8 @@ public class CarDocumentService(
             await notificationService.CreateAsync(
                 new NotificationCreateInfo(
                     carRes.Value.OwnerId,
-                    "Document reviewed",
-                    $"Your document has been {updateInfo.VerificationStatus}."
+                    "Документ проверен",
+                    $"Ваш документ был {updateInfo.VerificationStatus}."
                 ));
         }
 
@@ -173,14 +173,14 @@ public class CarDocumentService(
         var documentRes = await repository.GetByIdAsync(id);
 
         if (!documentRes.IsSuccess || documentRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Document not found"));
+            return BaseResult.Failure(Error.NotFound("Документ не найден."));
 
         var document = documentRes.Value;
 
         var carRes = await carRepository.GetByIdAsync(document.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car not found"));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         var car = carRes.Value;
 
@@ -208,14 +208,14 @@ public class CarDocumentService(
         var documentRes = await repository.GetByIdAsync(id);
 
         if (!documentRes.IsSuccess || documentRes.Value is null)
-            return Result<(byte[], string)>.Failure(Error.NotFound("Document not found"));
+            return Result<(byte[], string)>.Failure(Error.NotFound("Документ не найден."));
 
         var document = documentRes.Value;
 
         var carRes = await carRepository.GetByIdAsync(document.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return Result<(byte[], string)>.Failure(Error.NotFound("Car not found"));
+            return Result<(byte[], string)>.Failure(Error.NotFound("Автомобиль не найден"));
 
         var car = carRes.Value;
 
@@ -244,7 +244,7 @@ public class CarDocumentService(
 
         foreach (var d in documents)
         {
-            Console.WriteLine($"Doc {d.Id}: {d.VerificationStatus}");
+            Console.WriteLine($"Документ {d.Id}: {d.VerificationStatus}");
         }
 
         var carRes = await carRepository.GetByIdAsync(carId);

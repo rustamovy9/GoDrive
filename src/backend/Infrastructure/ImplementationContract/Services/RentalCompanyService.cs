@@ -64,7 +64,7 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
     public async Task<Result<RentalCompanyReadInfo>> GetByIdAsync(int id)
     {
         Result<RentalCompany?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess || res.Value is null) return Result<RentalCompanyReadInfo>.Failure(Error.NotFound("Rental company not found"));
+        if (!res.IsSuccess || res.Value is null) return Result<RentalCompanyReadInfo>.Failure(Error.NotFound("Компания по прокату не найдена"));
 
         return Result<RentalCompanyReadInfo>.Success(res.Value.ToRead());
     }
@@ -77,12 +77,12 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
             .AnyAsync();
 
         if (!locationExists)
-            return BaseResult.Failure(Error.NotFound("Location not found"));
+            return BaseResult.Failure(Error.NotFound("Местоположение не найдено"));
 
         var exists = repository.Find(x => x.OwnerId == ownerId);
         
         if(exists.IsSuccess && await exists.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("Owner already has a rental company"));
+            return BaseResult.Failure(Error.Conflict("Владелец уже имеет компанию по сдаче недвижимости в аренду."));
         var entity = createInfo.ToEntity(ownerId);
 
         var res = await repository.AddAsync(entity);
@@ -96,7 +96,7 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
     {
         Result<RentalCompany?> res = await repository.GetByIdAsync(id);
 
-        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Rental Company not found "));
+        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Компания по прокату не найдена"));
 
         var company = res.Value;
 
@@ -108,7 +108,7 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
                 .AnyAsync();
 
             if (!locationExists)
-                return BaseResult.Failure(Error.NotFound("Location not found"));
+                return BaseResult.Failure(Error.NotFound("Местоположение не найдено"));
         }
 
         company = company.ToEntity(updateInfo);
@@ -123,12 +123,12 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
     public async Task<BaseResult> DeleteAsync(int id)
     {
         Result<RentalCompany?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Rental company not found"));
+        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Компания по прокату не найдена"));
 
         var company = res.Value;
 
         if (company.Cars.Any())
-            return BaseResult.Failure(Error.BadRequest("Cannot delete company with existing cars"));
+            return BaseResult.Failure(Error.BadRequest("Невозможно удалить компанию с уже имеющимися автомобилями."));
 
         
         Result<int> result = await repository.DeleteAsync(id);

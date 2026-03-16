@@ -72,7 +72,7 @@ public class NotificationService(INotificationRepository repository, IRealtimeNo
         var res = await repository.GetByIdAsync(notificationId);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Notification not found"));
+            return BaseResult.Failure(Error.NotFound("Уведомление не найдено"));
 
         var notification = res.Value;
 

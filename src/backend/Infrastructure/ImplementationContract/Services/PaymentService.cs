@@ -20,12 +20,12 @@ public class PaymentService(
     {
         if (createInfo.Amount <= 0)
             return BaseResult.Failure(
-                Error.BadRequest("Amount must be greater than zero."));
+                Error.BadRequest("Сумма должна быть больше нуля."));
 
         var bookingRes = await bookingRepository.GetByIdAsync(createInfo.BookingId);
 
         if (!bookingRes.IsSuccess || bookingRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Booking not found"));
+            return BaseResult.Failure(Error.NotFound("Бронирование не найдено"));
 
         var booking = bookingRes.Value;
 
@@ -33,7 +33,7 @@ public class PaymentService(
 
         if (existing.IsSuccess && await existing.Value!.AnyAsync())
             return BaseResult.Failure(
-                Error.Conflict("Payment already exists for this booking"));
+                Error.Conflict("Оплата за это бронирование уже произведена."));
 
         var payment = createInfo.ToEntity();
 
@@ -67,7 +67,7 @@ public class PaymentService(
         var paymentRes = await repository.GetByIdAsync(paymentId);
 
         if (!paymentRes.IsSuccess || paymentRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Payment not found"));
+            return BaseResult.Failure(Error.NotFound("Платеж не найден"));
 
         var payment = paymentRes.Value;
 
@@ -76,7 +76,7 @@ public class PaymentService(
 
         if (payment.Status == PaymentStatus.PaidOffline)
             return BaseResult.Failure(
-                Error.BadRequest("Paid payment cannot be modified"));
+                Error.BadRequest("Внесенные платежи изменить нельзя."));
 
         payment.Status = newStatus;
         payment.UpdatedAt = DateTimeOffset.UtcNow;
@@ -135,8 +135,8 @@ public class PaymentService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 booking.UserId,
-                "Payment status updated",
-                $"Your payment status changed to {newStatus}."
+                "Статус платежа обновлен",
+                $"Статус вашего платежа изменился на {newStatus}."
             ));
 
         // 🔔 Владельцу
@@ -146,8 +146,8 @@ public class PaymentService(
             await notificationService.CreateAsync(
                 new NotificationCreateInfo(
                     carRes.Value.OwnerId,
-                    "Payment status updated",
-                    $"Payment for booking #{booking.Id} changed to {newStatus}."
+                    "Статус платежа обновлен",
+                    $"Оплата за бронирование #{booking.Id} изменена на {newStatus}."
                 ));
         }
     }
@@ -158,8 +158,8 @@ public class PaymentService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 booking.UserId,
-                "Payment created",
-                $"Payment for booking #{booking.Id} has been created."
+                "Платеж создан",
+                $"Оплата за бронирование #{booking.Id} был создан."
             ));
 
         // Владельцу
@@ -170,8 +170,8 @@ public class PaymentService(
             await notificationService.CreateAsync(
                 new NotificationCreateInfo(
                     carRes.Value.OwnerId,
-                    "New payment",
-                    $"User created payment for booking #{booking.Id}."
+                    "Новый платеж",
+                    $"Пользователь оплатил бронирование. #{booking.Id}."
                 ));
         }
     }

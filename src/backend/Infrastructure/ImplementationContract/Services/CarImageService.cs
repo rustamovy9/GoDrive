@@ -21,7 +21,7 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
 
         if (!carRes.IsSuccess || carRes.Value is null)
             return Result<IEnumerable<CarImageReadInfo>>
-                .Failure(Error.NotFound("Car not found"));
+                .Failure(Error.NotFound("Автомобиль не найден"));
 
         var car = carRes.Value;
 
@@ -55,10 +55,10 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
         var carRes = await carRepository.GetByIdAsync(createInfo.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car not found"));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         if (carRes.Value.CarStatus == CarStatus.Blocked)
-            return BaseResult.Failure(Error.BadRequest("Cannot upload image for blocked car"));
+            return BaseResult.Failure(Error.BadRequest("Не удаётся загрузить изображение заблокированного автомобиля."));
 
         if (carRes.Value.OwnerId != currentUserId)
             return BaseResult.Failure(Error.Forbidden());
@@ -71,7 +71,7 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
         var images = await imagesQuery.Value!.ToListAsync();
 
         if (images.Count >= 10)
-            return BaseResult.Failure(Error.BadRequest("Maximum 10 images allowed"));
+            return BaseResult.Failure(Error.BadRequest("Допускается максимум 10 изображений."));
 
         var image = await createInfo.ToEntity(fileService);
 
@@ -105,12 +105,12 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
         var imageRes = await repository.GetByIdAsync(imageId);
 
         if (!imageRes.IsSuccess || imageRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Image not found"));
+            return BaseResult.Failure(Error.NotFound("Изображение не найдено"));
 
         var carRes = await carRepository.GetByIdAsync(imageRes.Value.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car not found"));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         if (carRes.Value.OwnerId != currentUserId)
             return BaseResult.Failure(Error.Forbidden());
@@ -135,12 +135,12 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
         var imageRes = await repository.GetByIdAsync(id);
 
         if (!imageRes.IsSuccess || imageRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Image not found"));
+            return BaseResult.Failure(Error.NotFound("Изображение не найдено"));
 
         var carRes = await carRepository.GetByIdAsync(imageRes.Value.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Car not found"));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         if (!isAdmin && carRes.Value.OwnerId != currentUserId)
             return BaseResult.Failure(Error.Forbidden());
@@ -182,14 +182,14 @@ public class CarImageService(ICarImageRepository repository, ICarRepository carR
         var carImageRes = await repository.GetByIdAsync(id);
 
         if (!carImageRes.IsSuccess || carImageRes.Value is null)
-            return Result<(byte[], string)>.Failure(Error.NotFound("Image not found"));
+            return Result<(byte[], string)>.Failure(Error.NotFound("Изображение не найдено"));
 
         var carImage = carImageRes.Value;
 
         var carRes = await carRepository.GetByIdAsync(carImage.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return Result<(byte[], string)>.Failure(Error.NotFound("Car not found"));
+            return Result<(byte[], string)>.Failure(Error.NotFound("Автомобиль не найден"));
 
         var car = carRes.Value;
 
