@@ -32,7 +32,7 @@ public sealed class UserController(IUserService service) : BaseController
     
     [HttpPut("{id:int}")]
     [Authorize(Roles = DefaultRoles.Admin)]
-    public async Task<IActionResult> Update(int id, [FromBody] UserUpdateInfo entity)
+    public async Task<IActionResult> Update(int id, [FromForm] UserUpdateInfo entity)
     {
         return (await service.UpdateAsync(id, entity)).ToActionResult();
     } 
