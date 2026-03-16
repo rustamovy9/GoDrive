@@ -20,4 +20,4 @@ public sealed record UserUpdateInfo(
     string? LastName,
     string? PhoneNumber,
     string? Address,
-    IFormFile? File);
+    IFormFile? AvatarPath);

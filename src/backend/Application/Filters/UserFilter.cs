@@ -15,6 +15,7 @@ public record UserFilter(
     DateTimeOffset? MaxDateOfBirth,
 
     int? RoleId,
+    string? RoleName,
 
     bool? HasCars,
     bool? IsDeleted
