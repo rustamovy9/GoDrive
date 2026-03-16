@@ -43,13 +43,13 @@ public static class UserMapper
         if (updateInfo.Address is not null)
             entity.Address = updateInfo.Address;
 
-        if (updateInfo.File is not null)
+        if (updateInfo.AvatarPath is not null)
         {
             if (!string.IsNullOrWhiteSpace(entity.AvatarPath))
                 await fileService.DeleteFile(entity.AvatarPath, MediaFolders.Images);
 
             entity.AvatarPath = await fileService.CreateFile(
-                updateInfo.File,
+                updateInfo.AvatarPath,
                 MediaFolders.Images);
         }
 
