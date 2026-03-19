@@ -1,6 +1,7 @@
 using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Localization;
+using Application.Validations.Helpers;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 
@@ -38,9 +39,9 @@ public class Update : AbstractValidator<UserUpdateInfo>
                 .WithMessage(localizer.Get(TextKeys.Validation.AddressMax200));
         });
 
-        When(x => x.Avatar != null, () =>
+        When(x => x.AvatarPath != null, () =>
         {
-            RuleFor(x => x.Avatar!)
+            RuleFor(x => x.AvatarPath!)
                 .Must(IsImageFile)
                 .WithMessage(localizer.Get(TextKeys.Validation.AvatarInvalidImage));
         });
