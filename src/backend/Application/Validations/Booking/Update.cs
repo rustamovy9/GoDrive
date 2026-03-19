@@ -30,13 +30,16 @@ public class Update : AbstractValidator<BookingUpdateInfo>
             .Must(date => date == null || date.Value > DateTime.Now)
             .WithMessage(localizer.Get(TextKeys.Validation.EndDateTimeInFuture));
 
-        RuleFor(booking => booking)
-            .Must(booking => booking.StartDateTime < booking.EndDateTime)
-            .WithMessage(localizer.Get(TextKeys.Validation.StartDateTimeBeforeEndDateTime));
+        When(x => x.StartDateTime.HasValue && x.EndDateTime.HasValue, () =>
+        {
+            RuleFor(booking => booking)
+                .Must(booking => booking.StartDateTime < booking.EndDateTime)
+                .WithMessage(localizer.Get(TextKeys.Validation.StartDateTimeBeforeEndDateTime));
 
-        RuleFor(x => x)
-            .Must(x => (x.EndDateTime - x.StartDateTime).Value.TotalHours >= 1)
-            .WithMessage(localizer.Get(TextKeys.Validation.BookingDurationMin1Hour));
+            RuleFor(x => x)
+                .Must(x => (x.EndDateTime!.Value - x.StartDateTime!.Value).TotalHours >= 1)
+                .WithMessage(localizer.Get(TextKeys.Validation.BookingDurationMin1Hour));
+        });
 
         RuleFor(x => x.Comment)
             .MaximumLength(500)

@@ -1,6 +1,7 @@
 using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Localization;
+using Application.Validations.Helpers;
 using FluentValidation;
 
 namespace Application.Validations.UserAndAuth;
