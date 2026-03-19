@@ -1,4 +1,6 @@
-ï»¿using Application.DTO_s;
+using Application.Contracts.Localization;
+using Application.DTO_s;
+using Application.Localization;
 using Domain.Enums;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -7,29 +9,29 @@ namespace Application.Validations.CarDocument;
 
 public class Create : AbstractValidator<CarDocumentCreateInfo>
 {
-    public Create()
+    public Create(ITextLocalizer localizer)
     {
         RuleFor(x => x.CarId)
             .GreaterThan(0)
-            .WithMessage("CarId must be greater than 0.");
+            .WithMessage(localizer.Get(TextKeys.Validation.CarIdGreaterThanZero));
 
         RuleFor(x => x.DocumentType)
             .IsInEnum()
             .Must(x => x != CarDocumentType.Unknown)
-            .WithMessage("DocumentType must be a valid document type.");
+            .WithMessage(localizer.Get(TextKeys.Validation.DocumentTypeValid));
 
         RuleFor(x => x.File)
-            .NotNull().WithMessage("Document Image is required.")
+            .NotNull().WithMessage(localizer.Get(TextKeys.Validation.DocumentImageRequired))
             .Must(BeValidImage)
-            .WithMessage("File must be a valid image (jpg, png, jpeg, webp) and less than 5MB.");
+            .WithMessage(localizer.Get(TextKeys.Validation.FileValidImageUnder5Mb));
     }
-    
+
     private static bool BeValidImage(IFormFile file)
     {
         if (file == null || file.Length == 0)
             return false;
 
-        // 5MB Ð»Ð¸Ð¼Ð¸Ñ‚
+        // 5MB ëèìèò
         const long maxSize = 5 * 1024 * 1024;
         if (file.Length > maxSize)
             return false;

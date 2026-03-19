@@ -12,13 +12,18 @@ using Infrastructure.ImplementationContract.Repositories;
 using Infrastructure.ImplementationContract.Repositories.BaseRepository;
 using Infrastructure.ImplementationContract.Repositories.BaseRepository.Crud;
 using Infrastructure.ImplementationContract.Services;
+using Infrastructure.Localization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Options;
 using MobileApp.HelpersApi.Extensions.Seed;
 using MobileApp.HelpersApi.SignalR;
 using MobileApp.Hubs;
+using Application.Contracts.Localization;
+using System.Globalization;
 
 namespace MobileApp.HelpersApi.Extensions.DI;
 
@@ -81,6 +86,21 @@ public static class RegisterService
 
         //registration controller
         builder.Services.AddControllers();
+
+        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+        builder.Services.Configure<RequestLocalizationOptions>(options =>
+        {
+            var supportedCultures = new[]
+            {
+                new CultureInfo("en"),
+                new CultureInfo("ru"),
+                new CultureInfo("tg")
+            };
+
+            options.DefaultRequestCulture = new RequestCulture("ru");
+            options.SupportedCultures = supportedCultures;
+            options.SupportedUICultures = supportedCultures;
+        });
 
 
         builder.Configuration
@@ -148,6 +168,7 @@ public static class RegisterService
 
         //registration services
         builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+        builder.Services.AddScoped<ITextLocalizer, TextLocalizer>();
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IBookingService, BookingService>();
         builder.Services.AddScoped<ICarService, CarService>();
@@ -201,6 +222,10 @@ public static class RegisterService
         {
             app.UseSwagger();
             app.UseSwaggerUI();
+            var localizationOptions = app.Services
+                .GetRequiredService<IOptions<RequestLocalizationOptions>>()
+                .Value;
+            app.UseRequestLocalization(localizationOptions);
             app.UseExceptionHandler("/error");
             app.MapHub<NotificationHub>("/hubs/notifications");
             app.UseAuthentication();

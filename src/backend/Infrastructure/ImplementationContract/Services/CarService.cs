@@ -1,10 +1,12 @@
 ﻿using Application.Contracts.Repositories;
 using Application.Contracts.Services;
+using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
 using Application.Extensions.Responses.PagedResponse;
 using Application.Extensions.ResultPattern;
 using Application.Filters;
+using Application.Localization;
 using Domain.Common;
 using Domain.Constants;
 using Domain.Entities;
@@ -18,7 +20,8 @@ public class CarService(
     INotificationService notificationService,
     IUserRoleRepository userRoleRepository,
     IFileService fileService,
-    IUserService userService) : ICarService
+    IUserService userService,
+    ITextLocalizer localizer) : ICarService
 {
     public async Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter, string role,
         int? userId)
@@ -125,7 +128,8 @@ public class CarService(
             .FirstOrDefaultAsync();
 
         if (car == null)
-            return Result<CarDetailReadInfo>.Failure(Error.NotFound());
+            return Result<CarDetailReadInfo>.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
 
         // 👤 если не админ
         if (!isAdmin)
@@ -135,7 +139,8 @@ public class CarService(
 
             if (!isOwner && !isAvailable)
             {
-                return Result<CarDetailReadInfo>.Failure(Error.NotFound());
+                return Result<CarDetailReadInfo>.Failure(
+                    Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
             }
         }
 
@@ -148,7 +153,8 @@ public class CarService(
         Result<IQueryable<Car>> conflict = repository.Find(x => x.RegistrationNumber == createInfo.RegistrationNumber);
 
         if (conflict.IsSuccess && await conflict.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("Регистрационный номер уже существует."));
+            return BaseResult.Failure(
+                Error.Conflict(localizer.Get(TextKeys.Errors.RegistrationNumberExists)));
 
         Car car = createInfo.ToEntity();
 
@@ -170,8 +176,8 @@ public class CarService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 car.OwnerId,
-                "Автомобиль создан",
-                "Ваш автомобиль создан и ожидает проверки документов."));
+                localizer.Get(TextKeys.Notifications.CarCreatedTitle),
+                localizer.Get(TextKeys.Notifications.CarCreatedMessage)));
 
         return BaseResult.Success();
     }
@@ -180,16 +186,17 @@ public class CarService(
     {
         Result<Car?> res = await repository.GetByIdAsync(id);
 
-        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Автомобиль создан"));
+        if (!res.IsSuccess || res.Value is null)
+            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
 
         var car = res.Value;
 
         if (!isAdmin && car.OwnerId != currentUserId)
-            return BaseResult.Failure(Error.Forbidden());
+            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
 
         if (car.CarStatus == CarStatus.Blocked)
             return BaseResult.Failure(
-                Error.BadRequest("Обновление архивированного автомобиля невозможно."));
+                Error.BadRequest(localizer.Get(TextKeys.Errors.CannotUpdateArchivedCar)));
 
         Result<int> result = await repository.UpdateAsync(res.Value!.ToEntity(updateInfo));
 
@@ -201,16 +208,17 @@ public class CarService(
     public async Task<BaseResult> DeleteAsync(int id, int currentUserId, bool isAdmin)
     {
         Result<Car?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
+        if (!res.IsSuccess)
+            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
 
         var car = res.Value;
 
         if (!isAdmin && car!.OwnerId != currentUserId)
-            return BaseResult.Failure(Error.Forbidden());
+            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
 
         if (!isAdmin && car!.CarStatus != CarStatus.Blocked)
             return BaseResult.Failure(
-                Error.BadRequest("Удалить можно только заблокированный автомобиль"));
+                Error.BadRequest(localizer.Get(TextKeys.Errors.OnlyBlockedCarDelete)));
 
         Result<int> result = await repository.DeleteAsync(id);
 
@@ -220,8 +228,8 @@ public class CarService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 res.Value!.OwnerId,
-                "Автомобиль удален",
-                "Ваш автомобиль был удален из системы."));
+                localizer.Get(TextKeys.Notifications.CarDeletedTitle),
+                localizer.Get(TextKeys.Notifications.CarDeletedMessage)));
 
         return BaseResult.Success();
     }
@@ -229,17 +237,17 @@ public class CarService(
     public async Task<BaseResult> UpdateStatusAsync(int id, CarUpdateStatusInfo status, bool isAdmin)
     {
         if (!isAdmin)
-            return BaseResult.Failure(Error.Forbidden());
+            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
 
         Result<Car?> res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
+            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
 
         Car car = res.Value;
 
         if (!isAdmin)
-            return BaseResult.Failure(Error.Forbidden());
+            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
 
         car.CarStatus = status.Status;
         car.UpdatedAt = DateTimeOffset.UtcNow;
@@ -253,8 +261,10 @@ public class CarService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 car.OwnerId,
-                "Статус автомобиля обновлен",
-                $"Статус вашего автомобиля изменился на {status}."));
+                localizer.Get(TextKeys.Notifications.CarStatusUpdatedTitle),
+                localizer.Get(
+                    TextKeys.Notifications.CarStatusUpdatedMessage,
+                    status.Status.ToLocalizedString(localizer))));
 
         return BaseResult.Success();
     }

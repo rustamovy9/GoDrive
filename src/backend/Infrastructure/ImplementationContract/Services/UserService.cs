@@ -1,11 +1,13 @@
 ﻿using System.Linq.Expressions;
 using Application.Contracts.Repositories;
 using Application.Contracts.Services;
+using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
 using Application.Extensions.Responses.PagedResponse;
 using Application.Extensions.ResultPattern;
 using Application.Filters;
+using Application.Localization;
 using Domain.Common;
 using Domain.Constants;
 using Domain.Entities;
@@ -17,7 +19,8 @@ public class UserService(
     IUserRepository repository,
     IFileService fileService,
     IRoleRepository roleRepository,
-    IUserRoleRepository userRoleRepository) : IUserService
+    IUserRoleRepository userRoleRepository,
+    ITextLocalizer localizer) : IUserService
 {
     public async Task<Result<PagedResponse<IEnumerable<UserReadInfo>>>> GetAllAsync(UserFilter filter)
     {
@@ -79,7 +82,7 @@ public class UserService(
     {
         Result<User?> res = await repository.GetByIdAsync(id);
 
-        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
+        if (!res.IsSuccess) return BaseResult.Failure(ErrorFactory.NotFound(localizer));
 
         if (!string.IsNullOrWhiteSpace(updateInfo.PhoneNumber))
         {
@@ -88,7 +91,7 @@ public class UserService(
                 x.PhoneNumber == updateInfo.PhoneNumber);
 
             if (conflict.IsSuccess && await conflict.Value!.AnyAsync())
-                return BaseResult.Failure(Error.Conflict("Номер телефона уже существует."));
+                return BaseResult.Failure(Error.Conflict(localizer.Get(TextKeys.Errors.PhoneExists)));
         }
 
 
@@ -103,7 +106,7 @@ public class UserService(
     {
         Result<User?> res = await repository.GetByIdAsync(id);
         
-        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound());
+        if (!res.IsSuccess) return BaseResult.Failure(ErrorFactory.NotFound(localizer));
 
         if (res.Value!.AvatarPath != FileData.Default)
         {
@@ -120,7 +123,7 @@ public class UserService(
     {
         var userRes = await repository.GetByIdAsync(userId);
         if (!userRes.IsSuccess || userRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Пользователь не найден"));
+            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.UserNotFound)));
 
         var roleRes = roleRepository.Find(r => r.Name == roleName);
         if (!roleRes.IsSuccess)
@@ -128,13 +131,13 @@ public class UserService(
 
         var role = await roleRes.Value!.FirstOrDefaultAsync();
         if (role is null)
-            return BaseResult.Failure(Error.NotFound("Роль не найдена"));
+            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.RoleNotFound)));
 
         var existing = userRoleRepository.Find(x =>
             x.UserId == userId && x.RoleId == role.Id);
 
         if (existing.IsSuccess && await existing.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("У пользователя уже есть эта роль."));
+            return BaseResult.Failure(Error.Conflict(localizer.Get(TextKeys.Errors.UserHasRole)));
 
         await userRoleRepository.AddAsync(new UserRole
         {
@@ -159,7 +162,7 @@ public class UserService(
 
         var role = await roleRes.Value!.FirstOrDefaultAsync();
         if (role is null)
-            return BaseResult.Failure(Error.NotFound("Роль не найдена"));
+            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.RoleNotFound)));
 
         var userRoleRes = userRoleRepository.Find(x =>
             x.UserId == userId && x.RoleId == role.Id);
@@ -169,7 +172,7 @@ public class UserService(
 
         var userRole = await userRoleRes.Value!.FirstOrDefaultAsync();
         if (userRole is null)
-            return BaseResult.Failure(Error.NotFound("У пользователя нет этой роли."));
+            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.UserMissingRole)));
 
         await userRoleRepository.DeleteAsync(userRole.Id);
 

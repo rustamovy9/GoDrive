@@ -2,8 +2,10 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Application.Contracts.AI;
+using Application.Contracts.Localization;
 using Application.Contracts.Repositories;
 using Application.DTO_s.AI;
+using Application.Localization;
 
 namespace Infrastructure.ImplementationContract.AI;
 
@@ -12,7 +14,8 @@ public class AiAssistantService(
     ICarRepository carRepository,
     IBookingRepository bookingRepository,
     IUserRepository userRepository,
-    IChatRepository chatRepository) : IAiAssistantService
+    IChatRepository chatRepository,
+    ITextLocalizer localizer) : IAiAssistantService
 {
 
 
@@ -182,7 +185,7 @@ User message:
             return new AiIntentResponse
             {
                 Intent = "general_question",
-                Reply = content ?? "AI error"
+                Reply = content ?? localizer.Get(TextKeys.Ai.Error)
             };
         }
     }
@@ -199,7 +202,7 @@ User message:
         {
             return new AiAssistantResponse
             {
-                Reply = "К сожалению сейчас нет доступных машин."
+                Reply = localizer.Get(TextKeys.Ai.NoCarsAvailable)
             };
         }
 
@@ -230,7 +233,7 @@ User message:
         {
             return new AiAssistantResponse
             {
-                Reply = "Сейчас нет доступных машин."
+                Reply = localizer.Get(TextKeys.Ai.NoCarsAvailableShort)
             };
         }
 

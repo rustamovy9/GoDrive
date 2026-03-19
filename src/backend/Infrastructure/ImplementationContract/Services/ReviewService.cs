@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Application.Contracts.Localization;
 using Application.Contracts.Repositories;
 using Application.Contracts.Services;
 using Application.DTO_s;
@@ -6,6 +7,7 @@ using Application.Extensions.Mappers;
 using Application.Extensions.Responses.PagedResponse;
 using Application.Extensions.ResultPattern;
 using Application.Filters;
+using Application.Localization;
 using Domain.Common;
 using Domain.Entities;
 using Domain.Enums;
@@ -14,38 +16,40 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class ReviewService(IReviewRepository repository,IBookingRepository bookingRepository) : IReviewService
+public class ReviewService(
+    IReviewRepository repository,
+    IBookingRepository bookingRepository,
+    ITextLocalizer localizer) : IReviewService
 {
     public async Task<Result<PagedResponse<IEnumerable<ReviewReadInfo>>>> GetAllAsync(ReviewFilter filter)
     {
-            Expression<Func<Review, bool>> filterExpression = spec =>
-                (filter.UserId == null || spec.UserId == filter.UserId) &&
-                (filter.CarId == null || spec.CarId == filter.CarId) &&
-                (filter.Rating == null || spec.Rating == filter.Rating) &&
-                (filter.FromDate == null || spec.CreatedAt >= filter.FromDate) &&
-                (filter.ToDate == null || spec.CreatedAt <= filter.ToDate);
-            
-            
-            Result<IQueryable<Review>> request = repository.Find(filterExpression);
+        Expression<Func<Review, bool>> filterExpression = spec =>
+            (filter.UserId == null || spec.UserId == filter.UserId) &&
+            (filter.CarId == null || spec.CarId == filter.CarId) &&
+            (filter.Rating == null || spec.Rating == filter.Rating) &&
+            (filter.FromDate == null || spec.CreatedAt >= filter.FromDate) &&
+            (filter.ToDate == null || spec.CreatedAt <= filter.ToDate);
 
-            if (!request.IsSuccess)
-                return Result<PagedResponse<IEnumerable<ReviewReadInfo>>>.Failure(request.Error);
+        Result<IQueryable<Review>> request = repository.Find(filterExpression);
 
-            var query = request.Value!.AsNoTracking();
-            
-            int count = await query.CountAsync();
+        if (!request.IsSuccess)
+            return Result<PagedResponse<IEnumerable<ReviewReadInfo>>>.Failure(request.Error);
 
-            IEnumerable<ReviewReadInfo> data = await query
-                .OrderByDescending(x=>x.CreatedAt)
-                .Skip((filter.PageNumber-1)*filter.PageSize)
-                .Take(filter.PageSize)
-                .Select(x=>x.ToRead())
-                .ToListAsync();
+        var query = request.Value!.AsNoTracking();
 
-            PagedResponse<IEnumerable<ReviewReadInfo>> res =
-                PagedResponse<IEnumerable<ReviewReadInfo>>.Create(filter.PageNumber, filter.PageSize, count, data);
+        int count = await query.CountAsync();
 
-            return Result<PagedResponse<IEnumerable<ReviewReadInfo>>>.Success(res);
+        IEnumerable<ReviewReadInfo> data = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .Select(x => x.ToRead())
+            .ToListAsync();
+
+        PagedResponse<IEnumerable<ReviewReadInfo>> res =
+            PagedResponse<IEnumerable<ReviewReadInfo>>.Create(filter.PageNumber, filter.PageSize, count, data);
+
+        return Result<PagedResponse<IEnumerable<ReviewReadInfo>>>.Success(res);
     }
 
     public async Task<Result<IEnumerable<ReviewReadInfo>>> GetByCarIdAsync(int carId)
@@ -57,8 +61,8 @@ public class ReviewService(IReviewRepository repository,IBookingRepository booki
 
         var data = await res.Value!
             .AsNoTracking()
-            .OrderByDescending(x=>x.CreatedAt)
-            .Select(x=>x.ToRead())
+            .OrderByDescending(x => x.CreatedAt)
+            .Select(x => x.ToRead())
             .ToListAsync();
 
         return Result<IEnumerable<ReviewReadInfo>>.Success(data);
@@ -67,13 +71,15 @@ public class ReviewService(IReviewRepository repository,IBookingRepository booki
     public async Task<Result<ReviewReadInfo>> GetByIdAsync(int id)
     {
         Result<Review?> res = await repository.GetByIdAsync(id);
-        
-        if (!res.IsSuccess || res.Value is null) return Result<ReviewReadInfo>.Failure(Error.NotFound("Отзыв не найден"));
+
+        if (!res.IsSuccess || res.Value is null)
+            return Result<ReviewReadInfo>.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.ReviewNotFound)));
 
         return Result<ReviewReadInfo>.Success(res.Value.ToRead());
     }
 
-    public async Task<BaseResult> CreateAsync(int userId,ReviewCreateInfo createInfo)
+    public async Task<BaseResult> CreateAsync(int userId, ReviewCreateInfo createInfo)
     {
         var hasCompletedBooking = bookingRepository
             .Find(b => b.UserId == userId &&
@@ -83,18 +89,18 @@ public class ReviewService(IReviewRepository repository,IBookingRepository booki
         if (!hasCompletedBooking.IsSuccess ||
             !await hasCompletedBooking.Value!.AnyAsync())
         {
-            return BaseResult.Failure(Error.BadRequest("Оставить отзыв можно только после завершения бронирования."));
+            return BaseResult.Failure(
+                Error.BadRequest(localizer.Get(TextKeys.Errors.ReviewOnlyAfterCompleted)));
         }
-        
+
         var exists = repository.Find(x =>
             x.UserId == userId &&
             x.CarId == createInfo.CarId);
-      
 
         if (exists.IsSuccess && await exists.Value!.AnyAsync())
             return BaseResult.Failure(
-                Error.Conflict("Вы уже оставили отзыв об этом автомобиле."));
-        
+                Error.Conflict(localizer.Get(TextKeys.Errors.ReviewAlreadyExists)));
+
         Result<int> res = await repository.AddAsync(createInfo.ToEntity(userId));
 
         return res.IsSuccess
@@ -106,7 +112,9 @@ public class ReviewService(IReviewRepository repository,IBookingRepository booki
     {
         Result<Review?> res = await repository.GetByIdAsync(id);
 
-        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Отзыв не найден"));
+        if (!res.IsSuccess || res.Value is null)
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.ReviewNotFound)));
 
         Result<int> result = await repository.UpdateAsync(res.Value!.ToEntity(updateInfo));
 
@@ -118,7 +126,9 @@ public class ReviewService(IReviewRepository repository,IBookingRepository booki
     public async Task<BaseResult> DeleteAsync(int id)
     {
         Result<Review?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Отзыв не найден"));
+        if (!res.IsSuccess || res.Value is null)
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.ReviewNotFound)));
 
         Result<int> result = await repository.DeleteAsync(id);
 

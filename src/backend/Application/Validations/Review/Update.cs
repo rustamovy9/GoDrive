@@ -1,18 +1,17 @@
+using Application.Contracts.Localization;
 using Application.DTO_s;
+using Application.Localization;
 using FluentValidation;
 
 namespace Application.Validations.Review;
 
 public class Update : AbstractValidator<ReviewUpdateInfo>
 {
-    public Update()
+    public Update(ITextLocalizer localizer)
     {
-        When(x => x.Comment != null, () =>
-        {
-            RuleFor(x => x.Comment!)
-                .NotEmpty()
-                .MaximumLength(500)
-                .WithMessage("Comment must not be empty and must not exceed 500 characters.");
-        });
+        RuleFor(x => x.Comment)
+            .NotEmpty()
+            .MaximumLength(500)
+            .WithMessage(localizer.Get(TextKeys.Validation.CommentNotEmptyMax500));
     }
 }

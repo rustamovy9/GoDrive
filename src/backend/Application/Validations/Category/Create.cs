@@ -1,15 +1,17 @@
-﻿using Application.DTO_s;
+using Application.Contracts.Localization;
+using Application.DTO_s;
+using Application.Localization;
 using FluentValidation;
 
 namespace Application.Validations.Category;
 
 public class Create : AbstractValidator<CategoryCreateInfo>
 {
-    public Create()
+    public Create(ITextLocalizer localizer)
     {
         RuleFor(x => x.Name)
             .NotEmpty()
             .MaximumLength(100)
-            .WithMessage("Category name is required and must not exceed 100 characters.");
+            .WithMessage(localizer.Get(TextKeys.Validation.CategoryNameRequiredMax100));
     }
 }

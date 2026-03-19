@@ -1,5 +1,7 @@
-﻿using Application.Contracts.Repositories;
+using Application.Contracts.Localization;
+using Application.Contracts.Repositories;
 using Application.Extensions.ResultPattern;
+using Application.Localization;
 using Domain.Common;
 using Domain.Constants;
 using Domain.Entities;
@@ -9,8 +11,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Repositories;
 
-public class UserRepository(DataContext dbContext)
-    : GenericRepository<User>(dbContext), IUserRepository
+public class UserRepository(DataContext dbContext, ITextLocalizer localizer)
+    : GenericRepository<User>(dbContext, localizer), IUserRepository
 {
     private readonly DataContext _dbContext = dbContext;
 
@@ -30,7 +32,7 @@ public class UserRepository(DataContext dbContext)
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            return Result<IEnumerable<User>>.Failure(Error.InternalServerError());
+            return Result<IEnumerable<User>>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
 
@@ -48,10 +50,10 @@ public class UserRepository(DataContext dbContext)
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            return Result<bool>.Failure(Error.InternalServerError());
+            return Result<bool>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
-    
+
     public async Task<int> CountUsers()
     {
         return await _dbContext.Users
@@ -63,6 +65,7 @@ public class UserRepository(DataContext dbContext)
         return await _dbContext.Users
             .CountAsync(x => x.UserRoles.Any(r => r.Role.Name == DefaultRoles.Owner));
     }
+
     public async Task<int> CountAllUsers()
     {
         return await _dbContext.Users.CountAsync();

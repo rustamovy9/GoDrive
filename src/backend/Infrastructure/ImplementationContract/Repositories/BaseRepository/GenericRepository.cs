@@ -1,6 +1,8 @@
 ﻿using System.Linq.Expressions;
 using Application.Contracts.Repositories.BaseRepository;
+using Application.Contracts.Localization;
 using Application.Extensions.ResultPattern;
+using Application.Localization;
 using Domain.Common;
 using Domain.Extensions;
 using Infrastructure.DataAccess;
@@ -8,7 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Repositories.BaseRepository;
 
-public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T> where T : BaseEntity
+public class GenericRepository<T>(
+    DataContext dbContext,
+    ITextLocalizer localizer) : IGenericRepository<T> where T : BaseEntity
 {
     public async Task<Result<int>> AddAsync(T entity)
     {
@@ -18,12 +22,12 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
             int res = await dbContext.SaveChangesAsync();
             return res > 0
                 ? Result<int>.Success(res)
-                : Result<int>.Failure(Error.InternalServerError());
+                : Result<int>.Failure(ErrorFactory.InternalServerError(localizer));
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return Result<int>.Failure(Error.InternalServerError());
+            return Result<int>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
 
@@ -35,12 +39,12 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
             int res = await dbContext.SaveChangesAsync();
             return res > 0
                 ? Result<int>.Success(res)
-                : Result<int>.Failure(Error.InternalServerError());
+                : Result<int>.Failure(ErrorFactory.InternalServerError(localizer));
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return Result<int>.Failure(Error.InternalServerError());
+            return Result<int>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
 
@@ -50,18 +54,18 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         {
             T? entity = await dbContext.Set<T>().FirstOrDefaultAsync(x => x.Id == id);
             if (entity == null)
-                return Result<int>.Failure(Error.NotFound());
+                return Result<int>.Failure(ErrorFactory.NotFound(localizer));
 
             dbContext.Set<T>().Update((T)entity.ToDelete());
             int res = await dbContext.SaveChangesAsync();
             return res > 0
                 ? Result<int>.Success(res)
-                : Result<int>.Failure(Error.InternalServerError());
+                : Result<int>.Failure(ErrorFactory.InternalServerError(localizer));
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return Result<int>.Failure(Error.InternalServerError());
+            return Result<int>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
 
@@ -71,18 +75,18 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         {
             T? entity = await dbContext.Set<T>().FirstOrDefaultAsync(x => x.Id == value.Id);
             if (entity == null)
-                return Result<int>.Failure(Error.NotFound());
+                return Result<int>.Failure(ErrorFactory.NotFound(localizer));
 
             dbContext.Set<T>().Update((T)entity.ToDelete());
             int res = await dbContext.SaveChangesAsync();
             return res > 0
                 ? Result<int>.Success(res)
-                : Result<int>.Failure(Error.InternalServerError());
+                : Result<int>.Failure(ErrorFactory.InternalServerError(localizer));
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return Result<int>.Failure(Error.InternalServerError());
+            return Result<int>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
 
@@ -97,7 +101,7 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return Result<IQueryable<T>>.Failure(Error.InternalServerError());
+            return Result<IQueryable<T>>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
 
@@ -112,7 +116,7 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return Result<IEnumerable<T>>.Failure(Error.InternalServerError());
+            return Result<IEnumerable<T>>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
 
@@ -124,12 +128,12 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
                 .FirstOrDefaultAsync(x => x.Id == id);
             return res != null
                 ? Result<T?>.Success(res)
-                : Result<T?>.Failure(Error.NotFound());
+                : Result<T?>.Failure(ErrorFactory.NotFound(localizer));
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return Result<T?>.Failure(Error.InternalServerError());
+            return Result<T?>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
 
@@ -140,7 +144,7 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
         {
             T? existing = await dbContext.Set<T>().AsTracking().FirstOrDefaultAsync(x => x.Id == value.Id && !x.IsDeleted);
             if (existing == null)
-                return Result<int>.Failure(Error.NotFound());
+                return Result<int>.Failure(ErrorFactory.NotFound(localizer));
 
             dbContext.Entry(existing).CurrentValues.SetValues(value);
 
@@ -150,12 +154,12 @@ public class GenericRepository<T>(DataContext dbContext) : IGenericRepository<T>
             int res = await dbContext.SaveChangesAsync();
             return res > 0
                 ? Result<int>.Success(res)
-                : Result<int>.Failure(Error.InternalServerError());
+                : Result<int>.Failure(ErrorFactory.InternalServerError(localizer));
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return Result<int>.Failure(Error.InternalServerError());
+            return Result<int>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
 }

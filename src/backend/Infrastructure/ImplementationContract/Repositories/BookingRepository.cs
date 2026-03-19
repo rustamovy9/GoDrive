@@ -1,4 +1,5 @@
-﻿using Application.Contracts.Repositories;
+using Application.Contracts.Localization;
+using Application.Contracts.Repositories;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.DataAccess;
@@ -7,8 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Repositories;
 
-public class BookingRepository(DataContext dbContext)
-    : GenericRepository<Booking>(dbContext), IBookingRepository
+public class BookingRepository(DataContext dbContext, ITextLocalizer localizer)
+    : GenericRepository<Booking>(dbContext, localizer), IBookingRepository
 {
     public async Task<int> GetActiveRentals(int ownerId)
     {
@@ -34,7 +35,7 @@ public class BookingRepository(DataContext dbContext)
 
         return earnings;
     }
-    
+
     public async Task<int> GetOwnerTotalBookings(int ownerId)
     {
         return await dbContext.Bookings
