@@ -14,533 +14,533 @@
   </resheader>
 
   <data name="General.ValidationExceptionTitle" xml:space="preserve">
-    <value>Ошибка валидации!</value>
+    <value>РћС€РёР±РєР° РІР°Р»РёРґР°С†РёРё!</value>
   </data>
   <data name="General.UnexpectedErrorTitle" xml:space="preserve">
-    <value>Произошла непредвиденная ошибка</value>
+    <value>РџСЂРѕРёР·РѕС€Р»Р° РЅРµРїСЂРµРґРІРёРґРµРЅРЅР°СЏ РѕС€РёР±РєР°</value>
   </data>
 
   <data name="Auth.LoginFailed" xml:space="preserve">
-    <value>Не удалось войти</value>
+    <value>РќРµ СѓРґР°Р»РѕСЃСЊ РІРѕР№С‚Рё</value>
   </data>
   <data name="Auth.UserRegistered" xml:space="preserve">
-    <value>Пользователь успешно зарегистрирован.</value>
+    <value>РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓСЃРїРµС€РЅРѕ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ.</value>
   </data>
   <data name="Auth.UserNotRegistered" xml:space="preserve">
-    <value>Пользователь не зарегистрирован.</value>
+    <value>РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ.</value>
   </data>
   <data name="Auth.AccountDeleted" xml:space="preserve">
-    <value>Аккаунт успешно удален.</value>
+    <value>РђРєРєР°СѓРЅС‚ СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅ.</value>
   </data>
   <data name="Auth.AccountNotDeleted" xml:space="preserve">
-    <value>Аккаунт не удален.</value>
+    <value>РђРєРєР°СѓРЅС‚ РЅРµ СѓРґР°Р»РµРЅ.</value>
   </data>
   <data name="Auth.UserDeleted" xml:space="preserve">
-    <value>Пользователь успешно удален.</value>
+    <value>РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅ.</value>
   </data>
   <data name="Auth.UserNotDeleted" xml:space="preserve">
-    <value>Пользователь не удален.</value>
+    <value>РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ СѓРґР°Р»РµРЅ.</value>
   </data>
   <data name="Auth.PasswordUpdated" xml:space="preserve">
-    <value>Пароль успешно обновлен.</value>
+    <value>РџР°СЂРѕР»СЊ СѓСЃРїРµС€РЅРѕ РѕР±РЅРѕРІР»РµРЅ.</value>
   </data>
   <data name="Auth.PasswordNotUpdated" xml:space="preserve">
-    <value>Пароль не обновлен.</value>
+    <value>РџР°СЂРѕР»СЊ РЅРµ РѕР±РЅРѕРІР»РµРЅ.</value>
   </data>
   <data name="Auth.UserIdNotFound" xml:space="preserve">
-    <value>ID пользователя не найден</value>
+    <value>ID РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµ РЅР°Р№РґРµРЅ</value>
   </data>
 
   <data name="Ai.NoCarsAvailable" xml:space="preserve">
-    <value>К сожалению, сейчас нет доступных машин.</value>
+    <value>Рљ СЃРѕР¶Р°Р»РµРЅРёСЋ, СЃРµР№С‡Р°СЃ РЅРµС‚ РґРѕСЃС‚СѓРїРЅС‹С… РјР°С€РёРЅ.</value>
   </data>
   <data name="Ai.NoCarsAvailableShort" xml:space="preserve">
-    <value>Сейчас нет доступных машин.</value>
+    <value>РЎРµР№С‡Р°СЃ РЅРµС‚ РґРѕСЃС‚СѓРїРЅС‹С… РјР°С€РёРЅ.</value>
   </data>
   <data name="Ai.Error" xml:space="preserve">
-    <value>Ошибка ИИ</value>
+    <value>РћС€РёР±РєР° РР</value>
   </data>
 
   <data name="Errors.NotFoundDefault" xml:space="preserve">
-    <value>Данные не найдены!</value>
+    <value>Р”Р°РЅРЅС‹Рµ РЅРµ РЅР°Р№РґРµРЅС‹!</value>
   </data>
   <data name="Errors.BadRequestDefault" xml:space="preserve">
-    <value>Неверный запрос!</value>
+    <value>РќРµРІРµСЂРЅС‹Р№ Р·Р°РїСЂРѕСЃ!</value>
   </data>
   <data name="Errors.ForbiddenDefault" xml:space="preserve">
-    <value>Доступ запрещен!</value>
+    <value>Р”РѕСЃС‚СѓРї Р·Р°РїСЂРµС‰РµРЅ!</value>
   </data>
   <data name="Errors.AlreadyExistDefault" xml:space="preserve">
-    <value>Уже существует!</value>
+    <value>РЈР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚!</value>
   </data>
   <data name="Errors.ConflictDefault" xml:space="preserve">
-    <value>Конфликт!</value>
+    <value>РљРѕРЅС„Р»РёРєС‚!</value>
   </data>
   <data name="Errors.InternalServerErrorDefault" xml:space="preserve">
-    <value>Внутренняя ошибка сервера!</value>
+    <value>Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР° СЃРµСЂРІРµСЂР°!</value>
   </data>
 
   <data name="Errors.PhoneExists" xml:space="preserve">
-    <value>Номер телефона уже существует.</value>
+    <value>РќРѕРјРµСЂ С‚РµР»РµС„РѕРЅР° СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.</value>
   </data>
   <data name="Errors.UserNotFound" xml:space="preserve">
-    <value>Пользователь не найден.</value>
+    <value>РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РЅР°Р№РґРµРЅ.</value>
   </data>
   <data name="Errors.RoleNotFound" xml:space="preserve">
-    <value>Роль не найдена.</value>
+    <value>Р РѕР»СЊ РЅРµ РЅР°Р№РґРµРЅР°.</value>
   </data>
   <data name="Errors.UserHasRole" xml:space="preserve">
-    <value>У пользователя уже есть эта роль.</value>
+    <value>РЈ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СѓР¶Рµ РµСЃС‚СЊ СЌС‚Р° СЂРѕР»СЊ.</value>
   </data>
   <data name="Errors.UserMissingRole" xml:space="preserve">
-    <value>У пользователя нет этой роли.</value>
+    <value>РЈ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµС‚ СЌС‚РѕР№ СЂРѕР»Рё.</value>
   </data>
   <data name="Errors.RoleExists" xml:space="preserve">
-    <value>Роль уже существует.</value>
+    <value>Р РѕР»СЊ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.</value>
   </data>
   <data name="Errors.SystemRoleDeleteForbidden" xml:space="preserve">
-    <value>Системные роли удалить невозможно.</value>
+    <value>РЎРёСЃС‚РµРјРЅС‹Рµ СЂРѕР»Рё СѓРґР°Р»РёС‚СЊ РЅРµРІРѕР·РјРѕР¶РЅРѕ.</value>
   </data>
   <data name="Errors.ReviewNotFound" xml:space="preserve">
-    <value>Отзыв не найден.</value>
+    <value>РћС‚Р·С‹РІ РЅРµ РЅР°Р№РґРµРЅ.</value>
   </data>
   <data name="Errors.ReviewOnlyAfterCompleted" xml:space="preserve">
-    <value>Оставить отзыв можно только после завершения бронирования.</value>
+    <value>РћСЃС‚Р°РІРёС‚СЊ РѕС‚Р·С‹РІ РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РїРѕСЃР»Рµ Р·Р°РІРµСЂС€РµРЅРёСЏ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ.</value>
   </data>
   <data name="Errors.ReviewAlreadyExists" xml:space="preserve">
-    <value>Вы уже оставили отзыв об этом автомобиле.</value>
+    <value>Р’С‹ СѓР¶Рµ РѕСЃС‚Р°РІРёР»Рё РѕС‚Р·С‹РІ РѕР± СЌС‚РѕРј Р°РІС‚РѕРјРѕР±РёР»Рµ.</value>
   </data>
   <data name="Errors.InvalidCredentials" xml:space="preserve">
-    <value>Неверное имя пользователя или пароль.</value>
+    <value>РќРµРІРµСЂРЅРѕРµ РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР»Рё РїР°СЂРѕР»СЊ.</value>
   </data>
   <data name="Errors.UserAlreadyExists" xml:space="preserve">
-    <value>Пользователь уже существует.</value>
+    <value>РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.</value>
   </data>
   <data name="Errors.InvalidBirthDate" xml:space="preserve">
-    <value>Указана неверная дата рождения.</value>
+    <value>РЈРєР°Р·Р°РЅР° РЅРµРІРµСЂРЅР°СЏ РґР°С‚Р° СЂРѕР¶РґРµРЅРёСЏ.</value>
   </data>
   <data name="Errors.PasswordIncorrect" xml:space="preserve">
-    <value>Пароль неверен.</value>
+    <value>РџР°СЂРѕР»СЊ РЅРµРІРµСЂРµРЅ.</value>
   </data>
   <data name="Errors.PasswordsMismatch" xml:space="preserve">
-    <value>Пароли не совпадают.</value>
+    <value>РџР°СЂРѕР»Рё РЅРµ СЃРѕРІРїР°РґР°СЋС‚.</value>
   </data>
   <data name="Errors.CarPriceNotFound" xml:space="preserve">
-    <value>Цена автомобиля не найдена.</value>
+    <value>Р¦РµРЅР° Р°РІС‚РѕРјРѕР±РёР»СЏ РЅРµ РЅР°Р№РґРµРЅР°.</value>
   </data>
   <data name="Errors.CarNotFound" xml:space="preserve">
-    <value>Автомобиль не найден.</value>
+    <value>РђРІС‚РѕРјРѕР±РёР»СЊ РЅРµ РЅР°Р№РґРµРЅ.</value>
   </data>
   <data name="Errors.CarPriceExists" xml:space="preserve">
-    <value>Цена на этот автомобиль уже существует.</value>
+    <value>Р¦РµРЅР° РЅР° СЌС‚РѕС‚ Р°РІС‚РѕРјРѕР±РёР»СЊ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.</value>
   </data>
   <data name="Errors.RegistrationNumberExists" xml:space="preserve">
-    <value>Регистрационный номер уже существует.</value>
+    <value>Р РµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹Р№ РЅРѕРјРµСЂ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.</value>
   </data>
   <data name="Errors.CannotUpdateArchivedCar" xml:space="preserve">
-    <value>Обновление архивированного автомобиля невозможно.</value>
+    <value>РћР±РЅРѕРІР»РµРЅРёРµ Р°СЂС…РёРІРёСЂРѕРІР°РЅРЅРѕРіРѕ Р°РІС‚РѕРјРѕР±РёР»СЏ РЅРµРІРѕР·РјРѕР¶РЅРѕ.</value>
   </data>
   <data name="Errors.OnlyBlockedCarDelete" xml:space="preserve">
-    <value>Удалить можно только заблокированный автомобиль.</value>
+    <value>РЈРґР°Р»РёС‚СЊ РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅРЅС‹Р№ Р°РІС‚РѕРјРѕР±РёР»СЊ.</value>
   </data>
   <data name="Errors.BookingNotFound" xml:space="preserve">
-    <value>Бронирование не найдено.</value>
+    <value>Р‘СЂРѕРЅРёСЂРѕРІР°РЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ.</value>
   </data>
   <data name="Errors.InvalidBookingPeriod" xml:space="preserve">
-    <value>Неверный период бронирования.</value>
+    <value>РќРµРІРµСЂРЅС‹Р№ РїРµСЂРёРѕРґ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ.</value>
   </data>
   <data name="Errors.CarAlreadyBooked" xml:space="preserve">
-    <value>Автомобиль уже забронирован на этот период.</value>
+    <value>РђРІС‚РѕРјРѕР±РёР»СЊ СѓР¶Рµ Р·Р°Р±СЂРѕРЅРёСЂРѕРІР°РЅ РЅР° СЌС‚РѕС‚ РїРµСЂРёРѕРґ.</value>
   </data>
   <data name="Errors.CarPriceNotSet" xml:space="preserve">
-    <value>Цена автомобиля не установлена.</value>
+    <value>Р¦РµРЅР° Р°РІС‚РѕРјРѕР±РёР»СЏ РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅР°.</value>
   </data>
   <data name="Errors.InvalidBookingDuration" xml:space="preserve">
-    <value>Неверная продолжительность бронирования.</value>
+    <value>РќРµРІРµСЂРЅР°СЏ РїСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ.</value>
   </data>
   <data name="Errors.UpdateOnlyPendingBookingInfo" xml:space="preserve">
-    <value>Изменять можно только информацию о незавершенных бронированиях.</value>
+    <value>РР·РјРµРЅСЏС‚СЊ РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РЅРµР·Р°РІРµСЂС€РµРЅРЅС‹С… Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏС….</value>
   </data>
   <data name="Errors.InvalidBookingStatusTransition" xml:space="preserve">
-    <value>Неверный переход статуса бронирования.</value>
+    <value>РќРµРІРµСЂРЅС‹Р№ РїРµСЂРµС…РѕРґ СЃС‚Р°С‚СѓСЃР° Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ.</value>
   </data>
   <data name="Errors.ReasonRequired" xml:space="preserve">
-    <value>Требуется причина.</value>
+    <value>РўСЂРµР±СѓРµС‚СЃСЏ РїСЂРёС‡РёРЅР°.</value>
   </data>
   <data name="Errors.DeleteOnlyPendingBooking" xml:space="preserve">
-    <value>Удалить можно только незавершенные бронирования.</value>
+    <value>РЈРґР°Р»РёС‚СЊ РјРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ РЅРµР·Р°РІРµСЂС€РµРЅРЅС‹Рµ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ.</value>
   </data>
   <data name="Errors.LocationExists" xml:space="preserve">
-    <value>Местоположение уже существует.</value>
+    <value>РњРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёРµ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.</value>
   </data>
   <data name="Errors.NotificationNotFound" xml:space="preserve">
-    <value>Уведомление не найдено.</value>
+    <value>РЈРІРµРґРѕРјР»РµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ.</value>
   </data>
   <data name="Errors.AmountMustBeGreaterThanZero" xml:space="preserve">
-    <value>Сумма должна быть больше нуля.</value>
+    <value>РЎСѓРјРјР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РЅСѓР»СЏ.</value>
   </data>
   <data name="Errors.BookingAlreadyPaid" xml:space="preserve">
-    <value>Оплата за это бронирование уже произведена.</value>
+    <value>РћРїР»Р°С‚Р° Р·Р° СЌС‚Рѕ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёРµ СѓР¶Рµ РїСЂРѕРёР·РІРµРґРµРЅР°.</value>
   </data>
   <data name="Errors.PaymentNotFound" xml:space="preserve">
-    <value>Платеж не найден.</value>
+    <value>РџР»Р°С‚РµР¶ РЅРµ РЅР°Р№РґРµРЅ.</value>
   </data>
   <data name="Errors.PaymentCannotBeChanged" xml:space="preserve">
-    <value>Внесенные платежи изменить нельзя.</value>
+    <value>Р’РЅРµСЃРµРЅРЅС‹Рµ РїР»Р°С‚РµР¶Рё РёР·РјРµРЅРёС‚СЊ РЅРµР»СЊР·СЏ.</value>
   </data>
   <data name="Errors.DocumentNotFound" xml:space="preserve">
-    <value>Документ не найден.</value>
+    <value>Р”РѕРєСѓРјРµРЅС‚ РЅРµ РЅР°Р№РґРµРЅ.</value>
   </data>
   <data name="Errors.DocumentAlreadyVerified" xml:space="preserve">
-    <value>Документ уже проверен.</value>
+    <value>Р”РѕРєСѓРјРµРЅС‚ СѓР¶Рµ РїСЂРѕРІРµСЂРµРЅ.</value>
   </data>
   <data name="Errors.ImageNotFound" xml:space="preserve">
-    <value>Изображение не найдено.</value>
+    <value>РР·РѕР±СЂР°Р¶РµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ.</value>
   </data>
   <data name="Errors.CannotUploadImageForBlockedCar" xml:space="preserve">
-    <value>Не удаётся загрузить изображение заблокированного автомобиля.</value>
+    <value>РќРµ СѓРґР°С‘С‚СЃСЏ Р·Р°РіСЂСѓР·РёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅРЅРѕРіРѕ Р°РІС‚РѕРјРѕР±РёР»СЏ.</value>
   </data>
   <data name="Errors.MaxImagesExceeded" xml:space="preserve">
-    <value>Допускается максимум 10 изображений.</value>
+    <value>Р”РѕРїСѓСЃРєР°РµС‚СЃСЏ РјР°РєСЃРёРјСѓРј 10 РёР·РѕР±СЂР°Р¶РµРЅРёР№.</value>
   </data>
   <data name="Errors.CategoryNameRequired" xml:space="preserve">
-    <value>Укажите название категории.</value>
+    <value>РЈРєР°Р¶РёС‚Рµ РЅР°Р·РІР°РЅРёРµ РєР°С‚РµРіРѕСЂРёРё.</value>
   </data>
   <data name="Errors.CategoryExists" xml:space="preserve">
-    <value>Категория уже существует.</value>
+    <value>РљР°С‚РµРіРѕСЂРёСЏ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.</value>
   </data>
   <data name="Errors.CategoryNotFound" xml:space="preserve">
-    <value>Категория не найдена.</value>
+    <value>РљР°С‚РµРіРѕСЂРёСЏ РЅРµ РЅР°Р№РґРµРЅР°.</value>
   </data>
   <data name="Errors.CategoryNameExists" xml:space="preserve">
-    <value>Категория с таким названием уже существует.</value>
+    <value>РљР°С‚РµРіРѕСЂРёСЏ СЃ С‚Р°РєРёРј РЅР°Р·РІР°РЅРёРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.</value>
   </data>
   <data name="Errors.RentalCompanyNotFound" xml:space="preserve">
-    <value>Компания по прокату не найдена.</value>
+    <value>РљРѕРјРїР°РЅРёСЏ РїРѕ РїСЂРѕРєР°С‚Сѓ РЅРµ РЅР°Р№РґРµРЅР°.</value>
   </data>
   <data name="Errors.LocationNotFound" xml:space="preserve">
-    <value>Местоположение не найдено.</value>
+    <value>РњРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ.</value>
   </data>
   <data name="Errors.OwnerAlreadyHasCompany" xml:space="preserve">
-    <value>Владелец уже имеет компанию по сдаче недвижимости в аренду.</value>
+    <value>Р’Р»Р°РґРµР»РµС† СѓР¶Рµ РёРјРµРµС‚ РєРѕРјРїР°РЅРёСЋ РїРѕ СЃРґР°С‡Рµ РЅРµРґРІРёР¶РёРјРѕСЃС‚Рё РІ Р°СЂРµРЅРґСѓ.</value>
   </data>
   <data name="Errors.CannotDeleteCompanyWithCars" xml:space="preserve">
-    <value>Невозможно удалить компанию с уже имеющимися автомобилями.</value>
+    <value>РќРµРІРѕР·РјРѕР¶РЅРѕ СѓРґР°Р»РёС‚СЊ РєРѕРјРїР°РЅРёСЋ СЃ СѓР¶Рµ РёРјРµСЋС‰РёРјРёСЃСЏ Р°РІС‚РѕРјРѕР±РёР»СЏРјРё.</value>
   </data>
 
   <data name="Notifications.CarCreatedTitle" xml:space="preserve">
-    <value>Автомобиль создан</value>
+    <value>РђРІС‚РѕРјРѕР±РёР»СЊ СЃРѕР·РґР°РЅ</value>
   </data>
   <data name="Notifications.CarCreatedMessage" xml:space="preserve">
-    <value>Ваш автомобиль создан и ожидает проверки документов.</value>
+    <value>Р’Р°С€ Р°РІС‚РѕРјРѕР±РёР»СЊ СЃРѕР·РґР°РЅ Рё РѕР¶РёРґР°РµС‚ РїСЂРѕРІРµСЂРєРё РґРѕРєСѓРјРµРЅС‚РѕРІ.</value>
   </data>
   <data name="Notifications.CarDeletedTitle" xml:space="preserve">
-    <value>Автомобиль удален</value>
+    <value>РђРІС‚РѕРјРѕР±РёР»СЊ СѓРґР°Р»РµРЅ</value>
   </data>
   <data name="Notifications.CarDeletedMessage" xml:space="preserve">
-    <value>Ваш автомобиль был удален из системы.</value>
+    <value>Р’Р°С€ Р°РІС‚РѕРјРѕР±РёР»СЊ Р±С‹Р» СѓРґР°Р»РµРЅ РёР· СЃРёСЃС‚РµРјС‹.</value>
   </data>
   <data name="Notifications.CarStatusUpdatedTitle" xml:space="preserve">
-    <value>Статус автомобиля обновлен</value>
+    <value>РЎС‚Р°С‚СѓСЃ Р°РІС‚РѕРјРѕР±РёР»СЏ РѕР±РЅРѕРІР»РµРЅ</value>
   </data>
   <data name="Notifications.CarStatusUpdatedMessage" xml:space="preserve">
-    <value>Статус вашего автомобиля изменился на {0}.</value>
+    <value>РЎС‚Р°С‚СѓСЃ РІР°С€РµРіРѕ Р°РІС‚РѕРјРѕР±РёР»СЏ РёР·РјРµРЅРёР»СЃСЏ РЅР° {0}.</value>
   </data>
   <data name="Notifications.BookingCreatedTitle" xml:space="preserve">
-    <value>Бронирование создано</value>
+    <value>Р‘СЂРѕРЅРёСЂРѕРІР°РЅРёРµ СЃРѕР·РґР°РЅРѕ</value>
   </data>
   <data name="Notifications.BookingCreatedMessage" xml:space="preserve">
-    <value>Ваше бронирование успешно оформлено.</value>
+    <value>Р’Р°С€Рµ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёРµ СѓСЃРїРµС€РЅРѕ РѕС„РѕСЂРјР»РµРЅРѕ.</value>
   </data>
   <data name="Notifications.NewBookingTitle" xml:space="preserve">
-    <value>Новое бронирование</value>
+    <value>РќРѕРІРѕРµ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёРµ</value>
   </data>
   <data name="Notifications.NewBookingMessage" xml:space="preserve">
-    <value>Ваш автомобиль забронирован на период с {0:d} по {1:d}.</value>
+    <value>Р’Р°С€ Р°РІС‚РѕРјРѕР±РёР»СЊ Р·Р°Р±СЂРѕРЅРёСЂРѕРІР°РЅ РЅР° РїРµСЂРёРѕРґ СЃ {0:d} РїРѕ {1:d}.</value>
   </data>
   <data name="Notifications.BookingStatusUpdatedTitle" xml:space="preserve">
-    <value>Статус бронирования обновлен</value>
+    <value>РЎС‚Р°С‚СѓСЃ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ РѕР±РЅРѕРІР»РµРЅ</value>
   </data>
   <data name="Notifications.BookingStatusUpdatedMessage" xml:space="preserve">
-    <value>Статус вашего бронирования изменился на {0}.</value>
+    <value>РЎС‚Р°С‚СѓСЃ РІР°С€РµРіРѕ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ РёР·РјРµРЅРёР»СЃСЏ РЅР° {0}.</value>
   </data>
   <data name="Notifications.BookingUpdatedTitle" xml:space="preserve">
-    <value>Бронирование обновлено</value>
+    <value>Р‘СЂРѕРЅРёСЂРѕРІР°РЅРёРµ РѕР±РЅРѕРІР»РµРЅРѕ</value>
   </data>
   <data name="Notifications.BookingUpdatedMessage" xml:space="preserve">
-    <value>Бронирование #{0} изменено на {1}.</value>
+    <value>Р‘СЂРѕРЅРёСЂРѕРІР°РЅРёРµ #{0} РёР·РјРµРЅРµРЅРѕ РЅР° {1}.</value>
   </data>
   <data name="Notifications.PaymentStatusUpdatedTitle" xml:space="preserve">
-    <value>Статус платежа обновлен</value>
+    <value>РЎС‚Р°С‚СѓСЃ РїР»Р°С‚РµР¶Р° РѕР±РЅРѕРІР»РµРЅ</value>
   </data>
   <data name="Notifications.PaymentStatusUpdatedMessage" xml:space="preserve">
-    <value>Статус вашего платежа изменился на {0}.</value>
+    <value>РЎС‚Р°С‚СѓСЃ РІР°С€РµРіРѕ РїР»Р°С‚РµР¶Р° РёР·РјРµРЅРёР»СЃСЏ РЅР° {0}.</value>
   </data>
   <data name="Notifications.PaymentStatusUpdatedOwnerMessage" xml:space="preserve">
-    <value>Оплата за бронирование #{0} изменена на {1}.</value>
+    <value>РћРїР»Р°С‚Р° Р·Р° Р±СЂРѕРЅРёСЂРѕРІР°РЅРёРµ #{0} РёР·РјРµРЅРµРЅР° РЅР° {1}.</value>
   </data>
   <data name="Notifications.PaymentCreatedTitle" xml:space="preserve">
-    <value>Платеж создан</value>
+    <value>РџР»Р°С‚РµР¶ СЃРѕР·РґР°РЅ</value>
   </data>
   <data name="Notifications.PaymentCreatedMessage" xml:space="preserve">
-    <value>Оплата за бронирование #{0} была создана.</value>
+    <value>РћРїР»Р°С‚Р° Р·Р° Р±СЂРѕРЅРёСЂРѕРІР°РЅРёРµ #{0} Р±С‹Р»Р° СЃРѕР·РґР°РЅР°.</value>
   </data>
   <data name="Notifications.NewPaymentTitle" xml:space="preserve">
-    <value>Новый платеж</value>
+    <value>РќРѕРІС‹Р№ РїР»Р°С‚РµР¶</value>
   </data>
   <data name="Notifications.NewPaymentMessage" xml:space="preserve">
-    <value>Пользователь оплатил бронирование #{0}.</value>
+    <value>РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РѕРїР»Р°С‚РёР» Р±СЂРѕРЅРёСЂРѕРІР°РЅРёРµ #{0}.</value>
   </data>
   <data name="Notifications.DocumentSentTitle" xml:space="preserve">
-    <value>Документ отправлен</value>
+    <value>Р”РѕРєСѓРјРµРЅС‚ РѕС‚РїСЂР°РІР»РµРЅ</value>
   </data>
   <data name="Notifications.DocumentSentMessage" xml:space="preserve">
-    <value>Ваш документ отправлен и ожидает проверки.</value>
+    <value>Р’Р°С€ РґРѕРєСѓРјРµРЅС‚ РѕС‚РїСЂР°РІР»РµРЅ Рё РѕР¶РёРґР°РµС‚ РїСЂРѕРІРµСЂРєРё.</value>
   </data>
   <data name="Notifications.NewDocumentTitle" xml:space="preserve">
-    <value>Новый документ загружен</value>
+    <value>РќРѕРІС‹Р№ РґРѕРєСѓРјРµРЅС‚ Р·Р°РіСЂСѓР¶РµРЅ</value>
   </data>
   <data name="Notifications.NewDocumentMessage" xml:space="preserve">
-    <value>Документ машины #{0} требует проверки.</value>
+    <value>Р”РѕРєСѓРјРµРЅС‚ РјР°С€РёРЅС‹ #{0} С‚СЂРµР±СѓРµС‚ РїСЂРѕРІРµСЂРєРё.</value>
   </data>
   <data name="Notifications.DocumentVerifiedTitle" xml:space="preserve">
-    <value>Документ проверен</value>
+    <value>Р”РѕРєСѓРјРµРЅС‚ РїСЂРѕРІРµСЂРµРЅ</value>
   </data>
   <data name="Notifications.DocumentVerifiedMessage" xml:space="preserve">
-    <value>Ваш документ был {0}.</value>
+    <value>Р’Р°С€ РґРѕРєСѓРјРµРЅС‚ Р±С‹Р» {0}.</value>
   </data>
 
   <data name="Validation.CarIdGreaterThanZero" xml:space="preserve">
-    <value>CarId должен быть больше 0.</value>
+    <value>CarId РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ 0.</value>
   </data>
   <data name="Validation.BrandRequiredMax100" xml:space="preserve">
-    <value>Марка обязательна и не должна превышать 100 символов.</value>
+    <value>РњР°СЂРєР° РѕР±СЏР·Р°С‚РµР»СЊРЅР° Рё РЅРµ РґРѕР»Р¶РЅР° РїСЂРµРІС‹С€Р°С‚СЊ 100 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.ModelRequiredMax100" xml:space="preserve">
-    <value>Модель обязательна и не должна превышать 100 символов.</value>
+    <value>РњРѕРґРµР»СЊ РѕР±СЏР·Р°С‚РµР»СЊРЅР° Рё РЅРµ РґРѕР»Р¶РЅР° РїСЂРµРІС‹С€Р°С‚СЊ 100 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.RegistrationNumberRequiredMax50" xml:space="preserve">
-    <value>Регистрационный номер обязателен и не должен превышать 50 символов.</value>
+    <value>Р РµРіРёСЃС‚СЂР°С†РёРѕРЅРЅС‹Р№ РЅРѕРјРµСЂ РѕР±СЏР·Р°С‚РµР»РµРЅ Рё РЅРµ РґРѕР»Р¶РµРЅ РїСЂРµРІС‹С€Р°С‚СЊ 50 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.PickupLocationIdGreaterThanZero" xml:space="preserve">
-    <value>PickupLocationId должен быть больше 0.</value>
+    <value>PickupLocationId РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ 0.</value>
   </data>
   <data name="Validation.DropOffLocationIdGreaterThanZero" xml:space="preserve">
-    <value>DropOffLocationId должен быть больше 0.</value>
+    <value>DropOffLocationId РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ 0.</value>
   </data>
   <data name="Validation.PickupAndDropOffDifferent" xml:space="preserve">
-    <value>Места получения и возврата не должны совпадать.</value>
+    <value>РњРµСЃС‚Р° РїРѕР»СѓС‡РµРЅРёСЏ Рё РІРѕР·РІСЂР°С‚Р° РЅРµ РґРѕР»Р¶РЅС‹ СЃРѕРІРїР°РґР°С‚СЊ.</value>
   </data>
   <data name="Validation.StartDateTimeNotPast" xml:space="preserve">
-    <value>StartDateTime не может быть в прошлом.</value>
+    <value>StartDateTime РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РІ РїСЂРѕС€Р»РѕРј.</value>
   </data>
   <data name="Validation.EndDateTimeInFuture" xml:space="preserve">
-    <value>EndDateTime должен быть в будущем.</value>
+    <value>EndDateTime РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РІ Р±СѓРґСѓС‰РµРј.</value>
   </data>
   <data name="Validation.StartDateTimeBeforeEndDateTime" xml:space="preserve">
-    <value>StartDateTime должен быть раньше EndDateTime.</value>
+    <value>StartDateTime РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°РЅСЊС€Рµ EndDateTime.</value>
   </data>
   <data name="Validation.BookingDurationMin1Hour" xml:space="preserve">
-    <value>Продолжительность бронирования должна быть не менее 1 часа.</value>
+    <value>РџСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РЅРµ РјРµРЅРµРµ 1 С‡Р°СЃР°.</value>
   </data>
   <data name="Validation.CommentMax500" xml:space="preserve">
-    <value>Комментарий не должен превышать 500 символов.</value>
+    <value>РљРѕРјРјРµРЅС‚Р°СЂРёР№ РЅРµ РґРѕР»Р¶РµРЅ РїСЂРµРІС‹С€Р°С‚СЊ 500 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.YearValidProductionYear" xml:space="preserve">
-    <value>Год должен быть корректным годом выпуска.</value>
+    <value>Р“РѕРґ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєРѕСЂСЂРµРєС‚РЅС‹Рј РіРѕРґРѕРј РІС‹РїСѓСЃРєР°.</value>
   </data>
   <data name="Validation.CategoryIdGreaterThanZero" xml:space="preserve">
-    <value>CategoryId должен быть больше 0.</value>
+    <value>CategoryId РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ 0.</value>
   </data>
   <data name="Validation.LocationIdGreaterThanZero" xml:space="preserve">
-    <value>LocationId должен быть больше 0.</value>
+    <value>LocationId РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ 0.</value>
   </data>
   <data name="Validation.RentalCompanyIdGreaterThanZero" xml:space="preserve">
-    <value>RentalCompanyId должен быть больше 0.</value>
+    <value>RentalCompanyId РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ 0.</value>
   </data>
   <data name="Validation.CarImageRequired" xml:space="preserve">
-    <value>Изображение автомобиля обязательно.</value>
+    <value>РР·РѕР±СЂР°Р¶РµРЅРёРµ Р°РІС‚РѕРјРѕР±РёР»СЏ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ.</value>
   </data>
   <data name="Validation.FileValidImageUnder5Mb" xml:space="preserve">
-    <value>Файл должен быть корректным изображением (jpg, png, jpeg, webp) и меньше 5MB.</value>
+    <value>Р¤Р°Р№Р» РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєРѕСЂСЂРµРєС‚РЅС‹Рј РёР·РѕР±СЂР°Р¶РµРЅРёРµРј (jpg, png, jpeg, webp) Рё РјРµРЅСЊС€Рµ 5MB.</value>
   </data>
   <data name="Validation.AvailableFromNotPast" xml:space="preserve">
-    <value>AvailableFrom не может быть в прошлом.</value>
+    <value>AvailableFrom РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РІ РїСЂРѕС€Р»РѕРј.</value>
   </data>
   <data name="Validation.AvailableToInFuture" xml:space="preserve">
-    <value>AvailableTo должен быть в будущем.</value>
+    <value>AvailableTo РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РІ Р±СѓРґСѓС‰РµРј.</value>
   </data>
   <data name="Validation.AvailableFromBeforeAvailableTo" xml:space="preserve">
-    <value>AvailableFrom должен быть раньше AvailableTo.</value>
+    <value>AvailableFrom РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°РЅСЊС€Рµ AvailableTo.</value>
   </data>
   <data name="Validation.AvailabilityDurationMin30Minutes" xml:space="preserve">
-    <value>Длительность доступности должна быть не менее 30 минут.</value>
+    <value>Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ РґРѕСЃС‚СѓРїРЅРѕСЃС‚Рё РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РЅРµ РјРµРЅРµРµ 30 РјРёРЅСѓС‚.</value>
   </data>
   <data name="Validation.PricePerDayGreaterThanZero" xml:space="preserve">
-    <value>PricePerDay должен быть больше 0.</value>
+    <value>PricePerDay РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ 0.</value>
   </data>
   <data name="Validation.DocumentTypeValid" xml:space="preserve">
-    <value>DocumentType должен быть корректным типом документа.</value>
+    <value>DocumentType РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєРѕСЂСЂРµРєС‚РЅС‹Рј С‚РёРїРѕРј РґРѕРєСѓРјРµРЅС‚Р°.</value>
   </data>
   <data name="Validation.DocumentImageRequired" xml:space="preserve">
-    <value>Изображение документа обязательно.</value>
+    <value>РР·РѕР±СЂР°Р¶РµРЅРёРµ РґРѕРєСѓРјРµРЅС‚Р° РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ.</value>
   </data>
   <data name="Validation.CategoryNameRequiredMax100" xml:space="preserve">
-    <value>Название категории обязательно и не должно превышать 100 символов.</value>
+    <value>РќР°Р·РІР°РЅРёРµ РєР°С‚РµРіРѕСЂРёРё РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ Рё РЅРµ РґРѕР»Р¶РЅРѕ РїСЂРµРІС‹С€Р°С‚СЊ 100 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.CategoryNameNotEmptyMax100" xml:space="preserve">
-    <value>Название категории не должно быть пустым и не должно превышать 100 символов.</value>
+    <value>РќР°Р·РІР°РЅРёРµ РєР°С‚РµРіРѕСЂРёРё РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј Рё РЅРµ РґРѕР»Р¶РЅРѕ РїСЂРµРІС‹С€Р°С‚СЊ 100 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.CompanyNameRequiredMax200" xml:space="preserve">
-    <value>Название компании обязательно и не должно превышать 200 символов.</value>
+    <value>РќР°Р·РІР°РЅРёРµ РєРѕРјРїР°РЅРёРё РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ Рё РЅРµ РґРѕР»Р¶РЅРѕ РїСЂРµРІС‹С€Р°С‚СЊ 200 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.ContactInfoMax500" xml:space="preserve">
-    <value>ContactInfo не должен превышать 500 символов.</value>
+    <value>ContactInfo РЅРµ РґРѕР»Р¶РµРЅ РїСЂРµРІС‹С€Р°С‚СЊ 500 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.CountryRequiredMax100" xml:space="preserve">
-    <value>Страна обязательна и не должна превышать 100 символов.</value>
+    <value>РЎС‚СЂР°РЅР° РѕР±СЏР·Р°С‚РµР»СЊРЅР° Рё РЅРµ РґРѕР»Р¶РЅР° РїСЂРµРІС‹С€Р°С‚СЊ 100 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.CityRequiredMax100" xml:space="preserve">
-    <value>Город обязателен и не должен превышать 100 символов.</value>
+    <value>Р“РѕСЂРѕРґ РѕР±СЏР·Р°С‚РµР»РµРЅ Рё РЅРµ РґРѕР»Р¶РµРЅ РїСЂРµРІС‹С€Р°С‚СЊ 100 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.LatitudeRange" xml:space="preserve">
-    <value>Широта должна быть между -90 и 90.</value>
+    <value>РЁРёСЂРѕС‚Р° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РјРµР¶РґСѓ -90 Рё 90.</value>
   </data>
   <data name="Validation.LongitudeRange" xml:space="preserve">
-    <value>Долгота должна быть между -180 и 180.</value>
+    <value>Р”РѕР»РіРѕС‚Р° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РјРµР¶РґСѓ -180 Рё 180.</value>
   </data>
   <data name="Validation.RatingRange1To5" xml:space="preserve">
-    <value>Рейтинг должен быть от 1 до 5.</value>
+    <value>Р РµР№С‚РёРЅРі РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕС‚ 1 РґРѕ 5.</value>
   </data>
   <data name="Validation.CommentNotEmptyMax500" xml:space="preserve">
-    <value>Комментарий не должен быть пустым и не должен превышать 500 символов.</value>
+    <value>РљРѕРјРјРµРЅС‚Р°СЂРёР№ РЅРµ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј Рё РЅРµ РґРѕР»Р¶РµРЅ РїСЂРµРІС‹С€Р°С‚СЊ 500 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.OldPasswordRequired" xml:space="preserve">
-    <value>Старый пароль обязателен.</value>
+    <value>РЎС‚Р°СЂС‹Р№ РїР°СЂРѕР»СЊ РѕР±СЏР·Р°С‚РµР»РµРЅ.</value>
   </data>
   <data name="Validation.OldPasswordMin6" xml:space="preserve">
-    <value>Старый пароль должен содержать не менее 6 символов.</value>
+    <value>РЎС‚Р°СЂС‹Р№ РїР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РЅРµ РјРµРЅРµРµ 6 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.OldPasswordMax50" xml:space="preserve">
-    <value>Старый пароль не должен превышать 50 символов.</value>
+    <value>РЎС‚Р°СЂС‹Р№ РїР°СЂРѕР»СЊ РЅРµ РґРѕР»Р¶РµРЅ РїСЂРµРІС‹С€Р°С‚СЊ 50 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.NewPasswordRequired" xml:space="preserve">
-    <value>Новый пароль обязателен.</value>
+    <value>РќРѕРІС‹Р№ РїР°СЂРѕР»СЊ РѕР±СЏР·Р°С‚РµР»РµРЅ.</value>
   </data>
   <data name="Validation.NewPasswordMin6" xml:space="preserve">
-    <value>Новый пароль должен содержать не менее 6 символов.</value>
+    <value>РќРѕРІС‹Р№ РїР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РЅРµ РјРµРЅРµРµ 6 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.NewPasswordMax50" xml:space="preserve">
-    <value>Новый пароль не должен превышать 50 символов.</value>
+    <value>РќРѕРІС‹Р№ РїР°СЂРѕР»СЊ РЅРµ РґРѕР»Р¶РµРЅ РїСЂРµРІС‹С€Р°С‚СЊ 50 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.NewPasswordDifferentFromOld" xml:space="preserve">
-    <value>Новый пароль должен отличаться от старого.</value>
+    <value>РќРѕРІС‹Р№ РїР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ РѕС‚Р»РёС‡Р°С‚СЊСЃСЏ РѕС‚ СЃС‚Р°СЂРѕРіРѕ.</value>
   </data>
   <data name="Validation.ConfirmRequired" xml:space="preserve">
-    <value>Подтверждение обязательно.</value>
+    <value>РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ.</value>
   </data>
   <data name="Validation.PasswordsDoNotMatch" xml:space="preserve">
-    <value>Пароли не совпадают.</value>
+    <value>РџР°СЂРѕР»Рё РЅРµ СЃРѕРІРїР°РґР°СЋС‚.</value>
   </data>
   <data name="Validation.LoginUserNameOrEmailRequired" xml:space="preserve">
-    <value>Email или UserName обязателен.</value>
+    <value>Email РёР»Рё UserName РѕР±СЏР·Р°С‚РµР»РµРЅ.</value>
   </data>
   <data name="Validation.PasswordRequired" xml:space="preserve">
-    <value>Пароль обязателен.</value>
+    <value>РџР°СЂРѕР»СЊ РѕР±СЏР·Р°С‚РµР»РµРЅ.</value>
   </data>
   <data name="Validation.PasswordMin6" xml:space="preserve">
-    <value>Пароль должен содержать не менее 6 символов.</value>
+    <value>РџР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РЅРµ РјРµРЅРµРµ 6 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.PasswordMax50" xml:space="preserve">
-    <value>Пароль не должен превышать 50 символов.</value>
+    <value>РџР°СЂРѕР»СЊ РЅРµ РґРѕР»Р¶РµРЅ РїСЂРµРІС‹С€Р°С‚СЊ 50 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.UserNameValidChars" xml:space="preserve">
-    <value>UserName может содержать только буквы, цифры и знак подчеркивания.</value>
+    <value>UserName РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ С‚РѕР»СЊРєРѕ Р±СѓРєРІС‹, С†РёС„СЂС‹ Рё Р·РЅР°Рє РїРѕРґС‡РµСЂРєРёРІР°РЅРёСЏ.</value>
   </data>
   <data name="Validation.FirstNameRequired" xml:space="preserve">
-    <value>Имя обязательно.</value>
+    <value>РРјСЏ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ.</value>
   </data>
   <data name="Validation.FirstNameMax50" xml:space="preserve">
-    <value>Имя не должно превышать 50 символов.</value>
+    <value>РРјСЏ РЅРµ РґРѕР»Р¶РЅРѕ РїСЂРµРІС‹С€Р°С‚СЊ 50 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.LastNameRequired" xml:space="preserve">
-    <value>Фамилия обязательна.</value>
+    <value>Р¤Р°РјРёР»РёСЏ РѕР±СЏР·Р°С‚РµР»СЊРЅР°.</value>
   </data>
   <data name="Validation.LastNameMax50" xml:space="preserve">
-    <value>Фамилия не должна превышать 50 символов.</value>
+    <value>Р¤Р°РјРёР»РёСЏ РЅРµ РґРѕР»Р¶РЅР° РїСЂРµРІС‹С€Р°С‚СЊ 50 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.DateOfBirthNotFuture" xml:space="preserve">
-    <value>Дата рождения не может быть в будущем.</value>
+    <value>Р”Р°С‚Р° СЂРѕР¶РґРµРЅРёСЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РІ Р±СѓРґСѓС‰РµРј.</value>
   </data>
   <data name="Validation.EmailRequired" xml:space="preserve">
-    <value>Email обязателен.</value>
+    <value>Email РѕР±СЏР·Р°С‚РµР»РµРЅ.</value>
   </data>
   <data name="Validation.EmailInvalid" xml:space="preserve">
-    <value>Неверный формат email.</value>
+    <value>РќРµРІРµСЂРЅС‹Р№ С„РѕСЂРјР°С‚ email.</value>
   </data>
   <data name="Validation.PhoneNumberInvalid" xml:space="preserve">
-    <value>PhoneNumber должен быть корректным международным номером.</value>
+    <value>PhoneNumber РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєРѕСЂСЂРµРєС‚РЅС‹Рј РјРµР¶РґСѓРЅР°СЂРѕРґРЅС‹Рј РЅРѕРјРµСЂРѕРј.</value>
   </data>
   <data name="Validation.PasswordNotSameAsUserName" xml:space="preserve">
-    <value>Пароль не может совпадать с UserName.</value>
+    <value>РџР°СЂРѕР»СЊ РЅРµ РјРѕР¶РµС‚ СЃРѕРІРїР°РґР°С‚СЊ СЃ UserName.</value>
   </data>
   <data name="Validation.AddressMax200" xml:space="preserve">
-    <value>Адрес не должен превышать 200 символов.</value>
+    <value>РђРґСЂРµСЃ РЅРµ РґРѕР»Р¶РµРЅ РїСЂРµРІС‹С€Р°С‚СЊ 200 СЃРёРјРІРѕР»РѕРІ.</value>
   </data>
   <data name="Validation.AvatarInvalidImage" xml:space="preserve">
-    <value>Аватар должен быть корректным файлом изображения.</value>
+    <value>РђРІР°С‚Р°СЂ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєРѕСЂСЂРµРєС‚РЅС‹Рј С„Р°Р№Р»РѕРј РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</value>
   </data>
 
   <data name="Status.CarStatus.PendingApproval" xml:space="preserve">
-    <value>Ожидает подтверждения</value>
+    <value>РћР¶РёРґР°РµС‚ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ</value>
   </data>
   <data name="Status.CarStatus.Available" xml:space="preserve">
-    <value>Доступен</value>
+    <value>Р”РѕСЃС‚СѓРїРµРЅ</value>
   </data>
   <data name="Status.CarStatus.Rented" xml:space="preserve">
-    <value>В аренде</value>
+    <value>Р’ Р°СЂРµРЅРґРµ</value>
   </data>
   <data name="Status.CarStatus.Maintenance" xml:space="preserve">
-    <value>На обслуживании</value>
+    <value>РќР° РѕР±СЃР»СѓР¶РёРІР°РЅРёРё</value>
   </data>
   <data name="Status.CarStatus.Blocked" xml:space="preserve">
-    <value>Заблокирован</value>
+    <value>Р—Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ</value>
   </data>
   <data name="Status.BookingStatus.Pending" xml:space="preserve">
-    <value>Ожидает</value>
+    <value>РћР¶РёРґР°РµС‚</value>
   </data>
   <data name="Status.BookingStatus.Confirmed" xml:space="preserve">
-    <value>Подтвержден</value>
+    <value>РџРѕРґС‚РІРµСЂР¶РґРµРЅ</value>
   </data>
   <data name="Status.BookingStatus.Cancelled" xml:space="preserve">
-    <value>Отменен</value>
+    <value>РћС‚РјРµРЅРµРЅ</value>
   </data>
   <data name="Status.BookingStatus.Completed" xml:space="preserve">
-    <value>Завершен</value>
+    <value>Р—Р°РІРµСЂС€РµРЅ</value>
   </data>
   <data name="Status.BookingStatus.Rejected" xml:space="preserve">
-    <value>Отклонен</value>
+    <value>РћС‚РєР»РѕРЅРµРЅ</value>
   </data>
   <data name="Status.PaymentStatus.NotRequired" xml:space="preserve">
-    <value>Не требуется</value>
+    <value>РќРµ С‚СЂРµР±СѓРµС‚СЃСЏ</value>
   </data>
   <data name="Status.PaymentStatus.PendingAgreement" xml:space="preserve">
-    <value>Ожидается договоренность</value>
+    <value>РћР¶РёРґР°РµС‚СЃСЏ РґРѕРіРѕРІРѕСЂРµРЅРЅРѕСЃС‚СЊ</value>
   </data>
   <data name="Status.PaymentStatus.AgreedOffline" xml:space="preserve">
-    <value>Договорились вне системы</value>
+    <value>Р”РѕРіРѕРІРѕСЂРёР»РёСЃСЊ РІРЅРµ СЃРёСЃС‚РµРјС‹</value>
   </data>
   <data name="Status.PaymentStatus.PaidOffline" xml:space="preserve">
-    <value>Оплачено напрямую</value>
+    <value>РћРїР»Р°С‡РµРЅРѕ РЅР°РїСЂСЏРјСѓСЋ</value>
   </data>
   <data name="Status.DocumentVerificationStatus.Pending" xml:space="preserve">
-    <value>Ожидает</value>
+    <value>РћР¶РёРґР°РµС‚</value>
   </data>
   <data name="Status.DocumentVerificationStatus.Approved" xml:space="preserve">
-    <value>Одобрен</value>
+    <value>РћРґРѕР±СЂРµРЅ</value>
   </data>
   <data name="Status.DocumentVerificationStatus.Rejected" xml:space="preserve">
-    <value>Отклонен</value>
+    <value>РћС‚РєР»РѕРЅРµРЅ</value>
   </data>
 </root>
 

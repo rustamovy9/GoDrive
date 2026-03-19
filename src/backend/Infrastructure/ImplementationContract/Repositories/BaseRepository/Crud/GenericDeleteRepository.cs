@@ -3,6 +3,7 @@ using Application.Contracts.Repositories.BaseRepository.CRUD;
 using Application.Extensions.ResultPattern;
 using Application.Localization;
 using Domain.Common;
+using Domain.Extensions;
 using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
