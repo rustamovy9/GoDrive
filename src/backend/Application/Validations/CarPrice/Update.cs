@@ -1,17 +1,16 @@
-﻿using Application.DTO_s;
+using Application.Contracts.Localization;
+using Application.DTO_s;
+using Application.Localization;
 using FluentValidation;
 
 namespace Application.Validations.CarPrice;
 
 public class Update : AbstractValidator<CarPriceUpdateInfo>
 {
-    public Update()
+    public Update(ITextLocalizer localizer)
     {
-        When(x => x.PricePerDay.HasValue, () =>
-        {
-            RuleFor(x => x.PricePerDay!.Value)
-                .GreaterThan(0)
-                .WithMessage("PricePerDay must be greater than 0.");
-        });
+        RuleFor(x => x.PricePerDay)
+            .GreaterThan(0)
+            .WithMessage(localizer.Get(TextKeys.Validation.PricePerDayGreaterThanZero));
     }
 }

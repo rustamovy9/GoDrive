@@ -1,13 +1,17 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
+using Application.Contracts.Localization;
 using Application.Contracts.Repositories.BaseRepository.CRUD;
 using Application.Extensions.ResultPattern;
+using Application.Localization;
 using Domain.Common;
 using Infrastructure.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Repositories.BaseRepository.Crud;
 
-public class GenericFindRepository<T>(DataContext dbContext) : IGenericFindRepository<T> where T : BaseEntity
+public class GenericFindRepository<T>(
+    DataContext dbContext,
+    ITextLocalizer localizer) : IGenericFindRepository<T> where T : BaseEntity
 {
     public Result<IQueryable<T>> Find(Expression<Func<T, bool>> expression)
     {
@@ -20,7 +24,7 @@ public class GenericFindRepository<T>(DataContext dbContext) : IGenericFindRepos
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return Result<IQueryable<T>>.Failure(Error.InternalServerError());
+            return Result<IQueryable<T>>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
 
@@ -35,7 +39,7 @@ public class GenericFindRepository<T>(DataContext dbContext) : IGenericFindRepos
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return Result<IEnumerable<T>>.Failure(Error.InternalServerError());
+            return Result<IEnumerable<T>>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
 
@@ -47,12 +51,12 @@ public class GenericFindRepository<T>(DataContext dbContext) : IGenericFindRepos
                 .FirstOrDefaultAsync(x => x.Id == id);
             return res != null
                 ? Result<T?>.Success(res)
-                : Result<T?>.Failure(Error.NotFound());
+                : Result<T?>.Failure(ErrorFactory.NotFound(localizer));
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
-            return Result<T?>.Failure(Error.InternalServerError());
+            return Result<T?>.Failure(ErrorFactory.InternalServerError(localizer));
         }
     }
 }

@@ -1,19 +1,20 @@
-﻿using Application.DTO_s;
+using Application.Contracts.Localization;
+using Application.DTO_s;
+using Application.Localization;
 using FluentValidation;
 
 namespace Application.Validations.UserAndAuth;
 
-public class LoginInfoValidator : AbstractValidator<LoginRequest>
+public class Login : AbstractValidator<LoginRequest>
 {
-    public LoginInfoValidator()
+    public Login(ITextLocalizer localizer)
     {
         RuleFor(x => x.UserNameOrEmail)
-            .NotEmpty().WithMessage("Email or UserName is required.");
-        
+            .NotEmpty().WithMessage(localizer.Get(TextKeys.Validation.LoginUserNameOrEmailRequired));
+
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Password is required.")
-            .MinimumLength(6).WithMessage("Password must contain at least 6 characters.")
-            .MaximumLength(50).WithMessage("Password must not exceed 50 characters.");
+            .NotEmpty().WithMessage(localizer.Get(TextKeys.Validation.PasswordRequired))
+            .MinimumLength(6).WithMessage(localizer.Get(TextKeys.Validation.PasswordMin6))
+            .MaximumLength(50).WithMessage(localizer.Get(TextKeys.Validation.PasswordMax50));
     }
-    
 }

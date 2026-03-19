@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Application.Contracts.Localization;
 using Application.Contracts.Repositories;
 using Application.Contracts.Services;
 using Application.DTO_s;
@@ -6,14 +7,17 @@ using Application.Extensions.Mappers;
 using Application.Extensions.Responses.PagedResponse;
 using Application.Extensions.ResultPattern;
 using Application.Filters;
+using Application.Localization;
 using Domain.Common;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class RentalCompanyService(IRentalCompanyRepository repository, ILocationRepository locationRepository)
-    : IRentalCompanyService
+public class RentalCompanyService(
+    IRentalCompanyRepository repository,
+    ILocationRepository locationRepository,
+    ITextLocalizer localizer) : IRentalCompanyService
 {
     public async Task<Result<PagedResponse<IEnumerable<RentalCompanyReadInfo>>>> GetAllAsync(
         RentalCompanyFilter filter)
@@ -64,7 +68,9 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
     public async Task<Result<RentalCompanyReadInfo>> GetByIdAsync(int id)
     {
         Result<RentalCompany?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess || res.Value is null) return Result<RentalCompanyReadInfo>.Failure(Error.NotFound("Компания по прокату не найдена"));
+        if (!res.IsSuccess || res.Value is null)
+            return Result<RentalCompanyReadInfo>.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.RentalCompanyNotFound)));
 
         return Result<RentalCompanyReadInfo>.Success(res.Value.ToRead());
     }
@@ -77,12 +83,14 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
             .AnyAsync();
 
         if (!locationExists)
-            return BaseResult.Failure(Error.NotFound("Местоположение не найдено"));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.LocationNotFound)));
 
         var exists = repository.Find(x => x.OwnerId == ownerId);
-        
-        if(exists.IsSuccess && await exists.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("Владелец уже имеет компанию по сдаче недвижимости в аренду."));
+
+        if (exists.IsSuccess && await exists.Value!.AnyAsync())
+            return BaseResult.Failure(
+                Error.Conflict(localizer.Get(TextKeys.Errors.OwnerAlreadyHasCompany)));
         var entity = createInfo.ToEntity(ownerId);
 
         var res = await repository.AddAsync(entity);
@@ -96,7 +104,9 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
     {
         Result<RentalCompany?> res = await repository.GetByIdAsync(id);
 
-        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Компания по прокату не найдена"));
+        if (!res.IsSuccess || res.Value is null)
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.RentalCompanyNotFound)));
 
         var company = res.Value;
 
@@ -108,11 +118,12 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
                 .AnyAsync();
 
             if (!locationExists)
-                return BaseResult.Failure(Error.NotFound("Местоположение не найдено"));
+                return BaseResult.Failure(
+                    Error.NotFound(localizer.Get(TextKeys.Errors.LocationNotFound)));
         }
 
         company = company.ToEntity(updateInfo);
-        
+
         Result<int> result = await repository.UpdateAsync(company);
 
         return result.IsSuccess
@@ -123,14 +134,16 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
     public async Task<BaseResult> DeleteAsync(int id)
     {
         Result<RentalCompany?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Компания по прокату не найдена"));
+        if (!res.IsSuccess || res.Value is null)
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.RentalCompanyNotFound)));
 
         var company = res.Value;
 
         if (company.Cars.Any())
-            return BaseResult.Failure(Error.BadRequest("Невозможно удалить компанию с уже имеющимися автомобилями."));
+            return BaseResult.Failure(
+                Error.BadRequest(localizer.Get(TextKeys.Errors.CannotDeleteCompanyWithCars)));
 
-        
         Result<int> result = await repository.DeleteAsync(id);
 
         return result.IsSuccess

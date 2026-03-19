@@ -1,16 +1,18 @@
 ﻿using Application.Contracts.Repositories;
 using Application.Contracts.Services;
+using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
 using Application.Extensions.Responses.PagedResponse;
 using Application.Extensions.ResultPattern;
+using Application.Localization;
 using Domain.Common;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class LocationService(ILocationRepository repository) : ILocationService
+public class LocationService(ILocationRepository repository, ITextLocalizer localizer) : ILocationService
 {
     public async Task<Result<PagedResponse<IEnumerable<LocationReadInfo>>>> 
         GetAllAsync(BaseFilter filter)
@@ -48,7 +50,8 @@ public class LocationService(ILocationRepository repository) : ILocationService
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return Result<LocationReadInfo>.Failure(Error.NotFound());
+            return Result<LocationReadInfo>.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.LocationNotFound)));
 
         var location = res.Value;
 
@@ -63,7 +66,7 @@ public class LocationService(ILocationRepository repository) : ILocationService
 
         if (conflict.IsSuccess && await conflict.Value!.AnyAsync())
             return BaseResult.Failure(
-                Error.Conflict("Местоположение уже существует."));
+                Error.Conflict(localizer.Get(TextKeys.Errors.LocationExists)));
 
         var location = createInfo.ToEntity();
 
@@ -79,7 +82,8 @@ public class LocationService(ILocationRepository repository) : ILocationService
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound());
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.LocationNotFound)));
 
         var location = res.Value.ToEntity(updateInfo);
 
@@ -95,7 +99,8 @@ public class LocationService(ILocationRepository repository) : ILocationService
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound());
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.LocationNotFound)));
 
         var result = await repository.DeleteAsync(id);
 

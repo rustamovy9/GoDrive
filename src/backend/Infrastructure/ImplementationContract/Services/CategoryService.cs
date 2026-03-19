@@ -1,10 +1,12 @@
 ﻿using System.Linq.Expressions;
 using Application.Contracts.Repositories;
 using Application.Contracts.Services;
+using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
 using Application.Extensions.Responses.PagedResponse;
 using Application.Extensions.ResultPattern;
+using Application.Localization;
 using Domain.Common;
 using Domain.Entities;
 using Infrastructure.Extensions;
@@ -12,12 +14,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class CategoryService(ICategoryRepository repository) : ICategoryService
+public class CategoryService(ICategoryRepository repository, ITextLocalizer localizer) : ICategoryService
 {
     public async Task<BaseResult> CreateAsync(CategoryCreateInfo createInfo)
     {
         if (string.IsNullOrEmpty(createInfo.Name))
-            return BaseResult.Failure(Error.BadRequest("Укажите название категории."));
+            return BaseResult.Failure(
+                Error.BadRequest(localizer.Get(TextKeys.Errors.CategoryNameRequired)));
 
         var exists = await repository
             .Find(x => x.Name.ToLower() == createInfo.Name.ToLower())
@@ -25,7 +28,8 @@ public class CategoryService(ICategoryRepository repository) : ICategoryService
             .AnyAsync();
 
         if (exists)
-            return BaseResult.Failure(Error.Conflict("Категория уже существует"));
+            return BaseResult.Failure(
+                Error.Conflict(localizer.Get(TextKeys.Errors.CategoryExists)));
 
         var category = createInfo.ToEntity();
 
@@ -41,7 +45,8 @@ public class CategoryService(ICategoryRepository repository) : ICategoryService
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Категория не найдена ."));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.CategoryNotFound)));
 
         var category = res.Value;
 
@@ -53,7 +58,8 @@ public class CategoryService(ICategoryRepository repository) : ICategoryService
                 .AnyAsync();
 
             if (exists)
-                return BaseResult.Failure(Error.Conflict("Категория с таким названием уже существует."));
+                return BaseResult.Failure(
+                    Error.Conflict(localizer.Get(TextKeys.Errors.CategoryNameExists)));
 
             category.Name = updateInfo.Name;
         }
@@ -82,7 +88,8 @@ public class CategoryService(ICategoryRepository repository) : ICategoryService
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return Result<CategoryReadInfo>.Failure(Error.NotFound());
+            return Result<CategoryReadInfo>.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.CategoryNotFound)));
 
         return Result<CategoryReadInfo>.Success(res.Value.ToRead());
     }

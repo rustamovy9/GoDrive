@@ -1,11 +1,13 @@
 ﻿using System.Linq.Expressions;
 using Application.Contracts.Repositories;
 using Application.Contracts.Services;
+using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
 using Application.Extensions.Responses.PagedResponse;
 using Application.Extensions.ResultPattern;
 using Application.Filters;
+using Application.Localization;
 using Domain.Common;
 using Domain.Entities;
 using Domain.Enums;
@@ -17,7 +19,8 @@ public class BookingService(
     IBookingRepository repository,
     INotificationService notificationService,
     ICarPriceRepository carPriceRepository,
-    ICarRepository carRepository) : IBookingService
+    ICarRepository carRepository,
+    ITextLocalizer localizer) : IBookingService
 {
     public async Task<Result<PagedResponse<IEnumerable<BookingReadInfo>>>> GetAllAsync(BookingFilter filter,int currentUserId,bool isAdmin)
     {
@@ -74,10 +77,11 @@ public class BookingService(
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return Result<BookingReadInfo>.Failure(Error.NotFound("Booking not found"));
+            return Result<BookingReadInfo>.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.BookingNotFound)));
         
         if (!isAdmin && res.Value.UserId != currentUserId)
-            return Result<BookingReadInfo>.Failure(Error.Forbidden());
+            return Result<BookingReadInfo>.Failure(ErrorFactory.Forbidden(localizer));
 
         return Result<BookingReadInfo>.Success(res.Value.ToRead());
     }
@@ -85,7 +89,8 @@ public class BookingService(
      public async Task<BaseResult> CreateAsync(BookingCreateInfo createInfo, int userId)
     {
         if (createInfo.EndDateTime <= createInfo.StartDateTime)
-            return BaseResult.Failure(Error.BadRequest("Неверный период бронирования\n"));
+            return BaseResult.Failure(
+                Error.BadRequest(localizer.Get(TextKeys.Errors.InvalidBookingPeriod)));
 
         Expression<Func<Booking, bool>> conflictExpr = b =>
             b.CarId == createInfo.CarId &&
@@ -98,7 +103,8 @@ public class BookingService(
             return BaseResult.Failure(conflictQuery.Error);
 
         if (await conflictQuery.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("Автомобиль уже забронирован на этот период."));
+            return BaseResult.Failure(
+                Error.Conflict(localizer.Get(TextKeys.Errors.CarAlreadyBooked)));
 
         var priceRes = carPriceRepository.Find(p => p.CarId == createInfo.CarId);
 
@@ -110,13 +116,15 @@ public class BookingService(
             .FirstOrDefaultAsync();
 
         if (carPrice is null)
-            return BaseResult.Failure(Error.BadRequest("Цена автомобиля не установлена"));
+            return BaseResult.Failure(
+                Error.BadRequest(localizer.Get(TextKeys.Errors.CarPriceNotSet)));
 
         int days = (int)Math.Ceiling(
             (createInfo.EndDateTime - createInfo.StartDateTime).TotalDays);
 
         if (days <= 0)
-            return BaseResult.Failure(Error.BadRequest("Неверная продолжительность бронирования"));
+            return BaseResult.Failure(
+                Error.BadRequest(localizer.Get(TextKeys.Errors.InvalidBookingDuration)));
 
         decimal total = days * carPrice.PricePerDay;
 
@@ -132,8 +140,8 @@ public class BookingService(
         // 🔔 клиенту
         await notificationService.CreateAsync(new NotificationCreateInfo(
             userId,
-            "Бронирование создано",
-            "Ваше бронирование успешно оформлено."
+            localizer.Get(TextKeys.Notifications.BookingCreatedTitle),
+            localizer.Get(TextKeys.Notifications.BookingCreatedMessage)
         ));
 
         // 🔔 владельцу машины
@@ -142,8 +150,11 @@ public class BookingService(
         {
             await notificationService.CreateAsync(new NotificationCreateInfo(
                 carRes.Value.OwnerId,
-                "Новое бронирование",
-                $"Ваш автомобиль забронирован на период с  {createInfo.StartDateTime:d} по  {createInfo.EndDateTime:d}."
+                localizer.Get(TextKeys.Notifications.NewBookingTitle),
+                localizer.Get(
+                    TextKeys.Notifications.NewBookingMessage,
+                    createInfo.StartDateTime,
+                    createInfo.EndDateTime)
             ));
         }
 
@@ -155,15 +166,17 @@ public class BookingService(
         var existing = await repository.GetByIdAsync(id);
 
         if (!existing.IsSuccess || existing.Value is null)
-            return BaseResult.Failure(Error.NotFound());
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.BookingNotFound)));
 
         var booking = existing.Value;
         
         if (booking.UserId != currentUserId)
-            return BaseResult.Failure(Error.Forbidden());
+            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
 
         if (booking.BookingStatus != BookingStatus.Pending)
-            return BaseResult.Failure(Error.BadRequest("Изменять можно только информацию о незавершенных бронированиях."));
+            return BaseResult.Failure(
+                Error.BadRequest(localizer.Get(TextKeys.Errors.UpdateOnlyPendingBookingInfo)));
 
         Expression<Func<Booking, bool>> conflictExpr = b =>
             b.Id != id &&
@@ -177,7 +190,8 @@ public class BookingService(
             return BaseResult.Failure(conflictQuery.Error);
 
         if (await conflictQuery.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("Автомобиль уже забронирован на этот период"));
+            return BaseResult.Failure(
+                Error.Conflict(localizer.Get(TextKeys.Errors.CarAlreadyBooked)));
 
         var updated = existing.Value.ToEntity(updateInfo);
 
@@ -197,13 +211,15 @@ public class BookingService(
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Бронирование не найдено"));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.BookingNotFound)));
 
         var booking = res.Value;
 
         var carRes = await carRepository.GetByIdAsync(booking.CarId);
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
 
         bool isOwner = carRes.Value.OwnerId == currentUserId;
 
@@ -216,10 +232,11 @@ public class BookingService(
                 isAdmin))
         {
             return BaseResult.Failure(
-                Error.BadRequest("Неверный переход статуса бронирования"));
+                Error.BadRequest(localizer.Get(TextKeys.Errors.InvalidBookingStatusTransition)));
         }
         if (updateStatusInfo.Status == BookingStatus.Rejected && string.IsNullOrWhiteSpace(updateStatusInfo.Reason))
-            return BaseResult.Failure(Error.BadRequest("Требуется причина"));
+            return BaseResult.Failure(
+                Error.BadRequest(localizer.Get(TextKeys.Errors.ReasonRequired)));
         if (updateStatusInfo.Status == BookingStatus.Rejected ||
             updateStatusInfo.Status == BookingStatus.Cancelled)
         {
@@ -235,11 +252,13 @@ public class BookingService(
         if (!update.IsSuccess)
             return BaseResult.Failure(update.Error);
 
+        var localizedStatus = updateStatusInfo.Status.ToLocalizedString(localizer);
+
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 booking.UserId,
-                "Статус бронирования обновлен",
-                $"Статус вашего бронирования изменился на {updateStatusInfo.Status}."
+                localizer.Get(TextKeys.Notifications.BookingStatusUpdatedTitle),
+                localizer.Get(TextKeys.Notifications.BookingStatusUpdatedMessage, localizedStatus)
             ));
 
         if (isOwner)
@@ -247,8 +266,8 @@ public class BookingService(
             await notificationService.CreateAsync(
                 new NotificationCreateInfo(
                     currentUserId,
-                    "Бронирование обновлено",
-                    $"Бронирование #{booking.Id} изменено на {updateStatusInfo.Status}."
+                    localizer.Get(TextKeys.Notifications.BookingUpdatedTitle),
+                    localizer.Get(TextKeys.Notifications.BookingUpdatedMessage, booking.Id, localizedStatus)
                 ));
         }
 
@@ -262,14 +281,15 @@ public class BookingService(
         var existing = await repository.GetByIdAsync(id);
 
         if (!existing.IsSuccess || existing.Value is null)
-            return BaseResult.Failure(Error.NotFound());
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.BookingNotFound)));
         
         if (!isAdmin && existing.Value.UserId != currentUserId)
-            return BaseResult.Failure(Error.Forbidden());
+            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
         
         if (existing.Value.BookingStatus != BookingStatus.Pending)
             return BaseResult.Failure(
-                Error.BadRequest("Удалить можно только незавершенные бронирования."));
+                Error.BadRequest(localizer.Get(TextKeys.Errors.DeleteOnlyPendingBooking)));
 
         Result<int> result = await repository.DeleteAsync(id);
 

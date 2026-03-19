@@ -1,8 +1,10 @@
 ﻿using Application.Contracts.Repositories;
 using Application.Contracts.Services;
+using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
 using Application.Extensions.ResultPattern;
+using Application.Localization;
 using Domain.Common;
 using Domain.Constants;
 using Domain.Enums;
@@ -15,7 +17,8 @@ public class CarDocumentService(
     ICarRepository carRepository,
     IUserRepository userRepository,
     INotificationService notificationService,
-    IFileService fileService) : ICarDocumentService
+    IFileService fileService,
+    ITextLocalizer localizer) : ICarDocumentService
 {
     public async Task<Result<IEnumerable<CarDocumentReadInfo>>> GetByCarIdAsync(int carId)
     {
@@ -35,7 +38,8 @@ public class CarDocumentService(
     {
         var carRes = await carRepository.GetByIdAsync(createInfo.CarId);
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
 
         
 
@@ -51,8 +55,8 @@ public class CarDocumentService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 carRes.Value.OwnerId,
-                "Документ отправлен",
-                "Ваш документ отправлен и ожидает проверки."
+                localizer.Get(TextKeys.Notifications.DocumentSentTitle),
+                localizer.Get(TextKeys.Notifications.DocumentSentMessage)
             )
         );
 
@@ -67,8 +71,8 @@ public class CarDocumentService(
                 await notificationService.CreateAsync(
                     new NotificationCreateInfo(
                         admin.Id,
-                        "Новый документ загружен",
-                        $"Машина #{carRes.Value.Id} документ требует проверки."
+                        localizer.Get(TextKeys.Notifications.NewDocumentTitle),
+                        localizer.Get(TextKeys.Notifications.NewDocumentMessage, carRes.Value.Id)
                     )
                 );
             }
@@ -85,17 +89,19 @@ public class CarDocumentService(
         var documentRes = await repository.GetByIdAsync(id);
 
         if (!documentRes.IsSuccess || documentRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Документ не найден."));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.DocumentNotFound)));
 
         var document = documentRes.Value;
 
         var carRes = await carRepository.GetByIdAsync(document.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
 
         if (carRes.Value.OwnerId != currentUserId)
-            return BaseResult.Failure(Error.Forbidden());
+            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
 
         // удалить старый файл
         await fileService.DeleteFile(document.FilePath, MediaFolders.Docs);
@@ -132,13 +138,15 @@ public class CarDocumentService(
         var documentRes = await repository.GetByIdAsync(id);
 
         if (!documentRes.IsSuccess || documentRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Документ не найден."));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.DocumentNotFound)));
         
 
         var document = documentRes.Value;
 
         if (document.VerificationStatus != DocumentVerificationStatus.Pending)
-            return BaseResult.Failure(Error.BadRequest("Документ уже проверен"));
+            return BaseResult.Failure(
+                Error.BadRequest(localizer.Get(TextKeys.Errors.DocumentAlreadyVerified)));
 
         document.ToEntity(updateInfo, adminId);
 
@@ -156,8 +164,10 @@ public class CarDocumentService(
             await notificationService.CreateAsync(
                 new NotificationCreateInfo(
                     carRes.Value.OwnerId,
-                    "Документ проверен",
-                    $"Ваш документ был {updateInfo.VerificationStatus}."
+                    localizer.Get(TextKeys.Notifications.DocumentVerifiedTitle),
+                    localizer.Get(
+                        TextKeys.Notifications.DocumentVerifiedMessage,
+                        updateInfo.VerificationStatus.ToLocalizedString(localizer))
                 ));
         }
 
@@ -173,20 +183,22 @@ public class CarDocumentService(
         var documentRes = await repository.GetByIdAsync(id);
 
         if (!documentRes.IsSuccess || documentRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Документ не найден."));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.DocumentNotFound)));
 
         var document = documentRes.Value;
 
         var carRes = await carRepository.GetByIdAsync(document.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
 
         var car = carRes.Value;
 
         // 🔐 Access control
         if (!isAdmin && car.OwnerId != currentUserId)
-            return BaseResult.Failure(Error.Forbidden());
+            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
 
         await fileService.DeleteFile(document.FilePath, MediaFolders.Docs);
 
@@ -208,19 +220,21 @@ public class CarDocumentService(
         var documentRes = await repository.GetByIdAsync(id);
 
         if (!documentRes.IsSuccess || documentRes.Value is null)
-            return Result<(byte[], string)>.Failure(Error.NotFound("Документ не найден."));
+            return Result<(byte[], string)>.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.DocumentNotFound)));
 
         var document = documentRes.Value;
 
         var carRes = await carRepository.GetByIdAsync(document.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return Result<(byte[], string)>.Failure(Error.NotFound("Автомобиль не найден"));
+            return Result<(byte[], string)>.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
 
         var car = carRes.Value;
 
         if (!isAdmin && car.OwnerId != currentUserId)
-            return Result<(byte[], string)>.Failure(Error.Forbidden());
+            return Result<(byte[], string)>.Failure(ErrorFactory.Forbidden(localizer));
 
         // 🔥 вместо FileExists + GetFileAsync
         var file = await fileService.DownloadAsync(

@@ -1,25 +1,27 @@
+using Application.Contracts.Localization;
 using Application.DTO_s;
+using Application.Localization;
 using FluentValidation;
 
 namespace Application.Validations.RentalCompany;
 
 public class Update : AbstractValidator<RentalCompanyUpdateInfo>
 {
-    public Update()
+    public Update(ITextLocalizer localizer)
     {
         When(x => x.Name != null, () =>
         {
             RuleFor(x => x.Name!)
                 .NotEmpty()
                 .MaximumLength(200)
-                .WithMessage("Company name must not be empty and must not exceed 200 characters.");
+                .WithMessage(localizer.Get(TextKeys.Validation.CompanyNameRequiredMax200));
         });
 
         When(x => x.ContactInfo != null, () =>
         {
             RuleFor(x => x.ContactInfo!)
                 .MaximumLength(500)
-                .WithMessage("ContactInfo must not exceed 500 characters.");
+                .WithMessage(localizer.Get(TextKeys.Validation.ContactInfoMax500));
         });
     }
 }

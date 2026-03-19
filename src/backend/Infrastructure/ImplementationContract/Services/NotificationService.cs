@@ -1,16 +1,21 @@
 ﻿using Application.Contracts.Repositories;
 using Application.Contracts.Services;
+using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
 using Application.Extensions.Responses.PagedResponse;
 using Application.Extensions.ResultPattern;
+using Application.Localization;
 using Domain.Common;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class NotificationService(INotificationRepository repository, IRealtimeNotifier realtimeNotifier)
+public class NotificationService(
+    INotificationRepository repository,
+    IRealtimeNotifier realtimeNotifier,
+    ITextLocalizer localizer)
     : INotificationService
 {
     public async Task<Result<PagedResponse<IEnumerable<NotificationReadInfo>>>>
@@ -72,7 +77,8 @@ public class NotificationService(INotificationRepository repository, IRealtimeNo
         var res = await repository.GetByIdAsync(notificationId);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Уведомление не найдено"));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.NotificationNotFound)));
 
         var notification = res.Value;
 
@@ -139,7 +145,7 @@ public class NotificationService(INotificationRepository repository, IRealtimeNo
         var res = await repository.GetByIdAsync(notificationId);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound());
+            return BaseResult.Failure(ErrorFactory.NotFound(localizer));
 
         var delete = await repository.DeleteAsync(notificationId);
 

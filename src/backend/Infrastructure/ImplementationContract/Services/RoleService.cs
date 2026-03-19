@@ -1,3 +1,4 @@
+using Application.Contracts.Localization;
 using Application.Contracts.Repositories;
 using Application.Contracts.Services;
 using Application.DTO_s;
@@ -5,13 +6,14 @@ using Application.Extensions.Mappers;
 using Application.Extensions.Responses.PagedResponse;
 using Application.Extensions.ResultPattern;
 using Application.Filters;
+using Application.Localization;
 using Domain.Common;
 using Domain.Constants;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class RoleService(IRoleRepository repository) : IRoleService
+public class RoleService(IRoleRepository repository, ITextLocalizer localizer) : IRoleService
 {
     public async Task<Result<PagedResponse<IEnumerable<RoleReadInfo>>>> GetAllAsync(RoleFilter filter)
     {
@@ -44,7 +46,8 @@ public class RoleService(IRoleRepository repository) : IRoleService
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return Result<RoleReadInfo>.Failure(Error.NotFound("Роль не найдена"));
+            return Result<RoleReadInfo>.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.RoleNotFound)));
 
         return Result<RoleReadInfo>.Success(res.Value.ToRead());
     }
@@ -54,7 +57,8 @@ public class RoleService(IRoleRepository repository) : IRoleService
         var existing = repository.Find(r => r.Name == createInfo.Name);
 
         if (existing.IsSuccess && await existing.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("Роль уже существует"));
+            return BaseResult.Failure(
+                Error.Conflict(localizer.Get(TextKeys.Errors.RoleExists)));
 
         var result = await repository.AddAsync(createInfo.ToEntity());
 
@@ -68,14 +72,16 @@ public class RoleService(IRoleRepository repository) : IRoleService
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Роль не найдена"));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.RoleNotFound)));
 
         var existing = repository.Find(r =>
             r.Name == updateInfo.Name &&
             r.Id != id);
 
         if (existing.IsSuccess && await existing.Value!.AnyAsync())
-            return BaseResult.Failure(Error.Conflict("Роль уже существует"));
+            return BaseResult.Failure(
+                Error.Conflict(localizer.Get(TextKeys.Errors.RoleExists)));
 
         var updated = res.Value.ToEntity(updateInfo);
 
@@ -91,15 +97,15 @@ public class RoleService(IRoleRepository repository) : IRoleService
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound("Роль не найдена"));
+            return BaseResult.Failure(
+                Error.NotFound(localizer.Get(TextKeys.Errors.RoleNotFound)));
 
-        // 🔥 Запрещаем удалять системные роли
         if (res.Value.Name == DefaultRoles.Admin ||
             res.Value.Name == DefaultRoles.User ||
             res.Value.Name == DefaultRoles.Owner)
         {
             return BaseResult.Failure(
-                Error.BadRequest("Системные роли удалить невозможно."));
+                Error.BadRequest(localizer.Get(TextKeys.Errors.SystemRoleDeleteForbidden)));
         }
 
         var result = await repository.DeleteAsync(id);

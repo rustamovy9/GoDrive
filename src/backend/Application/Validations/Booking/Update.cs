@@ -1,55 +1,45 @@
-﻿using Application.DTO_s;
+using Application.Contracts.Localization;
+using Application.DTO_s;
+using Application.Localization;
 using FluentValidation;
 
 namespace Application.Validations.Booking;
 
 public class Update : AbstractValidator<BookingUpdateInfo>
 {
-    public Update()
+    public Update(ITextLocalizer localizer)
     {
-        RuleFor(x => x.CarId)
-            .GreaterThan(0)
-            .WithMessage("CarId must be greater than 0.");
+        RuleFor(booking => booking.CarId)
+            .GreaterThan(0).WithMessage(localizer.Get(TextKeys.Validation.CarIdGreaterThanZero));
 
-        RuleFor(x => x.PickupLocationId)
-            .GreaterThan(0)
-            .WithMessage("PickupLocationId must be greater than 0.");
+        RuleFor(booking => booking.PickupLocationId)
+            .GreaterThan(0).WithMessage(localizer.Get(TextKeys.Validation.PickupLocationIdGreaterThanZero));
 
-        RuleFor(x => x.DropOffLocationId)
-            .GreaterThan(0)
-            .WithMessage("DropOffLocationId must be greater than 0.");
+        RuleFor(booking => booking.DropOffLocationId)
+            .GreaterThan(0).WithMessage(localizer.Get(TextKeys.Validation.DropOffLocationIdGreaterThanZero));
 
         RuleFor(x => x)
             .Must(x => x.PickupLocationId != x.DropOffLocationId)
-            .WithMessage("Pickup and Drop-off locations cannot be the same.");
+            .WithMessage(localizer.Get(TextKeys.Validation.PickupAndDropOffDifferent));
 
-        When(x => x.StartDateTime.HasValue, () =>
-        {
-            RuleFor(x => x.StartDateTime!.Value)
-                .GreaterThanOrEqualTo(DateTimeOffset.UtcNow)
-                .WithMessage("StartDateTime must not be in the past.");
-        });
+        RuleFor(booking => booking.StartDateTime)
+            .Must(date => date == null || date.Value >= DateTime.Now)
+            .WithMessage(localizer.Get(TextKeys.Validation.StartDateTimeNotPast));
 
-        When(x => x.EndDateTime.HasValue, () =>
-        {
-            RuleFor(x => x.EndDateTime!.Value)
-                .GreaterThan(DateTimeOffset.UtcNow)
-                .WithMessage("EndDateTime must be in the future.");
-        });
+        RuleFor(booking => booking.EndDateTime)
+            .Must(date => date == null || date.Value > DateTime.Now)
+            .WithMessage(localizer.Get(TextKeys.Validation.EndDateTimeInFuture));
+
+        RuleFor(booking => booking)
+            .Must(booking => booking.StartDateTime < booking.EndDateTime)
+            .WithMessage(localizer.Get(TextKeys.Validation.StartDateTimeBeforeEndDateTime));
 
         RuleFor(x => x)
-            .Must(x => x.StartDateTime < x.EndDateTime)
-            .WithMessage("StartDateTime must be earlier than EndDateTime.");
-
-        RuleFor(x => x)
-            .Must(x =>
-                !x.StartDateTime.HasValue ||
-                !x.EndDateTime.HasValue ||
-                (x.EndDateTime.Value - x.StartDateTime.Value).TotalHours >= 1)
-            .WithMessage("Booking duration must be at least 1 hour.");
+            .Must(x => (x.EndDateTime - x.StartDateTime).Value.TotalHours >= 1)
+            .WithMessage(localizer.Get(TextKeys.Validation.BookingDurationMin1Hour));
 
         RuleFor(x => x.Comment)
             .MaximumLength(500)
-            .WithMessage("Comment must not exceed 500 characters.");
+            .WithMessage(localizer.Get(TextKeys.Validation.CommentMax500));
     }
 }

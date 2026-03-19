@@ -1,49 +1,47 @@
+using Application.Contracts.Localization;
 using Application.DTO_s;
-using Domain.Constants;
+using Application.Localization;
 using FluentValidation;
 
 namespace Application.Validations.UserAndAuth;
 
-public class RegisterInfoValidator : AbstractValidator<RegisterRequest>
+public class Register : AbstractValidator<RegisterRequest>
 {
-    public RegisterInfoValidator()
+    public Register(ITextLocalizer localizer)
     {
-        RuleFor(user => user.UserName)
-            .NotEmpty()
-            .MaximumLength(40)
+        RuleFor(x => x.UserName)
             .Matches("^[a-zA-Z0-9_]+$")
-            .WithMessage("UserName can contain only letters, numbers and underscore");
+            .WithMessage(localizer.Get(TextKeys.Validation.UserNameValidChars));
 
+        RuleFor(x => x.FirstName)
+            .NotEmpty().WithMessage(localizer.Get(TextKeys.Validation.FirstNameRequired))
+            .MaximumLength(50).WithMessage(localizer.Get(TextKeys.Validation.FirstNameMax50));
 
-        RuleFor(user => user.FirstName)
-            .NotEmpty().WithMessage("FirstName is required.")
-            .MaximumLength(50).WithMessage("FirstName must not exceed 50 characters.");
+        RuleFor(x => x.LastName)
+            .NotEmpty().WithMessage(localizer.Get(TextKeys.Validation.LastNameRequired))
+            .MaximumLength(50).WithMessage(localizer.Get(TextKeys.Validation.LastNameMax50));
 
-        RuleFor(user => user.LastName)
-            .NotEmpty().WithMessage("LastName is required.")
-            .MaximumLength(50).WithMessage("LastName must not exceed 50 characters.");
+        RuleFor(x => x.DateOfBirth)
+            .LessThanOrEqualTo(DateTimeOffset.UtcNow)
+            .WithMessage(localizer.Get(TextKeys.Validation.DateOfBirthNotFuture));
 
-        RuleFor(user => user.DateOfBirth)
-            .LessThanOrEqualTo(DateTimeOffset.UtcNow).WithMessage("DateOfBirth cannot be in the future.");
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage(localizer.Get(TextKeys.Validation.EmailRequired))
+            .EmailAddress().WithMessage(localizer.Get(TextKeys.Validation.EmailInvalid));
 
-        RuleFor(user => user.Email)
-            .NotEmpty().WithMessage("Email is required.")
-            .EmailAddress().WithMessage("Invalid email format.");
+        RuleFor(x => x.PhoneNumber)
+            .Must(x => FluentValidationHelpers.IsPhoneNumberValid(x!))
+            .WithMessage(localizer.Get(TextKeys.Validation.PhoneNumberInvalid));
 
-        RuleFor(user => user.PhoneNumber)
-            .Matches(@"^\+?\d{10,15}$")
-            .When(user => !string.IsNullOrEmpty(user.PhoneNumber))
-            .WithMessage("PhoneNumber must be a valid international number.");
-        
-        
-        RuleFor(user => user.Password)
-            .NotEmpty().WithMessage("Password is required")
-            .MinimumLength(6).WithMessage("The password must contain at least 6 characters.")
-            .MaximumLength(50).WithMessage("Password must not exceed 50 characters.")
-            .NotEqual(x=>x.UserName).WithMessage("Password cannot be the same as UserName");
-        
-        RuleFor(user => user.ConfirmPassword)
-            .NotEmpty().WithMessage("Confirm is required")
-            .Equal(x=>x.Password).WithMessage("Passwords do not match");
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage(localizer.Get(TextKeys.Validation.PasswordRequired))
+            .MinimumLength(6).WithMessage(localizer.Get(TextKeys.Validation.PasswordMin6))
+            .MaximumLength(50).WithMessage(localizer.Get(TextKeys.Validation.PasswordMax50))
+            .NotEqual(x => x.UserName)
+            .WithMessage(localizer.Get(TextKeys.Validation.PasswordNotSameAsUserName));
+
+        RuleFor(x => x.ConfirmPassword)
+            .NotEmpty().WithMessage(localizer.Get(TextKeys.Validation.ConfirmRequired))
+            .Equal(x => x.Password).WithMessage(localizer.Get(TextKeys.Validation.PasswordsDoNotMatch));
     }
 }
