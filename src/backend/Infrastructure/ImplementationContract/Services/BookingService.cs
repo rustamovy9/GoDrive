@@ -56,15 +56,18 @@ public class BookingService(
         
         int count = await query.CountAsync();
 
-        var data = await query
+        var entities = await query
             .Include(x => x.Car)
             .Include(x => x.PickupLocation)
             .Include(x => x.DropOffLocation)
             .OrderByDescending(x => x.CreatedAt)
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(x => x.ToRead())
             .ToListAsync();
+
+        var data = entities
+            .Select(x => x.ToRead(localizer))
+            .ToList();
 
         var res = PagedResponse<IEnumerable<BookingReadInfo>>
             .Create(filter.PageNumber, filter.PageSize, count, data);
@@ -83,7 +86,7 @@ public class BookingService(
         if (!isAdmin && res.Value.UserId != currentUserId)
             return Result<BookingReadInfo>.Failure(ErrorFactory.Forbidden(localizer));
 
-        return Result<BookingReadInfo>.Success(res.Value.ToRead());
+        return Result<BookingReadInfo>.Success(res.Value.ToRead(localizer));
     }
     
      public async Task<BaseResult> CreateAsync(BookingCreateInfo createInfo, int userId)

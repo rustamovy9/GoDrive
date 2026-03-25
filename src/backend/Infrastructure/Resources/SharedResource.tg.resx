@@ -542,6 +542,26 @@
   <data name="Status.DocumentVerificationStatus.Rejected" xml:space="preserve">
     <value>Рад шуд</value>
   </data>
-</root>
+  <data name="Status.PaymentMethod.Offline" xml:space="preserve">
+    <value>Офлайн</value>
+  </data>
+  <data name="Status.PaymentMethod.Cash" xml:space="preserve">
+    <value>Нақд</value>
+  </data>
+  <data name="Status.PaymentMethod.BankTransfer" xml:space="preserve">
+    <value>Гузариши бонкӣ</value>
+  </data>
+  <data name="Status.CarDocumentType.Unknown" xml:space="preserve">
+    <value>Номуайян</value>
+  </data>
+  <data name="Status.CarDocumentType.TechnicalPassport" xml:space="preserve">
+    <value>Шиносномаи техникӣ</value>
+  </data>
+  <data name="Status.CarDocumentType.Insurance" xml:space="preserve">
+    <value>Суғурта</value>
+  </data>
+  <data name="Status.CarDocumentType.OwnershipCertificate" xml:space="preserve">
+    <value>Шаҳодатномаи моликият</value>
+  </data></root>
 
 

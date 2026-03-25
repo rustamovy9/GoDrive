@@ -1,4 +1,4 @@
-﻿using Domain.Enums;
+using Domain.Enums;
 
 namespace Application.DTO_s;
 public sealed record BookingReadInfo(
@@ -8,7 +8,9 @@ public sealed record BookingReadInfo(
     DateTimeOffset EndDateTime,
     decimal TotalPrice,
     BookingStatus BookingStatus,
+    string BookingStatusText,
     PaymentStatus PaymentStatus,
+    string PaymentStatusText,
     bool IsContactShared,
     string PickupCity,
     string DropOffCity);

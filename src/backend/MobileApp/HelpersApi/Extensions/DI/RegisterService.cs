@@ -100,6 +100,25 @@ public static class RegisterService
             options.DefaultRequestCulture = new RequestCulture("ru");
             options.SupportedCultures = supportedCultures;
             options.SupportedUICultures = supportedCultures;
+
+            // Accept "tj" as alias for Tajik ("tg")
+            options.RequestCultureProviders.Insert(0, new CustomRequestCultureProvider(context =>
+            {
+                var culture = context.Request.Query["culture"].FirstOrDefault()
+                              ?? context.Request.Query["ui-culture"].FirstOrDefault();
+
+                if (string.Equals(culture, "tj", StringComparison.OrdinalIgnoreCase))
+                    return Task.FromResult<ProviderCultureResult?>(new ProviderCultureResult("tg", "tg"));
+
+                var accept = context.Request.Headers["Accept-Language"].ToString();
+                if (!string.IsNullOrWhiteSpace(accept) &&
+                    accept.Contains("tj", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Task.FromResult<ProviderCultureResult?>(new ProviderCultureResult("tg", "tg"));
+                }
+
+                return Task.FromResult<ProviderCultureResult?>(null);
+            }));
         });
 
 

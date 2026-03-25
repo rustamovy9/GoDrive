@@ -1,4 +1,4 @@
-﻿using Domain.Enums;
+using Domain.Enums;
 
 namespace Application.DTO_s;
 public sealed record CarReadInfo(
@@ -7,15 +7,16 @@ public sealed record CarReadInfo(
     string Model,
     int Year,
     CarStatus CarStatus,
-    
+    string CarStatusText,
+
     int CategoryId,
     int LocationId,
     int? RentalCompanyId,
-    
+
     IReadOnlyList<string> Images,
-    
+
     decimal CurrentPricePerDay,
-    
+
     DateTimeOffset CreatedAt);
 
 public sealed record CarDetailReadInfo(
@@ -25,6 +26,7 @@ public sealed record CarDetailReadInfo(
     int Year,
     string RegistrationNumber,
     CarStatus Status,
+    string StatusText,
 
     string CategoryName,
     string Location,
@@ -45,7 +47,7 @@ public sealed record CarUpdateInfo(
     string? Brand,
     string? Model,
     int? Year,
-    
+
     int? CategoryId,
     int? LocationId,
     int? RentalCompanyId);
@@ -55,7 +57,7 @@ public sealed record CarCreateInfo(
     string Model,
     int Year,
     string RegistrationNumber,
-    
+
     int CategoryId,
     int LocationId,
     int? RentalCompanyId);
