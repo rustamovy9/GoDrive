@@ -542,6 +542,26 @@
   <data name="Status.DocumentVerificationStatus.Rejected" xml:space="preserve">
     <value>Отклонен</value>
   </data>
-</root>
+  <data name="Status.PaymentMethod.Offline" xml:space="preserve">
+    <value>Офлайн</value>
+  </data>
+  <data name="Status.PaymentMethod.Cash" xml:space="preserve">
+    <value>Наличные</value>
+  </data>
+  <data name="Status.PaymentMethod.BankTransfer" xml:space="preserve">
+    <value>Банковский перевод</value>
+  </data>
+  <data name="Status.CarDocumentType.Unknown" xml:space="preserve">
+    <value>Неизвестно</value>
+  </data>
+  <data name="Status.CarDocumentType.TechnicalPassport" xml:space="preserve">
+    <value>Техпаспорт</value>
+  </data>
+  <data name="Status.CarDocumentType.Insurance" xml:space="preserve">
+    <value>Страхование</value>
+  </data>
+  <data name="Status.CarDocumentType.OwnershipCertificate" xml:space="preserve">
+    <value>Свидетельство о собственности</value>
+  </data></root>
 
 

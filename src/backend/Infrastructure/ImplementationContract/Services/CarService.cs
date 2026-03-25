@@ -80,29 +80,16 @@ public class CarService(
 
         int count = await query.CountAsync();
 
-        var data = await query
+        var entities = await query
             .Include(x => x.CarImages)
+            .Include(x => x.CarPrices)
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
-            .Select(c => new CarReadInfo(
-                c.Id,
-                c.Brand,
-                c.Model,
-                c.Year,
-                c.CarStatus,
-                c.CategoryId,
-                c.LocationId,
-                c.RentalCompanyId,
-                c.CarImages.Select(ci =>
-                    fileService.GetFileUrl(ci.ImagePath, MediaFolders.Images)
-                ).ToList(),
-                c.CarPrices
-                    .OrderByDescending(p => p.CreatedAt)
-                    .Select(p => (decimal?)p.PricePerDay)
-                    .FirstOrDefault() ?? 0,
-                c.CreatedAt
-            ))
             .ToListAsync();
+
+        var data = entities
+            .Select(c => c.ToRead(fileService, localizer))
+            .ToList();
 
         var response = PagedResponse<IEnumerable<CarReadInfo>>
             .Create(filter.PageSize, filter.PageNumber, count, data);
@@ -144,7 +131,7 @@ public class CarService(
             }
         }
 
-        return Result<CarDetailReadInfo>.Success(car.ToReadDetail(fileService));
+        return Result<CarDetailReadInfo>.Success(car.ToReadDetail(fileService, localizer));
     }
 
 

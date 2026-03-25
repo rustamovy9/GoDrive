@@ -58,10 +58,13 @@ public class PaymentService(
         if (!res.IsSuccess)
             return Result<IEnumerable<PaymentReadInfo>>.Failure(res.Error);
 
-        var data = await res.Value!
+        var entities = await res.Value!
             .OrderByDescending(x => x.CreatedAt)
-            .Select(x => x.ToRead())
             .ToListAsync();
+
+        var data = entities
+            .Select(x => x.ToRead(localizer))
+            .ToList();
 
         return Result<IEnumerable<PaymentReadInfo>>.Success(data);
     }

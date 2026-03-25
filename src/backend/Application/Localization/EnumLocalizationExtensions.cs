@@ -16,4 +16,10 @@ public static class EnumLocalizationExtensions
 
     public static string ToLocalizedString(this DocumentVerificationStatus status, ITextLocalizer localizer)
         => localizer.Get($"Status.DocumentVerificationStatus.{status}");
+
+    public static string ToLocalizedString(this PaymentMethod method, ITextLocalizer localizer)
+        => localizer.Get($"Status.PaymentMethod.{method}");
+
+    public static string ToLocalizedString(this CarDocumentType type, ITextLocalizer localizer)
+        => localizer.Get($"Status.CarDocumentType.{type}");
 }

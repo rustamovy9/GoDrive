@@ -27,9 +27,12 @@ public class CarDocumentService(
         if (!res.IsSuccess)
             return Result<IEnumerable<CarDocumentReadInfo>>.Failure(res.Error);
 
-        var data = await res.Value!
-            .Select(x => x.ToRead(fileService))
+        var entities = await res.Value!
             .ToListAsync();
+
+        var data = entities
+            .Select(x => x.ToRead(fileService, localizer))
+            .ToList();
 
         return Result<IEnumerable<CarDocumentReadInfo>>.Success(data);
     }
