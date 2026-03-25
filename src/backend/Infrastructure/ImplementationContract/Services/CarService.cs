@@ -50,13 +50,17 @@ public class CarService(
 
         var query = result.Value!.AsNoTracking();
 
-        if (role != DefaultRoles.Admin)
+        if (role == DefaultRoles.Admin)
         {
-            query = query.Where(c => c.CarStatus == CarStatus.Available);
+            // admin sees all cars
         }
         else if (role == DefaultRoles.Owner)
         {
             query = query.Where(c => c.OwnerId == userId);
+        }
+        else
+        {
+            query = query.Where(c => c.CarStatus == CarStatus.Available);
         }
 
         if (filter.MinPrice != null)
@@ -77,6 +81,69 @@ public class CarService(
                     .FirstOrDefault() <= filter.MaxPrice);
         }
 
+
+        int count = await query.CountAsync();
+
+        var entities = await query
+            .Include(x => x.CarImages)
+            .Include(x => x.CarPrices)
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToListAsync();
+
+        var data = entities
+            .Select(c => c.ToRead(fileService, localizer))
+            .ToList();
+
+        var response = PagedResponse<IEnumerable<CarReadInfo>>
+            .Create(filter.PageSize, filter.PageNumber, count, data);
+
+        return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Success(response);
+    }
+
+    public async Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetPublicAsync(CarFilter filter)
+    {
+        var result = repository.Find(car =>
+            car.CarStatus == CarStatus.Available &&
+            (string.IsNullOrEmpty(filter.Search) ||
+             EF.Functions.ILike(car.Brand, $"%{filter.Search}%") ||
+             EF.Functions.ILike(car.Model, $"%{filter.Search}%") ||
+             EF.Functions.ILike(car.RegistrationNumber, $"%{filter.Search}%")) &&
+            (string.IsNullOrEmpty(filter.Brand) ||
+             EF.Functions.ILike(car.Brand, $"%{filter.Brand}%")) &&
+            (string.IsNullOrEmpty(filter.Model) ||
+             EF.Functions.ILike(car.Model, $"%{filter.Model}%")) &&
+            (filter.YearFrom == null || car.Year >= filter.YearFrom) &&
+            (filter.YearTo == null || car.Year <= filter.YearTo) &&
+            (filter.CategoryId == null || car.CategoryId == filter.CategoryId) &&
+            (filter.LocationId == null || car.LocationId == filter.LocationId) &&
+            (filter.OwnerId == null || car.OwnerId == filter.OwnerId) &&
+            (string.IsNullOrEmpty(filter.RegistrationNumber) ||
+             EF.Functions.ILike(car.RegistrationNumber, $"%{filter.RegistrationNumber}%"))
+        );
+
+        if (!result.IsSuccess)
+            return Result<PagedResponse<IEnumerable<CarReadInfo>>>.Failure(result.Error);
+
+        var query = result.Value!.AsNoTracking();
+
+        if (filter.MinPrice != null)
+        {
+            query = query.Where(c =>
+                c.CarPrices
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Select(p => p.PricePerDay)
+                    .FirstOrDefault() >= filter.MinPrice);
+        }
+
+        if (filter.MaxPrice != null)
+        {
+            query = query.Where(c =>
+                c.CarPrices
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Select(p => p.PricePerDay)
+                    .FirstOrDefault() <= filter.MaxPrice);
+        }
 
         int count = await query.CountAsync();
 
