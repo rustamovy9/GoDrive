@@ -28,10 +28,15 @@ public sealed class CarController(ICarService service) : BaseController
 
     private bool IsAdmin => User.IsInRole(DefaultRoles.Admin);
 
-    [AllowAnonymous]
+    [Authorize(Roles = DefaultRoles.Admin + "," + DefaultRoles.Owner)]
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] CarFilter filter)
         => (await service.GetAllAsync(filter,Role,UserId)).ToActionResult();
+
+    [AllowAnonymous]
+    [HttpGet("public")]
+    public async Task<IActionResult> GetPublic([FromQuery] CarFilter filter)
+        => (await service.GetPublicAsync(filter)).ToActionResult();
 
     [AllowAnonymous]
     [HttpGet("{id:int}")]
