@@ -1,26 +1,24 @@
-using Application.Contracts.Localization;
-using Application.DTO_s;
-using Application.Localization;
+﻿using Application.DTO_s;
 using FluentValidation;
 
 namespace Application.Validations.CarAvailability;
 
 public class Update : AbstractValidator<CarAvailabilityUpdateInfo>
 {
-    public Update(ITextLocalizer localizer)
+    public Update()
     {
         When(x => x.AvailableFrom.HasValue, () =>
         {
             RuleFor(x => x.AvailableFrom!.Value)
                 .GreaterThanOrEqualTo(DateTimeOffset.UtcNow)
-                .WithMessage(localizer.Get(TextKeys.Validation.AvailableFromNotPast));
+                .WithMessage("AvailableFrom must not be in the past.");
         });
 
         When(x => x.AvailableTo.HasValue, () =>
         {
             RuleFor(x => x.AvailableTo!.Value)
                 .GreaterThan(DateTimeOffset.UtcNow)
-                .WithMessage(localizer.Get(TextKeys.Validation.AvailableToInFuture));
+                .WithMessage("AvailableTo must be in the future.");
         });
 
         RuleFor(x => x)
@@ -28,13 +26,13 @@ public class Update : AbstractValidator<CarAvailabilityUpdateInfo>
                 !x.AvailableFrom.HasValue ||
                 !x.AvailableTo.HasValue ||
                 x.AvailableFrom.Value < x.AvailableTo.Value)
-            .WithMessage(localizer.Get(TextKeys.Validation.AvailableFromBeforeAvailableTo));
+            .WithMessage("AvailableFrom must be earlier than AvailableTo.");
 
         RuleFor(x => x)
             .Must(x =>
                 !x.AvailableFrom.HasValue ||
                 !x.AvailableTo.HasValue ||
                 (x.AvailableTo.Value - x.AvailableFrom.Value).TotalMinutes >= 30)
-            .WithMessage(localizer.Get(TextKeys.Validation.AvailabilityDurationMin30Minutes));
+            .WithMessage("Availability duration must be at least 30 minutes.");
     }
 }

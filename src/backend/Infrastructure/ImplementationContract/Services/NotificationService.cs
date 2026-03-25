@@ -1,21 +1,16 @@
 ﻿using Application.Contracts.Repositories;
 using Application.Contracts.Services;
-using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
 using Application.Extensions.Responses.PagedResponse;
 using Application.Extensions.ResultPattern;
-using Application.Localization;
 using Domain.Common;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class NotificationService(
-    INotificationRepository repository,
-    IRealtimeNotifier realtimeNotifier,
-    ITextLocalizer localizer)
+public class NotificationService(INotificationRepository repository, IRealtimeNotifier realtimeNotifier)
     : INotificationService
 {
     public async Task<Result<PagedResponse<IEnumerable<NotificationReadInfo>>>>
@@ -77,8 +72,7 @@ public class NotificationService(
         var res = await repository.GetByIdAsync(notificationId);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.NotificationNotFound)));
+            return BaseResult.Failure(Error.NotFound("Уведомление не найдено"));
 
         var notification = res.Value;
 
@@ -145,7 +139,7 @@ public class NotificationService(
         var res = await repository.GetByIdAsync(notificationId);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(ErrorFactory.NotFound(localizer));
+            return BaseResult.Failure(Error.NotFound());
 
         var delete = await repository.DeleteAsync(notificationId);
 

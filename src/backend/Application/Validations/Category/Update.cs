@@ -1,17 +1,18 @@
-using Application.Contracts.Localization;
-using Application.DTO_s;
-using Application.Localization;
+﻿using Application.DTO_s;
 using FluentValidation;
 
 namespace Application.Validations.Category;
 
 public class Update : AbstractValidator<CategoryUpdateInfo>
 {
-    public Update(ITextLocalizer localizer)
+    public Update()
     {
-        RuleFor(x => x.Name)
-            .NotEmpty()
-            .MaximumLength(100)
-            .WithMessage(localizer.Get(TextKeys.Validation.CategoryNameNotEmptyMax100));
+        When(x => x.Name != null, () =>
+        {
+            RuleFor(x => x.Name!)
+                .NotEmpty()
+                .MaximumLength(100)
+                .WithMessage("Category name must not be empty and must not exceed 100 characters.");
+        });
     }
 }

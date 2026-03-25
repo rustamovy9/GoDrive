@@ -1,42 +1,36 @@
-using Application.Contracts.Localization;
-using Application.DTO_s;
-using Application.Localization;
+﻿using Application.DTO_s;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Validations.Car;
 
 public class Create : AbstractValidator<CarCreateInfo>
 {
-    public Create(ITextLocalizer localizer)
+    public Create()
     {
         RuleFor(x => x.Brand)
             .NotEmpty()
-            .WithMessage(localizer.Get(TextKeys.Validation.BrandRequiredMax100))
-            .MaximumLength(100)
-            .WithMessage(localizer.Get(TextKeys.Validation.BrandRequiredMax100));
+            .MaximumLength(100);
 
         RuleFor(x => x.Model)
             .NotEmpty()
-            .WithMessage(localizer.Get(TextKeys.Validation.ModelRequiredMax100))
-            .MaximumLength(100)
-            .WithMessage(localizer.Get(TextKeys.Validation.ModelRequiredMax100));
+            .MaximumLength(100);
 
         RuleFor(x => x.Year)
             .InclusiveBetween(1950, DateTime.UtcNow.Year + 1)
-            .WithMessage(localizer.Get(TextKeys.Validation.YearValidProductionYear));
+            .WithMessage("Year must be a valid production year.");
 
         RuleFor(x => x.RegistrationNumber)
             .NotEmpty()
-            .WithMessage(localizer.Get(TextKeys.Validation.RegistrationNumberRequiredMax50))
-            .MaximumLength(50)
-            .WithMessage(localizer.Get(TextKeys.Validation.RegistrationNumberRequiredMax50));
+            .MaximumLength(50);
 
         RuleFor(x => x.CategoryId)
             .GreaterThan(0)
-            .WithMessage(localizer.Get(TextKeys.Validation.CategoryIdGreaterThanZero));
+            .WithMessage("CategoryId must be greater than 0.");
 
         RuleFor(x => x.LocationId)
             .GreaterThan(0)
-            .WithMessage(localizer.Get(TextKeys.Validation.LocationIdGreaterThanZero));
+            .WithMessage("LocationId must be greater than 0.");
+      
     }
 }

@@ -1,10 +1,8 @@
 ﻿using Application.Contracts.Repositories;
 using Application.Contracts.Services;
-using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
 using Application.Extensions.ResultPattern;
-using Application.Localization;
 using Domain.Common;
 using Domain.Constants;
 using Domain.Enums;
@@ -12,11 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class CarImageService(
-    ICarImageRepository repository,
-    ICarRepository carRepository,
-    IFileService fileService,
-    ITextLocalizer localizer)
+public class CarImageService(ICarImageRepository repository, ICarRepository carRepository, IFileService fileService)
     : ICarImageService
 {
     public async Task<Result<IEnumerable<CarImageReadInfo>>>
@@ -27,7 +21,7 @@ public class CarImageService(
 
         if (!carRes.IsSuccess || carRes.Value is null)
             return Result<IEnumerable<CarImageReadInfo>>
-                .Failure(Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+                .Failure(Error.NotFound("Автомобиль не найден"));
 
         var car = carRes.Value;
 
@@ -37,7 +31,7 @@ public class CarImageService(
 
         if (!isAdmin && !isOwner && !isPublic)
             return Result<IEnumerable<CarImageReadInfo>>
-                .Failure(ErrorFactory.Forbidden(localizer));
+                .Failure(Error.Forbidden());
 
         // 3️⃣ Получаем изображения
         var imagesRes = repository.Find(x => x.CarId == carId);
@@ -61,15 +55,13 @@ public class CarImageService(
         var carRes = await carRepository.GetByIdAsync(createInfo.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         if (carRes.Value.CarStatus == CarStatus.Blocked)
-            return BaseResult.Failure(
-                Error.BadRequest(localizer.Get(TextKeys.Errors.CannotUploadImageForBlockedCar)));
+            return BaseResult.Failure(Error.BadRequest("Не удаётся загрузить изображение заблокированного автомобиля."));
 
         if (carRes.Value.OwnerId != currentUserId)
-            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
+            return BaseResult.Failure(Error.Forbidden());
 
         var imagesQuery = repository.Find(x => x.CarId == createInfo.CarId);
 
@@ -79,8 +71,7 @@ public class CarImageService(
         var images = await imagesQuery.Value!.ToListAsync();
 
         if (images.Count >= 10)
-            return BaseResult.Failure(
-                Error.BadRequest(localizer.Get(TextKeys.Errors.MaxImagesExceeded)));
+            return BaseResult.Failure(Error.BadRequest("Допускается максимум 10 изображений."));
 
         var image = await createInfo.ToEntity(fileService);
 
@@ -114,17 +105,15 @@ public class CarImageService(
         var imageRes = await repository.GetByIdAsync(imageId);
 
         if (!imageRes.IsSuccess || imageRes.Value is null)
-            return BaseResult.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.ImageNotFound)));
+            return BaseResult.Failure(Error.NotFound("Изображение не найдено"));
 
         var carRes = await carRepository.GetByIdAsync(imageRes.Value.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         if (carRes.Value.OwnerId != currentUserId)
-            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
+            return BaseResult.Failure(Error.Forbidden());
 
         var images = await repository
             .Find(x => x.CarId == imageRes.Value.CarId)
@@ -146,17 +135,15 @@ public class CarImageService(
         var imageRes = await repository.GetByIdAsync(id);
 
         if (!imageRes.IsSuccess || imageRes.Value is null)
-            return BaseResult.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.ImageNotFound)));
+            return BaseResult.Failure(Error.NotFound("Изображение не найдено"));
 
         var carRes = await carRepository.GetByIdAsync(imageRes.Value.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         if (!isAdmin && carRes.Value.OwnerId != currentUserId)
-            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
+            return BaseResult.Failure(Error.Forbidden());
 
         bool wasMain = imageRes.Value.IsMain;
 
@@ -195,16 +182,14 @@ public class CarImageService(
         var carImageRes = await repository.GetByIdAsync(id);
 
         if (!carImageRes.IsSuccess || carImageRes.Value is null)
-            return Result<(byte[], string)>.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.ImageNotFound)));
+            return Result<(byte[], string)>.Failure(Error.NotFound("Изображение не найдено"));
 
         var carImage = carImageRes.Value;
 
         var carRes = await carRepository.GetByIdAsync(carImage.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return Result<(byte[], string)>.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+            return Result<(byte[], string)>.Failure(Error.NotFound("Автомобиль не найден"));
 
         var car = carRes.Value;
 
@@ -212,7 +197,7 @@ public class CarImageService(
         bool isPublic = car.CarStatus == CarStatus.Available;
 
         if (!isAdmin && !isOwner && !isPublic)
-            return Result<(byte[], string)>.Failure(ErrorFactory.Forbidden(localizer));
+            return Result<(byte[], string)>.Failure(Error.Forbidden());
 
         var file = await fileService.DownloadAsync(
             carImage.ImagePath,

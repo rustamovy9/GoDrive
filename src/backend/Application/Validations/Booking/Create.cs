@@ -1,41 +1,41 @@
-using Application.Contracts.Localization;
-using Application.DTO_s;
-using Application.Localization;
+﻿using Application.DTO_s;
 using FluentValidation;
 
 namespace Application.Validations.Booking;
 
 public class Create : AbstractValidator<BookingCreateInfo>
 {
-    public Create(ITextLocalizer localizer)
+    public Create()
     {
         RuleFor(booking => booking.CarId)
-            .GreaterThan(0).WithMessage(localizer.Get(TextKeys.Validation.CarIdGreaterThanZero));
+            .GreaterThan(0).WithMessage("CarId must be greater than 0.");
+
 
         RuleFor(booking => booking.PickupLocationId)
-            .GreaterThan(0).WithMessage(localizer.Get(TextKeys.Validation.PickupLocationIdGreaterThanZero));
+            .GreaterThan(0).WithMessage("PickupLocation must be greater than 0.");
 
         RuleFor(booking => booking.DropOffLocationId)
-            .GreaterThan(0).WithMessage(localizer.Get(TextKeys.Validation.DropOffLocationIdGreaterThanZero));
+            .GreaterThan(0).WithMessage("DropOffLocation must be greater than 0.");
 
         RuleFor(x => x)
             .Must(x => x.PickupLocationId != x.DropOffLocationId)
-            .WithMessage(localizer.Get(TextKeys.Validation.PickupAndDropOffDifferent));
-
+            .WithMessage("Pickup and Drop-off locations cannot be the same");
+        
+        
         RuleFor(booking => booking)
             .Must(booking => booking.StartDateTime < booking.EndDateTime)
-            .WithMessage(localizer.Get(TextKeys.Validation.StartDateTimeBeforeEndDateTime));
-
+            .WithMessage("StartDateTime must be earlier than EndDateTime.");
+        
         RuleFor(booking => booking.StartDateTime)
-            .GreaterThanOrEqualTo(DateTime.Now)
-            .WithMessage(localizer.Get(TextKeys.Validation.StartDateTimeNotPast));
-
+            .GreaterThanOrEqualTo(DateTime.Now).WithMessage("StartDateTime must not be in the past.");
+        
+        
         RuleFor(x => x)
             .Must(x => (x.EndDateTime - x.StartDateTime).TotalHours >= 1)
-            .WithMessage(localizer.Get(TextKeys.Validation.BookingDurationMin1Hour));
-
+            .WithMessage("Booking duration must be at least 1 hour.");
+        
         RuleFor(x => x.Comment)
             .MaximumLength(500)
-            .WithMessage(localizer.Get(TextKeys.Validation.CommentMax500));
+            .WithMessage("Comment must not exceed 500 characters.");
     }
 }

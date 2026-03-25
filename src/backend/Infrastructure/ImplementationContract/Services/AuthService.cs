@@ -1,10 +1,8 @@
-using Application.Contracts.Localization;
 using Application.Contracts.Services;
 using Application.DTO_s;
 using Application.Extensions.Algorithms;
 using Application.Extensions.Mappers;
 using Application.Extensions.ResultPattern;
-using Application.Localization;
 using Domain.Common;
 using Domain.Constants;
 using Domain.Entities;
@@ -15,10 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class AuthService(
-    DataContext dbContext,
-    IAuthenticationService service,
-    ITextLocalizer localizer) : IAuthService
+public class AuthService(DataContext dbContext, IAuthenticationService service) : IAuthService
 {
     public async Task<Result<Tuple<string, bool>>> LoginAsync(LoginRequest request)
     {
@@ -28,8 +23,7 @@ public class AuthService(
                                       && x.PasswordHash == HashAlgorithms
                                           .ConvertToHash(request.Password));
         if (user is null)
-            return Result<Tuple<string, bool>>.Failure(
-                Error.BadRequest(localizer.Get(TextKeys.Errors.InvalidCredentials)));
+            return Result<Tuple<string, bool>>.Failure(Error.BadRequest("Неверное имя пользователя или пароль."));
 
         await dbContext.SaveChangesAsync();
         return Result<Tuple<string, bool>>.Success(Tuple.Create(await service.GenerateTokenAsync(user), true));
@@ -43,7 +37,7 @@ public class AuthService(
             u.PhoneNumber == request.PhoneNumber);
 
         if (conflict)
-            return BaseResult.Failure(Error.Conflict(localizer.Get(TextKeys.Errors.UserAlreadyExists)));
+            return BaseResult.Failure(Error.Conflict("Пользователь уже существует\n"));
 
         string roleName = DefaultRoles.User;
 
@@ -51,18 +45,18 @@ public class AuthService(
             .FirstOrDefaultAsync(r => r.Name == roleName);
 
         if (role is null)
-            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.RoleNotFound)));
+            return BaseResult.Failure(Error.NotFound("Роль не найдена\n"));
 
         var user = request.ToEntity();
 
         if (!IsValidDateOfBirth(request.DateOfBirth))
-            return BaseResult.Failure(Error.BadRequest(localizer.Get(TextKeys.Errors.InvalidBirthDate)));
+            return BaseResult.Failure(Error.BadRequest("Указана неверная дата рождения.\n"));
 
         await dbContext.Users.AddAsync(user);
 
         await dbContext.UserRoles.AddAsync(new UserRole
         {
-            User = user,
+            User = user,       
             RoleId = role.Id
         });
 
@@ -74,24 +68,24 @@ public class AuthService(
     public async Task<BaseResult> DeleteAccountAsync(int userId)
     {
         User? user = await dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        if (user is null) return BaseResult.Failure(ErrorFactory.NotFound(localizer));
+        if (user is null) return BaseResult.Failure(Error.NotFound());
 
         user.ToDelete();
         await dbContext.SaveChangesAsync();
         return BaseResult.Success();
     }
-
+    
     public async Task<BaseResult> ChangePasswordAsync(int userId, ChangePasswordRequest request)
     {
         User? user = await dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        if (user is null) return BaseResult.Failure(ErrorFactory.NotFound(localizer));
+        if (user is null) return BaseResult.Failure(Error.NotFound());
+
 
         bool checkPassword = user.PasswordHash == HashAlgorithms.ConvertToHash(request.OldPassword);
-        if (!checkPassword)
-            return BaseResult.Failure(Error.BadRequest(localizer.Get(TextKeys.Errors.PasswordIncorrect)));
+        if (!checkPassword) return BaseResult.Failure(Error.BadRequest("Пароль неверен\n"));
 
         if (!request.NewPassword.Equals(request.ConfirmPassword))
-            return BaseResult.Failure(Error.BadRequest(localizer.Get(TextKeys.Errors.PasswordsMismatch)));
+            return BaseResult.Failure(Error.BadRequest("Пароли не совпадают.\n"));
 
         user.PasswordHash = HashAlgorithms.ConvertToHash(request.NewPassword);
 

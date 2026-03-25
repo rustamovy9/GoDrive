@@ -1,19 +1,14 @@
 ﻿using Application.Contracts.Repositories;
 using Application.Contracts.Services;
-using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
 using Application.Extensions.ResultPattern;
-using Application.Localization;
 using Domain.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
 
-public class CarPriceService(
-    ICarPriceRepository repository,
-    ICarRepository carRepository,
-    ITextLocalizer localizer) : ICarPriceService
+public class CarPriceService(ICarPriceRepository repository,ICarRepository carRepository) : ICarPriceService
 {
     public async Task<Result<CarPriceReadInfo>> GetByCarIdAsync(int carId)
     {
@@ -25,8 +20,7 @@ public class CarPriceService(
         var entity = await res.Value!.FirstOrDefaultAsync();
 
         if (entity is null)
-            return Result<CarPriceReadInfo>.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.CarPriceNotFound)));
+            return Result<CarPriceReadInfo>.Failure(Error.NotFound("Цена не найдена"));
 
         return Result<CarPriceReadInfo>.Success(entity.ToRead());
     }
@@ -36,7 +30,7 @@ public class CarPriceService(
         var carRes = await carRepository.GetByIdAsync(createInfo.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         // Проверяем что цена ещё не создана
         var exists = await repository
@@ -45,14 +39,13 @@ public class CarPriceService(
             .AnyAsync();
 
         if (exists)
-            return BaseResult.Failure(
-                Error.Conflict(localizer.Get(TextKeys.Errors.CarPriceExists)));
+            return BaseResult.Failure(Error.Conflict("Цена на этот автомобиль уже существует."));
         var car = carRes.Value;
 
         var entity = createInfo.ToEntity();
         
         if (!isAdmin && car.OwnerId != currentUserId)
-            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
+            return BaseResult.Failure(Error.Forbidden());
 
         var result = await repository.AddAsync(entity);
 
@@ -72,20 +65,20 @@ public class CarPriceService(
 
         if (!res.IsSuccess || res.Value is null)
             return BaseResult.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.CarPriceNotFound)));
+                Error.NotFound("Цена автомобиля не найдена"));
 
         var entity = res.Value;
 
         var carRes = await carRepository.GetByIdAsync(entity.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         var car = carRes.Value;
 
         // 🔐 Access check
         if (!isAdmin && car.OwnerId != currentUserId)
-            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
+            return BaseResult.Failure(Error.Forbidden());
 
         entity = entity.ToEntity(updateInfo);
 
@@ -105,21 +98,20 @@ public class CarPriceService(
         var res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.CarPriceNotFound)));
+            return BaseResult.Failure(Error.NotFound("Цена автомобиля не найдена"));
 
         var entity = res.Value;
 
         var carRes = await carRepository.GetByIdAsync(entity.CarId);
 
         if (!carRes.IsSuccess || carRes.Value is null)
-            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         var car = carRes.Value;
 
         // 🔐 Access check
         if (!isAdmin && car.OwnerId != currentUserId)
-            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
+            return BaseResult.Failure(Error.Forbidden());
 
         var result = await repository.DeleteAsync(id);
 

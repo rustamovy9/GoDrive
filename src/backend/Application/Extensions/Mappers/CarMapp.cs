@@ -1,15 +1,14 @@
-using Application.Contracts.Localization;
-using Application.Contracts.Services;
+﻿using Application.Contracts.Services;
 using Application.DTO_s;
-using Application.Localization;
 using Domain.Constants;
 using Domain.Entities;
+
 
 namespace Application.Extensions.Mappers;
 
 public static class CarMapper
 {
-    public static CarReadInfo ToRead(this Car car, IFileService fileService, ITextLocalizer localizer)
+    public static CarReadInfo ToRead(this Car car, IFileService fileService)
     {
         return new CarReadInfo(
             car.Id,
@@ -17,12 +16,11 @@ public static class CarMapper
             car.Model,
             car.Year,
             car.CarStatus,
-            car.CarStatus.ToLocalizedString(localizer),
             car.CategoryId,
             car.LocationId,
             car.RentalCompanyId,
             car.CarImages
-                .Select(ci => fileService.GetFileUrl(ci.ImagePath, MediaFolders.Images))
+                .Select(ci => fileService.GetFileUrl(ci.ImagePath,MediaFolders.Images))
                 .ToList(),
             car.CarPrices
                 .OrderByDescending(p => p.CreatedAt)
@@ -32,8 +30,10 @@ public static class CarMapper
         );
     }
 
-    public static CarDetailReadInfo ToReadDetail(this Car car, IFileService fileService, ITextLocalizer localizer)
+    public static CarDetailReadInfo ToReadDetail(this Car car, IFileService fileService)
     {
+
+
         return new CarDetailReadInfo(
             car.Id,
             car.Brand,
@@ -41,7 +41,6 @@ public static class CarMapper
             car.Year,
             car.RegistrationNumber,
             car.CarStatus,
-            car.CarStatus.ToLocalizedString(localizer),
             car.Category.Name,
             car.Location.Country + "," + car.Location.City,
             car.Owner.UserName,
@@ -49,8 +48,8 @@ public static class CarMapper
                 .OrderByDescending(p => p.CreatedAt)
                 .Select(p => (decimal?)p.PricePerDay)
                 .FirstOrDefault() ?? 0,
-            car.CarImages.Select(ci => fileService.GetFileUrl(ci.ImagePath, MediaFolders.Images)).ToList(),
-            car.CarDocuments.Select(x => fileService.GetFileUrl(x.FilePath, MediaFolders.Docs)).ToList(),
+            car.CarImages.Select(ci =>fileService.GetFileUrl(ci.ImagePath, MediaFolders.Images)).ToList(),
+            car.CarDocuments.Select(x => fileService.GetFileUrl(x.FilePath,MediaFolders.Docs)).ToList(),
             car.CreatedAt
         );
     }

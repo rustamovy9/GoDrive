@@ -1,12 +1,10 @@
 ﻿using Application.Contracts.Repositories;
 using Application.Contracts.Services;
-using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
 using Application.Extensions.Responses.PagedResponse;
 using Application.Extensions.ResultPattern;
 using Application.Filters;
-using Application.Localization;
 using Domain.Common;
 using Domain.Constants;
 using Domain.Entities;
@@ -20,8 +18,7 @@ public class CarService(
     INotificationService notificationService,
     IUserRoleRepository userRoleRepository,
     IFileService fileService,
-    IUserService userService,
-    ITextLocalizer localizer) : ICarService
+    IUserService userService) : ICarService
 {
     public async Task<Result<PagedResponse<IEnumerable<CarReadInfo>>>> GetAllAsync(CarFilter filter, string role,
         int? userId)
@@ -84,16 +81,29 @@ public class CarService(
 
         int count = await query.CountAsync();
 
-        var entities = await query
+        var data = await query
             .Include(x => x.CarImages)
-            .Include(x => x.CarPrices)
             .Skip((filter.PageNumber - 1) * filter.PageSize)
             .Take(filter.PageSize)
+            .Select(c => new CarReadInfo(
+                c.Id,
+                c.Brand,
+                c.Model,
+                c.Year,
+                c.CarStatus,
+                c.CategoryId,
+                c.LocationId,
+                c.RentalCompanyId,
+                c.CarImages.Select(ci =>
+                    fileService.GetFileUrl(ci.ImagePath, MediaFolders.Images)
+                ).ToList(),
+                c.CarPrices
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Select(p => (decimal?)p.PricePerDay)
+                    .FirstOrDefault() ?? 0,
+                c.CreatedAt
+            ))
             .ToListAsync();
-
-        var data = entities
-            .Select(c => c.ToRead(fileService, localizer))
-            .ToList();
 
         var response = PagedResponse<IEnumerable<CarReadInfo>>
             .Create(filter.PageSize, filter.PageNumber, count, data);
@@ -155,7 +165,7 @@ public class CarService(
             .ToListAsync();
 
         var data = entities
-            .Select(c => c.ToRead(fileService, localizer))
+            .Select(c => c.ToRead(fileService))
             .ToList();
 
         var response = PagedResponse<IEnumerable<CarReadInfo>>
@@ -182,8 +192,7 @@ public class CarService(
             .FirstOrDefaultAsync();
 
         if (car == null)
-            return Result<CarDetailReadInfo>.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+            return Result<CarDetailReadInfo>.Failure(Error.NotFound());
 
         // 👤 если не админ
         if (!isAdmin)
@@ -193,12 +202,11 @@ public class CarService(
 
             if (!isOwner && !isAvailable)
             {
-                return Result<CarDetailReadInfo>.Failure(
-                    Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+                return Result<CarDetailReadInfo>.Failure(Error.NotFound());
             }
         }
 
-        return Result<CarDetailReadInfo>.Success(car.ToReadDetail(fileService, localizer));
+        return Result<CarDetailReadInfo>.Success(car.ToReadDetail(fileService));
     }
 
 
@@ -207,8 +215,7 @@ public class CarService(
         Result<IQueryable<Car>> conflict = repository.Find(x => x.RegistrationNumber == createInfo.RegistrationNumber);
 
         if (conflict.IsSuccess && await conflict.Value!.AnyAsync())
-            return BaseResult.Failure(
-                Error.Conflict(localizer.Get(TextKeys.Errors.RegistrationNumberExists)));
+            return BaseResult.Failure(Error.Conflict("Регистрационный номер уже существует."));
 
         Car car = createInfo.ToEntity();
 
@@ -230,8 +237,8 @@ public class CarService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 car.OwnerId,
-                localizer.Get(TextKeys.Notifications.CarCreatedTitle),
-                localizer.Get(TextKeys.Notifications.CarCreatedMessage)));
+                "Автомобиль создан",
+                "Ваш автомобиль создан и ожидает проверки документов."));
 
         return BaseResult.Success();
     }
@@ -240,17 +247,16 @@ public class CarService(
     {
         Result<Car?> res = await repository.GetByIdAsync(id);
 
-        if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+        if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Автомобиль создан"));
 
         var car = res.Value;
 
         if (!isAdmin && car.OwnerId != currentUserId)
-            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
+            return BaseResult.Failure(Error.Forbidden());
 
         if (car.CarStatus == CarStatus.Blocked)
             return BaseResult.Failure(
-                Error.BadRequest(localizer.Get(TextKeys.Errors.CannotUpdateArchivedCar)));
+                Error.BadRequest("Обновление архивированного автомобиля невозможно."));
 
         Result<int> result = await repository.UpdateAsync(res.Value!.ToEntity(updateInfo));
 
@@ -262,17 +268,16 @@ public class CarService(
     public async Task<BaseResult> DeleteAsync(int id, int currentUserId, bool isAdmin)
     {
         Result<Car?> res = await repository.GetByIdAsync(id);
-        if (!res.IsSuccess)
-            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+        if (!res.IsSuccess) return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         var car = res.Value;
 
         if (!isAdmin && car!.OwnerId != currentUserId)
-            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
+            return BaseResult.Failure(Error.Forbidden());
 
         if (!isAdmin && car!.CarStatus != CarStatus.Blocked)
             return BaseResult.Failure(
-                Error.BadRequest(localizer.Get(TextKeys.Errors.OnlyBlockedCarDelete)));
+                Error.BadRequest("Удалить можно только заблокированный автомобиль"));
 
         Result<int> result = await repository.DeleteAsync(id);
 
@@ -282,8 +287,8 @@ public class CarService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 res.Value!.OwnerId,
-                localizer.Get(TextKeys.Notifications.CarDeletedTitle),
-                localizer.Get(TextKeys.Notifications.CarDeletedMessage)));
+                "Автомобиль удален",
+                "Ваш автомобиль был удален из системы."));
 
         return BaseResult.Success();
     }
@@ -291,17 +296,17 @@ public class CarService(
     public async Task<BaseResult> UpdateStatusAsync(int id, CarUpdateStatusInfo status, bool isAdmin)
     {
         if (!isAdmin)
-            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
+            return BaseResult.Failure(Error.Forbidden());
 
         Result<Car?> res = await repository.GetByIdAsync(id);
 
         if (!res.IsSuccess || res.Value is null)
-            return BaseResult.Failure(Error.NotFound(localizer.Get(TextKeys.Errors.CarNotFound)));
+            return BaseResult.Failure(Error.NotFound("Автомобиль не найден"));
 
         Car car = res.Value;
 
         if (!isAdmin)
-            return BaseResult.Failure(ErrorFactory.Forbidden(localizer));
+            return BaseResult.Failure(Error.Forbidden());
 
         car.CarStatus = status.Status;
         car.UpdatedAt = DateTimeOffset.UtcNow;
@@ -315,10 +320,8 @@ public class CarService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 car.OwnerId,
-                localizer.Get(TextKeys.Notifications.CarStatusUpdatedTitle),
-                localizer.Get(
-                    TextKeys.Notifications.CarStatusUpdatedMessage,
-                    status.Status.ToLocalizedString(localizer))));
+                "Статус автомобиля обновлен",
+                $"Статус вашего автомобиля изменился на {status}."));
 
         return BaseResult.Success();
     }

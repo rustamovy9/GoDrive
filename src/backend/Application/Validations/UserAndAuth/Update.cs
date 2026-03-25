@@ -1,59 +1,68 @@
-using Application.Contracts.Localization;
 using Application.DTO_s;
-using Application.Localization;
-using Application.Validations.Helpers;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 
 namespace Application.Validations.UserAndAuth;
 
-public class Update : AbstractValidator<UserUpdateInfo>
+public class UserUpdateInfoValidator : AbstractValidator<UserUpdateInfo>
 {
-    public Update(ITextLocalizer localizer)
+    public UserUpdateInfoValidator()
     {
         When(x => x.FirstName != null, () =>
         {
             RuleFor(x => x.FirstName!)
-                .NotEmpty().WithMessage(localizer.Get(TextKeys.Validation.FirstNameRequired))
-                .MaximumLength(50).WithMessage(localizer.Get(TextKeys.Validation.FirstNameMax50));
+                .NotEmpty()
+                .MaximumLength(50)
+                .WithMessage("FirstName must not be empty and must not exceed 50 characters.");
         });
 
         When(x => x.LastName != null, () =>
         {
             RuleFor(x => x.LastName!)
-                .NotEmpty().WithMessage(localizer.Get(TextKeys.Validation.LastNameRequired))
-                .MaximumLength(50).WithMessage(localizer.Get(TextKeys.Validation.LastNameMax50));
+                .NotEmpty()
+                .MaximumLength(50)
+                .WithMessage("LastName must not be empty and must not exceed 50 characters.");
         });
 
         When(x => x.PhoneNumber != null, () =>
         {
             RuleFor(x => x.PhoneNumber!)
-                .Must(x => FluentValidationHelpers.IsPhoneNumberValid(x!))
-                .WithMessage(localizer.Get(TextKeys.Validation.PhoneNumberInvalid));
+                .Matches(@"^\+?\d{10,15}$")
+                .WithMessage("PhoneNumber must be a valid international number.");
         });
 
         When(x => x.Address != null, () =>
         {
             RuleFor(x => x.Address!)
                 .MaximumLength(200)
-                .WithMessage(localizer.Get(TextKeys.Validation.AddressMax200));
+                .WithMessage("Address must not exceed 200 characters.");
         });
 
-        When(x => x.AvatarPath != null, () =>
+        When(x => x.AvatarPath is not null, () =>
         {
             RuleFor(x => x.AvatarPath!)
-                .Must(IsImageFile)
-                .WithMessage(localizer.Get(TextKeys.Validation.AvatarInvalidImage));
+                .Must(BeValidImage)
+                .WithMessage("Avatar must be a valid image file.");
         });
     }
 
-    private static bool IsImageFile(IFormFile file)
+    private static bool BeValidImage(IFormFile? file)
     {
-        if (file == null || file.Length == 0) return false;
+        if (file is null || file.Length == 0)
+            return false;
 
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
-        var fileExtension = Path.GetExtension(file.FileName).ToLower();
+        const long maxSize = 5 * 1024 * 1024;
+        if (file.Length > maxSize)
+            return false;
 
-        return allowedExtensions.Contains(fileExtension);
+        var allowedTypes = new[]
+        {
+            "image/jpeg",
+            "image/png",
+            "image/jpg",
+            "image/webp"
+        };
+
+        return allowedTypes.Contains(file.ContentType.ToLower());
     }
 }
