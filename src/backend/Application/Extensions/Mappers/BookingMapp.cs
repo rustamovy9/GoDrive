@@ -1,6 +1,4 @@
-using Application.Contracts.Localization;
-using Application.DTO_s;
-using Application.Localization;
+﻿using Application.DTO_s;
 using Domain.Entities;
 using Domain.Enums;
 
@@ -8,7 +6,7 @@ namespace Application.Extensions.Mappers;
 
 public static class BookingMapper
 {
-    public static BookingReadInfo ToRead(this Booking booking, ITextLocalizer localizer)
+    public static BookingReadInfo ToRead(this Booking booking)
     {
         return new BookingReadInfo(
             booking.Id,
@@ -17,9 +15,7 @@ public static class BookingMapper
             booking.EndDateTime,
             booking.TotalPrice,
             booking.BookingStatus,
-            booking.BookingStatus.ToLocalizedString(localizer),
             booking.PaymentStatus,
-            booking.PaymentStatus.ToLocalizedString(localizer),
             booking.IsContactShared,
             booking.PickupLocation.City,
             booking.DropOffLocation.City
@@ -27,7 +23,7 @@ public static class BookingMapper
     }
 
 
-    public static Booking ToEntity(this BookingCreateInfo createInfo, int userId)
+    public static Booking ToEntity(this BookingCreateInfo createInfo,int userId)
     {
         return new Booking
         {
@@ -37,7 +33,7 @@ public static class BookingMapper
             EndDateTime = createInfo.EndDateTime,
             PickupLocationId = createInfo.PickupLocationId,
             DropOffLocationId = createInfo.DropOffLocationId,
-
+            
             BookingStatus = BookingStatus.Pending,
             PaymentStatus = PaymentStatus.PendingAgreement,
             IsContactShared = false

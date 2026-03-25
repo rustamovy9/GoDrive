@@ -1,28 +1,26 @@
-using Application.Contracts.Localization;
-using Application.DTO_s;
-using Application.Localization;
+﻿using Application.DTO_s;
 using FluentValidation;
 
 namespace Application.Validations.CarAvailability;
 
 public class Create : AbstractValidator<CarAvailabilityCreateInfo>
 {
-    public Create(ITextLocalizer localizer)
+    public Create()
     {
         RuleFor(x => x.CarId)
             .GreaterThan(0)
-            .WithMessage(localizer.Get(TextKeys.Validation.CarIdGreaterThanZero));
+            .WithMessage("CarId must be greater than 0.");
 
         RuleFor(x => x.AvailableFrom)
             .GreaterThanOrEqualTo(DateTimeOffset.UtcNow)
-            .WithMessage(localizer.Get(TextKeys.Validation.AvailableFromNotPast));
+            .WithMessage("AvailableFrom must not be in the past.");
 
         RuleFor(x => x)
             .Must(x => x.AvailableFrom < x.AvailableTo)
-            .WithMessage(localizer.Get(TextKeys.Validation.AvailableFromBeforeAvailableTo));
+            .WithMessage("AvailableFrom must be earlier than AvailableTo.");
 
         RuleFor(x => x)
             .Must(x => (x.AvailableTo - x.AvailableFrom).TotalMinutes >= 30)
-            .WithMessage(localizer.Get(TextKeys.Validation.AvailabilityDurationMin30Minutes));
+            .WithMessage("Availability duration must be at least 30 minutes.");
     }
 }

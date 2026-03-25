@@ -1,10 +1,8 @@
 ﻿using Application.Contracts.Repositories;
 using Application.Contracts.Services;
-using Application.Contracts.Localization;
 using Application.DTO_s;
 using Application.Extensions.Mappers;
 using Application.Extensions.ResultPattern;
-using Application.Localization;
 using Domain.Common;
 using Domain.Entities;
 using Domain.Enums;
@@ -16,20 +14,18 @@ public class PaymentService(
     IPaymentRepository repository,
     IBookingRepository bookingRepository,
     INotificationService notificationService,
-    ICarRepository carRepository,
-    ITextLocalizer localizer) : IPaymentService
+    ICarRepository carRepository) : IPaymentService
 {
     public async Task<BaseResult> CreateAsync(PaymentCreateInfo createInfo)
     {
         if (createInfo.Amount <= 0)
             return BaseResult.Failure(
-                Error.BadRequest(localizer.Get(TextKeys.Errors.AmountMustBeGreaterThanZero)));
+                Error.BadRequest("Сумма должна быть больше нуля."));
 
         var bookingRes = await bookingRepository.GetByIdAsync(createInfo.BookingId);
 
         if (!bookingRes.IsSuccess || bookingRes.Value is null)
-            return BaseResult.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.BookingNotFound)));
+            return BaseResult.Failure(Error.NotFound("Бронирование не найдено"));
 
         var booking = bookingRes.Value;
 
@@ -37,7 +33,7 @@ public class PaymentService(
 
         if (existing.IsSuccess && await existing.Value!.AnyAsync())
             return BaseResult.Failure(
-                Error.Conflict(localizer.Get(TextKeys.Errors.BookingAlreadyPaid)));
+                Error.Conflict("Оплата за это бронирование уже произведена."));
 
         var payment = createInfo.ToEntity();
 
@@ -58,13 +54,10 @@ public class PaymentService(
         if (!res.IsSuccess)
             return Result<IEnumerable<PaymentReadInfo>>.Failure(res.Error);
 
-        var entities = await res.Value!
+        var data = await res.Value!
             .OrderByDescending(x => x.CreatedAt)
+            .Select(x => x.ToRead())
             .ToListAsync();
-
-        var data = entities
-            .Select(x => x.ToRead(localizer))
-            .ToList();
 
         return Result<IEnumerable<PaymentReadInfo>>.Success(data);
     }
@@ -74,8 +67,7 @@ public class PaymentService(
         var paymentRes = await repository.GetByIdAsync(paymentId);
 
         if (!paymentRes.IsSuccess || paymentRes.Value is null)
-            return BaseResult.Failure(
-                Error.NotFound(localizer.Get(TextKeys.Errors.PaymentNotFound)));
+            return BaseResult.Failure(Error.NotFound("Платеж не найден"));
 
         var payment = paymentRes.Value;
 
@@ -84,7 +76,7 @@ public class PaymentService(
 
         if (payment.Status == PaymentStatus.PaidOffline)
             return BaseResult.Failure(
-                Error.BadRequest(localizer.Get(TextKeys.Errors.PaymentCannotBeChanged)));
+                Error.BadRequest("Внесенные платежи изменить нельзя."));
 
         payment.Status = newStatus;
         payment.UpdatedAt = DateTimeOffset.UtcNow;
@@ -139,14 +131,12 @@ public class PaymentService(
 
         var booking = bookingRes.Value;
 
-        var localizedStatus = newStatus.ToLocalizedString(localizer);
-
         // 🔔 Клиенту
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 booking.UserId,
-                localizer.Get(TextKeys.Notifications.PaymentStatusUpdatedTitle),
-                localizer.Get(TextKeys.Notifications.PaymentStatusUpdatedMessage, localizedStatus)
+                "Статус платежа обновлен",
+                $"Статус вашего платежа изменился на {newStatus}."
             ));
 
         // 🔔 Владельцу
@@ -156,11 +146,8 @@ public class PaymentService(
             await notificationService.CreateAsync(
                 new NotificationCreateInfo(
                     carRes.Value.OwnerId,
-                    localizer.Get(TextKeys.Notifications.PaymentStatusUpdatedTitle),
-                    localizer.Get(
-                        TextKeys.Notifications.PaymentStatusUpdatedOwnerMessage,
-                        booking.Id,
-                        localizedStatus)
+                    "Статус платежа обновлен",
+                    $"Оплата за бронирование #{booking.Id} изменена на {newStatus}."
                 ));
         }
     }
@@ -171,8 +158,8 @@ public class PaymentService(
         await notificationService.CreateAsync(
             new NotificationCreateInfo(
                 booking.UserId,
-                localizer.Get(TextKeys.Notifications.PaymentCreatedTitle),
-                localizer.Get(TextKeys.Notifications.PaymentCreatedMessage, booking.Id)
+                "Платеж создан",
+                $"Оплата за бронирование #{booking.Id} был создан."
             ));
 
         // Владельцу
@@ -183,8 +170,8 @@ public class PaymentService(
             await notificationService.CreateAsync(
                 new NotificationCreateInfo(
                     carRes.Value.OwnerId,
-                    localizer.Get(TextKeys.Notifications.NewPaymentTitle),
-                    localizer.Get(TextKeys.Notifications.NewPaymentMessage, booking.Id)
+                    "Новый платеж",
+                    $"Пользователь оплатил бронирование. #{booking.Id}."
                 ));
         }
     }

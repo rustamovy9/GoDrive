@@ -1,10 +1,9 @@
-using Application.Contracts.Localization;
-using Application.Contracts.Repositories;
+﻿using Application.Contracts.Repositories;
 using Domain.Entities;
 using Infrastructure.DataAccess;
 using Infrastructure.ImplementationContract.Repositories.BaseRepository;
 
 namespace Infrastructure.ImplementationContract.Repositories;
 
-public class LocationRepository(DataContext dbContext, ITextLocalizer localizer)
-    : GenericRepository<Location>(dbContext, localizer), ILocationRepository;
+public class LocationRepository(DataContext dbContext) 
+        : GenericRepository<Location>(dbContext),ILocationRepository;

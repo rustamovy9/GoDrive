@@ -1,20 +1,18 @@
-using Application.Contracts.Localization;
-using Application.DTO_s;
-using Application.Localization;
+﻿using Application.DTO_s;
 using FluentValidation;
 
 namespace Application.Validations.CarPrice;
 
 public class Create : AbstractValidator<CarPriceCreateInfo>
 {
-    public Create(ITextLocalizer localizer)
+    public Create()
     {
         RuleFor(x => x.CarId)
             .GreaterThan(0)
-            .WithMessage(localizer.Get(TextKeys.Validation.CarIdGreaterThanZero));
+            .WithMessage("CarId must be greater than 0.");
 
         RuleFor(x => x.PricePerDay)
             .GreaterThan(0)
-            .WithMessage(localizer.Get(TextKeys.Validation.PricePerDayGreaterThanZero));
+            .WithMessage("PricePerDay must be greater than 0.");
     }
 }

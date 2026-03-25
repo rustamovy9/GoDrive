@@ -1,7 +1,6 @@
-using Application.Contracts.Localization;
+﻿using System.Runtime.Intrinsics.Arm;
 using Application.Contracts.Services;
 using Application.DTO_s;
-using Application.Localization;
 using Domain.Constants;
 using Domain.Entities;
 using Domain.Enums;
@@ -10,22 +9,20 @@ namespace Application.Extensions.Mappers;
 
 public static class CarDocumentMap
 {
-    public static CarDocumentReadInfo ToRead(this CarDocument document, IFileService fileService, ITextLocalizer localizer)
+    public static CarDocumentReadInfo ToRead(this CarDocument document,IFileService fileService)
     {
         var fileUrl = string.IsNullOrWhiteSpace(document.FilePath)
             ? null
-            : fileService.GetFileUrl(document.FilePath, MediaFolders.Docs);
-
-        return new CarDocumentReadInfo(
-            Id: document.Id,
-            CarId: document.CarId,
-            DocumentType: document.DocumentType,
-            DocumentTypeText: document.DocumentType.ToLocalizedString(localizer),
-            FilePath: fileUrl!,
-            VerificationStatus: document.VerificationStatus,
-            VerificationStatusText: document.VerificationStatus.ToLocalizedString(localizer),
-            CreatedAt: document.CreatedAt
-        );
+            :  fileService.GetFileUrl(document.FilePath, MediaFolders.Docs);
+        
+            return new CarDocumentReadInfo(
+                Id: document.Id,
+                CarId: document.CarId,
+                DocumentType: document.DocumentType,
+                FilePath: fileUrl!,
+                VerificationStatus: document.VerificationStatus,
+                CreatedAt: document.CreatedAt
+            );
     }
 
     public static async Task<CarDocument> ToEntity(this CarDocumentCreateInfo createInfo, IFileService fileService)
@@ -33,7 +30,7 @@ public static class CarDocumentMap
         var path = await fileService.CreateFile(
             createInfo.File,
             MediaFolders.Docs);
-
+        
         return new CarDocument
         {
             CarId = createInfo.CarId,
@@ -45,7 +42,7 @@ public static class CarDocumentMap
 
     public static CarDocument ToEntity(
         this CarDocument entity,
-        CarDocumentUpdateInfo updateInfo, int adminId)
+        CarDocumentUpdateInfo updateInfo,int adminId)
     {
         entity.VerificationStatus = updateInfo.VerificationStatus;
         entity.VerifiedByAdminId = adminId;
@@ -55,4 +52,6 @@ public static class CarDocumentMap
 
         return entity;
     }
+    
+   
 }

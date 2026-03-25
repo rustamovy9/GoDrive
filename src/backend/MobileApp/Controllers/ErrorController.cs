@@ -1,6 +1,4 @@
-using Application.Contracts.Localization;
-using Application.Localization;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using MobileApp.Controllers;
@@ -9,7 +7,7 @@ namespace WebAPI.Controllers;
 
 [Route("/error")]
 [ApiExplorerSettings(IgnoreApi = true)]
-public class ErrorController(ITextLocalizer localizer) : BaseController
+public class ErrorController : BaseController
 {
     [HttpGet, HttpPost, HttpPut, HttpDelete, HttpPatch, HttpOptions, HttpHead]
     public IActionResult HandleError()
@@ -19,14 +17,14 @@ public class ErrorController(ITextLocalizer localizer) : BaseController
         return exception switch
         {
             ValidationException => Problem(
-                title: localizer.Get(TextKeys.General.ValidationExceptionTitle),
+                title: "Validation exception!",
                 detail: exception?.Message,
                 statusCode: StatusCodes.Status400BadRequest,
                 instance: HttpContext.Request.Path,
                 type: exception?.HelpLink
             ),
             _ => Problem(
-                title: localizer.Get(TextKeys.General.UnexpectedErrorTitle),
+                title: "An unexpected error occurred",
                 detail: exception?.Message,
                 statusCode: StatusCodes.Status500InternalServerError,
                 instance: HttpContext.Request.Path,

@@ -1,6 +1,4 @@
-using Application.Contracts.Localization;
-using Application.DTO_s;
-using Application.Localization;
+ï»¿using Application.DTO_s;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 
@@ -8,24 +6,24 @@ namespace Application.Validations.CarImage;
 
 public class Create : AbstractValidator<CarImageCreateInfo>
 {
-    public Create(ITextLocalizer localizer)
+    public Create()
     {
         RuleFor(x => x.CarId)
             .GreaterThan(0)
-            .WithMessage(localizer.Get(TextKeys.Validation.CarIdGreaterThanZero));
+            .WithMessage("CarId must be greater than 0.");
 
         RuleFor(x => x.File)
-            .NotNull().WithMessage(localizer.Get(TextKeys.Validation.CarImageRequired))
+            .NotNull().WithMessage("Car Image is required.")
             .Must(BeValidImage)
-            .WithMessage(localizer.Get(TextKeys.Validation.FileValidImageUnder5Mb));
+            .WithMessage("File must be a valid image (jpg, png, jpeg, webp) and less than 5MB.");
     }
-
+    
     private static bool BeValidImage(IFormFile file)
     {
         if (file == null || file.Length == 0)
             return false;
 
-        // 5MB ëèìèò
+        // 5MB Ð»Ð¸Ð¼Ð¸Ñ‚
         const long maxSize = 5 * 1024 * 1024;
         if (file.Length > maxSize)
             return false;
