@@ -8,6 +8,7 @@ using Application.Extensions.ResultPattern;
 using Application.Filters;
 using Domain.Common;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.ImplementationContract.Services;
@@ -16,7 +17,7 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
     : IRentalCompanyService
 {
     public async Task<Result<PagedResponse<IEnumerable<RentalCompanyReadInfo>>>> GetAllAsync(
-        RentalCompanyFilter filter)
+        RentalCompanyFilter filter,int currentId,bool isAdmin)
     {
         Expression<Func<RentalCompany, bool>> filterExpression = spec =>
             (string.IsNullOrEmpty(filter.Search) ||
@@ -48,6 +49,11 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
             .AsNoTracking();
 
         query = query.OrderByDescending(x => x.CreatedAt);
+        
+        if (!isAdmin)
+        {
+            query = query.Where(x => x.OwnerId == currentId);
+        }
 
         int count = await query.CountAsync();
 
@@ -61,11 +67,16 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
         return Result<PagedResponse<IEnumerable<RentalCompanyReadInfo>>>.Success(res);
     }
 
-    public async Task<Result<RentalCompanyReadInfo>> GetByIdAsync(int id)
+    public async Task<Result<RentalCompanyReadInfo>> GetByIdAsync(int id,int currentId,bool isAdmin)
     {
         Result<RentalCompany?> res = await repository.GetByIdAsync(id);
         if (!res.IsSuccess || res.Value is null) return Result<RentalCompanyReadInfo>.Failure(Error.NotFound("Компания по прокату не найдена"));
 
+        if (!isAdmin && res.Value.OwnerId != currentId)
+        {
+            return Result<RentalCompanyReadInfo>.Failure(Error.Forbidden("Доступ запрещен"));
+        }
+        
         return Result<RentalCompanyReadInfo>.Success(res.Value.ToRead());
     }
 
@@ -92,7 +103,7 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
             : BaseResult.Failure(res.Error);
     }
 
-    public async Task<BaseResult> UpdateAsync(int id, RentalCompanyUpdateInfo updateInfo)
+    public async Task<BaseResult> UpdateAsync(int id, RentalCompanyUpdateInfo updateInfo,int currentId,bool isAdmin)
     {
         Result<RentalCompany?> res = await repository.GetByIdAsync(id);
 
@@ -111,6 +122,12 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
                 return BaseResult.Failure(Error.NotFound("Местоположение не найдено"));
         }
 
+        if (!isAdmin && company.OwnerId != currentId)
+        {
+            return BaseResult.Failure(Error.Forbidden("Доступ запрещен"));
+        }
+        
+
         company = company.ToEntity(updateInfo);
         
         Result<int> result = await repository.UpdateAsync(company);
@@ -120,16 +137,20 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
             : BaseResult.Failure(result.Error);
     }
 
-    public async Task<BaseResult> DeleteAsync(int id)
+    public async Task<BaseResult> DeleteAsync(int id,int currentId, bool isAdmin)
     {
         Result<RentalCompany?> res = await repository.GetByIdAsync(id);
         if (!res.IsSuccess || res.Value is null) return BaseResult.Failure(Error.NotFound("Компания по прокату не найдена"));
 
         var company = res.Value;
 
-        if (company.Cars.Any())
+        if (company.Cars.Any(c=>c.CarStatus == CarStatus.Rented || c.CarStatus == CarStatus.Available || c.CarStatus == CarStatus.Maintenance))
             return BaseResult.Failure(Error.BadRequest("Невозможно удалить компанию с уже имеющимися автомобилями."));
 
+        if (!isAdmin && company.OwnerId != currentId)
+        {
+            return BaseResult.Failure(Error.Forbidden("Доступ запрещен"));
+        }
         
         Result<int> result = await repository.DeleteAsync(id);
 

@@ -18,21 +18,20 @@ public sealed class RentalCompanyController(IRentalCompanyService service) : Bas
                   ?? throw new UnauthorizedAccessException("UserId not found"));
 
     private bool IsAdmin => User.IsInRole(DefaultRoles.Admin);
-    private bool IsOwner => User.IsInRole(DefaultRoles.Owner);
 
     // -------------------- GET ALL --------------------
 
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize(Roles = DefaultRoles.Admin + "," + DefaultRoles.Owner)]
     public async Task<IActionResult> Get([FromQuery] RentalCompanyFilter filter)
-        => (await service.GetAllAsync(filter)).ToActionResult();
+        => (await service.GetAllAsync(filter,CurrentUserId,IsAdmin)).ToActionResult();
 
     // -------------------- GET BY ID --------------------
 
     [HttpGet("{id:int}")]
-    [AllowAnonymous]
+    [Authorize(Roles = DefaultRoles.Admin + "," + DefaultRoles.Owner)]
     public async Task<IActionResult> Get(int id)
-        => (await service.GetByIdAsync(id)).ToActionResult();
+        => (await service.GetByIdAsync(id,CurrentUserId,IsAdmin)).ToActionResult();
 
     // -------------------- CREATE --------------------
 
@@ -46,12 +45,12 @@ public sealed class RentalCompanyController(IRentalCompanyService service) : Bas
     [HttpPut("{id:int}")]
     [Authorize(Roles = DefaultRoles.Owner + "," + DefaultRoles.Admin)]
     public async Task<IActionResult> Update(int id, [FromBody] RentalCompanyUpdateInfo entity)
-        => (await service.UpdateAsync(id, entity)).ToActionResult();
+        => (await service.UpdateAsync(id, entity,CurrentUserId,IsAdmin)).ToActionResult();
 
     // -------------------- DELETE --------------------
 
     [HttpDelete("{id:int}")]
     [Authorize(Roles = DefaultRoles.Owner + "," + DefaultRoles.Admin)]
     public async Task<IActionResult> Delete(int id)
-        => (await service.DeleteAsync(id)).ToActionResult();
+        => (await service.DeleteAsync(id,CurrentUserId,IsAdmin)).ToActionResult();
 }
