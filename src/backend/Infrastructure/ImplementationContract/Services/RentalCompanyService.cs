@@ -69,7 +69,7 @@ public class RentalCompanyService(IRentalCompanyRepository repository, ILocation
 
     public async Task<Result<RentalCompanyReadInfo>> GetByIdAsync(int id,int currentId,bool isAdmin)
     {
-        Result<RentalCompany?> res = await repository.GetByIdAsync(id);
+        Result<RentalCompany?> res = await repository.GetByIdAndIncludeLocationAsync(id);
         if (!res.IsSuccess || res.Value is null) return Result<RentalCompanyReadInfo>.Failure(Error.NotFound("Компания по прокату не найдена"));
 
         if (!isAdmin && res.Value.OwnerId != currentId)
