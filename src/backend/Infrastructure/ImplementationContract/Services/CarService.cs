@@ -55,11 +55,6 @@ public class CarService(
         {
             query = query.Where(c => c.OwnerId == userId);
         }
-        else
-        {
-            query = query.Where(c => c.CarStatus == CarStatus.Available);
-        }
-
         if (filter.MinPrice != null)
         {
             query = query.Where(c =>
