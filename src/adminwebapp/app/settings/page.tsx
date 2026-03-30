@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Plus, MapPin, Tag, Loader2, AlertCircle, Trash2, Info } from "lucide-react";
+import { X, Plus, MapPin, Tag, Loader2, AlertCircle, Trash2 } from "lucide-react";
 import { message } from "antd";
 
 type Location = {
