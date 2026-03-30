@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, PenIcon, Trash2 } from "lucide-react";
+import { LogOut, Edit2, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Modal, message } from "antd";
 
@@ -166,7 +166,7 @@ export default function MyProfile() {
 
                         <Link href="/edituser">
                             <button className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 transition px-6 py-2 rounded-xl font-semibold">
-                                <PenIcon size={18} />
+                                <Edit2 size={18} />
                                 Edit Profile
                             </button>
                         </Link>
