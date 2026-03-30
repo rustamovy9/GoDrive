@@ -7,7 +7,7 @@ import CTA from "./pages/cta";
 
 export default function Home() {
   return (
-    <div className="mt-[50px] ">
+    <div className="pt-[50px] ">
       <div>
         <Head>
           <title>Premium Car Rental - Drive Your Dream Car</title>
