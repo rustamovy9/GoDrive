@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Car, Menu, X, User } from "lucide-react";
+// import SelectLanguage from "./SelectLanguage";
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -24,7 +25,6 @@ export default function Navbar() {
     return (
         <nav className="w-full bg-[#161b22]/95 backdrop-blur-md border-b border-[#30363d] fixed top-0 z-50">
             <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-
                 <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
                     <Car className="text-cyan-400 w-7 h-7" />
                     <span className="text-white">
@@ -45,6 +45,10 @@ export default function Navbar() {
                     <Link href="/contact" className={linkStyle("/contact")}>
                         Contact
                     </Link>
+                    <Link href="/chat" className={linkStyle("/chat")}>
+                        Chat AI
+                    </Link>
+                    {/* <SelectLanguage /> */}
                 </div>
 
                 <div className="hidden md:flex items-center gap-6">
@@ -96,22 +100,26 @@ export default function Navbar() {
                     <Link href="/contact" className={linkStyle("/contact")}>
                         Contact
                     </Link>
+                    <Link href="/chat" className={linkStyle("/chat")}>
+                        Chat AI
+                    </Link>
+                    {/* <SelectLanguage /> */}
 
                     {isLoggedIn ? (
                         <Link
                             href="/myprofile"
-                            className="text-white"
+                            className="text-white hover:text-cyan-400 transition"
                         >
                             My Profile
                         </Link>
                     ) : (
                         <>
-                            <Link href="/login" className="text-white">
+                            <Link href="/login" className="text-white hover:text-cyan-400 transition">
                                 Log in
                             </Link>
                             <Link
                                 href="/signup"
-                                className="bg-cyan-400 text-[#161b22] px-5 py-2 rounded-lg w-fit"
+                                className="bg-cyan-400 text-[#161b22] px-5 py-2 rounded-lg w-fit font-semibold hover:bg-cyan-500 transition"
                             >
                                 Sign up
                             </Link>

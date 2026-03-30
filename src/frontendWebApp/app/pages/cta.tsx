@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function CTA() {
     return (
         <section className="bg-gray-950 py-20 px-4 sm:px-6 lg:px-8">
@@ -16,9 +18,11 @@ export default function CTA() {
                             Create Account
                         </button>
 
-                        <button className="w-full sm:w-auto bg-gray-800 hover:bg-gray-700 text-white font-semibold py-4 px-10 rounded-xl border border-gray-700 transition-all duration-300 transform hover:scale-105">
-                            Browse Cars
-                        </button>
+                        <Link href="/cars">
+                            <button className="w-full sm:w-auto bg-gray-800 hover:bg-gray-700 text-white font-semibold py-4 px-10 rounded-xl border border-gray-700 transition-all duration-300 transform hover:scale-105">
+                                Browse Cars
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </div>

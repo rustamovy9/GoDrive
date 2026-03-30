@@ -214,7 +214,7 @@ export default function AboutPage() {
                                 Create Account
                             </Link>
                             <Link
-                                href="/browse"
+                                href="/cars"
                                 className="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-4 px-10 rounded-xl border border-gray-700 transition-all duration-300"
                             >
                                 Browse Cars
