@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Car, DollarSign, Calendar, Plus } from "lucide-react";
+import Link from "next/link";
 
 export default function OwnerDashboard() {
   const [activeCars, setActiveCars] = useState(0);
@@ -107,13 +108,17 @@ export default function OwnerDashboard() {
       </div>
 
       <div className="flex gap-4">
-        <button className="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-black font-semibold px-6 py-3 rounded-lg transition-colors">
-          <Plus size={20} />
-          Add New Car
-        </button>
-        <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold px-6 py-3 rounded-lg border border-zinc-700 transition-colors">
-          View Bookings
-        </button>
+        <Link href="/addcar">
+          <button className="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-black font-semibold px-6 py-3 rounded-lg transition-colors">
+            <Plus size={20} />
+            Add New Car
+          </button>
+        </Link>
+        <Link href="/bookings">
+          <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold px-6 py-3 rounded-lg border border-zinc-700 transition-colors">
+            View Bookings
+          </button>
+        </Link>
       </div>
     </main>
   );
