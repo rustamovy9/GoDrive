@@ -185,6 +185,13 @@ export default function CarsPage() {
                                 {getStatus(car.carStatus)}
                             </span>
                         </div>
+                        <div className="flex gap-2 mt-2 sm:mt-0">
+                            <Link href={`/editcar/${car.id}`}>
+                                <button className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 px-3 py-1 rounded-lg text-sm transition">
+                                    ✏️ Edit
+                                </button>
+                            </Link>
+                        </div>
                     </div>
                 ))}
             </div>
