@@ -10,20 +10,8 @@ namespace Infrastructure.DataAccess.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_CarPrices_Cars_CarId1",
-                table: "CarPrices");
-
             migrationBuilder.DropIndex(
                 name: "IX_CarPrices_CarId",
-                table: "CarPrices");
-
-            migrationBuilder.DropIndex(
-                name: "IX_CarPrices_CarId1",
-                table: "CarPrices");
-
-            migrationBuilder.DropColumn(
-                name: "CarId1",
                 table: "CarPrices");
 
             migrationBuilder.CreateIndex(
@@ -39,29 +27,12 @@ namespace Infrastructure.DataAccess.Migrations
                 name: "IX_CarPrices_CarId",
                 table: "CarPrices");
 
-            migrationBuilder.AddColumn<int>(
-                name: "CarId1",
-                table: "CarPrices",
-                type: "integer",
-                nullable: true);
-
             migrationBuilder.CreateIndex(
                 name: "IX_CarPrices_CarId",
                 table: "CarPrices",
                 column: "CarId",
                 unique: true);
 
-            migrationBuilder.CreateIndex(
-                name: "IX_CarPrices_CarId1",
-                table: "CarPrices",
-                column: "CarId1");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_CarPrices_Cars_CarId1",
-                table: "CarPrices",
-                column: "CarId1",
-                principalTable: "Cars",
-                principalColumn: "Id");
         }
     }
 }
