@@ -34,13 +34,7 @@ namespace Infrastructure.DataAccess.Migrations
                 name: "CarId1",
                 table: "CarPrices");
 
-            migrationBuilder.DropColumn(
-                name: "AiConfidenceScore",
-                table: "CarDocuments");
 
-            migrationBuilder.DropColumn(
-                name: "AiExtractedDataJson",
-                table: "CarDocuments");
 
             migrationBuilder.AlterColumn<string>(
                 name: "PhoneNumber",
@@ -97,12 +91,6 @@ namespace Infrastructure.DataAccess.Migrations
                 type: "double precision",
                 precision: 5,
                 scale: 4,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "AiExtractedDataJson",
-                table: "CarDocuments",
-                type: "jsonb",
                 nullable: true);
 
             migrationBuilder.CreateIndex(
