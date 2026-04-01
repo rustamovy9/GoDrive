@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Star, MapPin, Users, Settings, Fuel } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 interface CarType {
     id: number;
@@ -26,7 +26,6 @@ export default function CarDetails() {
     const [price, setPrice] = useState<number | null>(null);
     const [activeImage, setActiveImage] = useState(0);
 
-    // Booking state
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [pickupLocationId, setPickupLocationId] = useState<number | null>(null);
@@ -81,9 +80,7 @@ export default function CarDetails() {
             );
             const data = await res.json();
             if (data.isSuccess) {
-                // locations дар server дар data.data.data аст
                 const locs = Array.isArray(data.data?.data) ? data.data.data : [];
-                // city + country барои select хубтар нишон дода шавад
                 setLocations(
                     locs.map((loc: any) => ({
                         id: loc.id,
@@ -178,7 +175,6 @@ export default function CarDetails() {
         <div className="min-h-screen bg-gradient-to-b from-black via-gray-950 to-black text-white pt-[100px] px-8 pb-20">
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10">
 
-                {/* Left: Car Images */}
                 <div className="flex-1">
                     <div className="relative rounded-3xl overflow-hidden border border-gray-800 shadow-2xl">
                         <img
@@ -205,10 +201,8 @@ export default function CarDetails() {
                     </div>
                 </div>
 
-                {/* Right: Info + Booking */}
                 <div className="flex-1 flex flex-col gap-6">
 
-                    {/* Car Info */}
                     <div>
                         <h1 className="text-4xl font-bold">
                             {car.brand} {car.model}
@@ -218,35 +212,14 @@ export default function CarDetails() {
                             <MapPin size={18} />
                             {car.location}
                         </div>
-
-                        <div className="flex flex-wrap gap-6 mt-6 text-gray-300 border-t border-gray-800 pt-6">
-                            <div className="flex items-center gap-2">
-                                <Star size={18} className="text-yellow-400" fill="currentColor" />
-                                4.8 (94 reviews)
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Users size={18} />
-                                4 Seats
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Settings size={18} />
-                                Automatic
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Fuel size={18} />
-                                Gasoline
-                            </div>
-                        </div>
                     </div>
 
-                    {/* Booking Box */}
                     <div className="bg-[#111] p-6 rounded-2xl shadow-lg flex flex-col gap-4">
                         <div className="text-center">
                             <p className="text-3xl font-bold text-cyan-400">${price || 0}</p>
                             <span className="text-gray-400 text-sm">per day</span>
                         </div>
 
-                        {/* Pickup / Drop-off */}
                         <select
                             value={pickupLocationId || ""}
                             onChange={(e) => setPickupLocationId(Number(e.target.value))}

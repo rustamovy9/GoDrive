@@ -81,9 +81,10 @@ const DOCUMENT_TYPES = [
 ];
 
 const CURRENCIES = [
-    { id: 0, name: "USD ($)" },
-    { id: 1, name: "EUR (€)" },
-    { id: 2, name: "TJS (؋)" },
+    { id: 0, name: "TJS (؋)", symbol: "؋" },
+    { id: 1, name: "USD ($)", symbol: "$" },
+    { id: 2, name: "RUB (₽)", symbol: "₽" },
+    { id: 3, name: "EUR (€)", symbol: "€" },
 ];
 
 export default function EditCarPage() {
@@ -242,14 +243,20 @@ export default function EditCarPage() {
             const url = priceId
                 ? `https://godrive-5r3o.onrender.com/api/car-prices/${priceId}`
                 : "https://godrive-5r3o.onrender.com/api/car-prices";
-            
+
             const method = priceId ? "PUT" : "POST";
+
+            const currencyValue = Number(currency);
+
             const body = priceId
-                ? JSON.stringify({ pricePerDay: Number(pricePerDay) })
+                ? JSON.stringify({
+                    pricePerDay: Number(pricePerDay),
+                    currency: currencyValue
+                })
                 : JSON.stringify({
                     carId: Number(carId),
                     pricePerDay: Number(pricePerDay),
-                    currency: Number(currency),
+                    currency: currencyValue,
                 });
 
             const res = await fetch(url, {
@@ -270,6 +277,7 @@ export default function EditCarPage() {
                 setMessage({ text: `Error: ${data.error?.message || "Unknown"}`, type: "error" });
             }
         } catch (err) {
+            console.error("Price save error:", err);
             setMessage({ text: "Network error.", type: "error" });
         } finally {
             setUploadingImages(false);
@@ -279,14 +287,14 @@ export default function EditCarPage() {
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         setNewImages(prev => [...prev, ...files]);
-        
+
         const previews = files.map(file => URL.createObjectURL(file));
         setImagePreviews(prev => [...prev, ...previews]);
     };
 
     const handleUploadImages = async () => {
         if (newImages.length === 0) return;
-        
+
         const token = localStorage.getItem("token");
         if (!token) return;
 
@@ -349,7 +357,7 @@ export default function EditCarPage() {
 
     const handleUploadDocs = async () => {
         if (newDocuments.length === 0) return;
-        
+
         const token = localStorage.getItem("token");
         if (!token) return;
 
@@ -417,11 +425,10 @@ export default function EditCarPage() {
         <button
             type="button"
             onClick={() => setActiveTab(id)}
-            className={`flex-1 py-2.5 px-3 rounded-xl text-sm font-medium transition-all duration-300 flex items-center justify-center gap-1.5 ${
-                activeTab === id
+            className={`flex-1 py-2.5 px-3 rounded-xl text-sm font-medium transition-all duration-300 flex items-center justify-center gap-1.5 ${activeTab === id
                     ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/30"
                     : "bg-gray-800/50 text-gray-400 hover:bg-gray-800 hover:text-gray-200"
-            }`}
+                }`}
         >
             <Icon className="w-4 h-4" />
             <span className="hidden sm:inline">{label}</span>
@@ -434,7 +441,7 @@ export default function EditCarPage() {
 
             <div className="w-full max-w-2xl">
                 <form className="relative bg-gray-900/80 backdrop-blur-xl border border-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl space-y-6">
-                    
+
                     <div className="text-center space-y-2">
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl mb-3 shadow-lg shadow-purple-600/30">
                             <Car className="w-8 h-8 text-white" />
@@ -453,7 +460,7 @@ export default function EditCarPage() {
                     </div>
 
                     <div className="space-y-4">
-                        
+
                         {activeTab === "details" && (
                             <div className="space-y-4 animate-fade-in">
                                 <div>
@@ -536,6 +543,13 @@ export default function EditCarPage() {
                                             className="px-4 py-3 bg-gray-950/50 border border-gray-800 rounded-xl text-white focus:outline-none focus:border-purple-500/50 transition-all">
                                             {CURRENCIES.map(curr => <option key={curr.id} value={curr.id}>{curr.name}</option>)}
                                         </select>
+                                    </div>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <span className="text-gray-500 text-xs">Selected:</span>
+                                        <span className="text-purple-400 font-medium text-sm">
+                                            {CURRENCIES.find(c => c.id === Number(currency))?.symbol}
+                                            {CURRENCIES.find(c => c.id === Number(currency))?.name}
+                                        </span>
                                     </div>
                                 </div>
                                 <button type="button" onClick={handleSavePrice} disabled={uploadingImages || !pricePerDay}
@@ -654,9 +668,8 @@ export default function EditCarPage() {
                     </div>
 
                     {message && (
-                        <div className={`flex items-center gap-2 p-3 rounded-lg text-sm text-center animate-fade-in ${
-                            message.type === "success" ? "bg-green-500/10 border border-green-500/30 text-green-400" : "bg-red-500/10 border border-red-500/30 text-red-400"
-                        }`}>
+                        <div className={`flex items-center gap-2 p-3 rounded-lg text-sm text-center animate-fade-in ${message.type === "success" ? "bg-green-500/10 border border-green-500/30 text-green-400" : "bg-red-500/10 border border-red-500/30 text-red-400"
+                            }`}>
                             {message.type === "success" ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 flex-shrink-0" />}
                             {message.text}
                         </div>
