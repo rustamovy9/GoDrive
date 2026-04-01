@@ -763,14 +763,13 @@ namespace Infrastructure.DataAccess.Migrations
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-<<<<<<< HEAD
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
-=======
->>>>>>> 05c051a (fixed-bug)
+
                     b.Property<long>("Version")
                         .HasColumnType("bigint");
 

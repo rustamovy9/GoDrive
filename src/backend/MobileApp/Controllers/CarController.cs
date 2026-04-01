@@ -10,7 +10,6 @@ namespace MobileApp.Controllers;
 
 [ApiController]
 [Route("api/cars")]
-[Authorize]
 public sealed class CarController(ICarService service) : BaseController
 {
     private int UserId =>
