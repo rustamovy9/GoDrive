@@ -20,12 +20,12 @@ public sealed class CarPriceConfig : IEntityTypeConfiguration<CarPrice>
         builder.Property(cp => cp.Currency)
             .IsRequired();
 
-        builder.HasOne(cp => cp.Car)
-            .WithMany()
-            .HasForeignKey(cp => cp.CarId)
+        builder.HasOne(p => p.Car)
+            .WithMany(c => c.CarPrices)
+            .HasForeignKey(p => p.CarId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasIndex(cp => cp.CarId).IsUnique();
+        builder.HasIndex(cp => cp.CarId);
 
         builder.ToTable("CarPrices", t =>
         {

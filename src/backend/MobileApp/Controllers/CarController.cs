@@ -28,6 +28,7 @@ public sealed class CarController(ICarService service) : BaseController
 
     private bool IsAdmin => User.IsInRole(DefaultRoles.Admin);
 
+
     [Authorize(Roles = DefaultRoles.Admin + "," + DefaultRoles.Owner)]
     [HttpGet]
     public async Task<IActionResult> Get([FromQuery] CarFilter filter)
