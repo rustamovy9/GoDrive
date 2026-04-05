@@ -75,7 +75,7 @@ export default function Sidebar() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                onClick={() => setIsOpen(false)} // close sidebar on click mobile
+                                onClick={() => setIsOpen(false)}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive
                                     ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
                                     : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
@@ -89,6 +89,11 @@ export default function Sidebar() {
                 </nav>
 
                 <div className="p-4 border-t border-zinc-800">
+                    <Link href="https://godrivetj.vercel.app/">
+                        <button className="bg-blue-700 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-800 transition-colors">
+                            User
+                        </button>
+                    </Link>
                     <button
                         onClick={handleSignOut}
                         className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white transition-all"

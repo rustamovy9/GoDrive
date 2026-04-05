@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Car, Menu, X, User } from "lucide-react";
-// import SelectLanguage from "./SelectLanguage";
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -48,7 +47,11 @@ export default function Navbar() {
                     <Link href="/chat" className={linkStyle("/chat")}>
                         Chat AI
                     </Link>
-                    {/* <SelectLanguage /> */}
+                    <Link href="https://godrive-ownertj.vercel.app/">
+                        <button className="bg-blue-700 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-800 transition-colors">
+                            Owner
+                        </button>
+                    </Link>
                 </div>
 
                 <div className="hidden md:flex items-center gap-6">
@@ -103,7 +106,11 @@ export default function Navbar() {
                     <Link href="/chat" className={linkStyle("/chat")}>
                         Chat AI
                     </Link>
-                    {/* <SelectLanguage /> */}
+                    <Link href="https://godrive-ownertj.vercel.app/">
+                        <button className="bg-blue-700 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-800 transition-colors">
+                            Owner
+                        </button>
+                    </Link>
 
                     {isLoggedIn ? (
                         <Link
