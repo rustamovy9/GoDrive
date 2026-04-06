@@ -1,50 +1,56 @@
-import { Car, Users, Award, Heart, Shield, Zap } from 'lucide-react';
-import Link from 'next/link';
+"use client";
+
+import { Car, Users, Award, Heart, Shield, Zap } from "lucide-react";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import CTA from "../pages/cta";
 
 export default function AboutPage() {
+    const t = useTranslations("About");
+
     const values = [
         {
             icon: Shield,
-            title: 'Trust & Safety',
-            description: 'Every vehicle and owner is thoroughly verified for your peace of mind.',
+            title: t("values.items.trust.title"),
+            description: t("values.items.trust.description"),
         },
         {
             icon: Heart,
-            title: 'Customer First',
-            description: 'Your satisfaction is our priority. We are here 24/7 to support you.',
+            title: t("values.items.customer.title"),
+            description: t("values.items.customer.description"),
         },
         {
             icon: Zap,
-            title: 'Innovation',
-            description: 'Using cutting-edge technology to make car rental simple and fast.',
+            title: t("values.items.innovation.title"),
+            description: t("values.items.innovation.description"),
         },
         {
             icon: Award,
-            title: 'Quality',
-            description: 'Only premium vehicles make it to our curated collection.',
+            title: t("values.items.quality.title"),
+            description: t("values.items.quality.description"),
         },
     ];
 
     const stats = [
-        { label: 'Happy Customers', value: '10K+' },
-        { label: 'Premium Cars', value: '500+' },
-        { label: 'Cities Covered', value: '50+' },
-        { label: 'Years Experience', value: '5+' },
+        { label: t("stats.customers"), value: "10K+" },
+        { label: t("stats.cars"), value: "500+" },
+        { label: t("stats.cities"), value: "50+" },
+        { label: t("stats.years"), value: "5+" },
     ];
 
     return (
         <div className="min-h-screen mt-[20px] bg-gray-950">
+
             <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
                 <div className="max-w-7xl mx-auto text-center">
                     <h1 className="text-cyan-400 font-semibold tracking-wider text-sm uppercase mb-3">
-                        ABOUT US
+                        {t("hero.subtitle")}
                     </h1>
                     <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-                        Revolutionizing Car Rental
+                        {t("hero.title")}
                     </h2>
                     <p className="text-gray-400 text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed">
-                        GoDrive is a premium car rental platform that connects drivers with
-                        exceptional vehicles from trusted owners. We make luxury accessible.
+                        {t("hero.description")}
                     </p>
                 </div>
             </section>
@@ -56,17 +62,14 @@ export default function AboutPage() {
                         <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-12 items-center p-8 lg:p-12">
                             <div>
                                 <h3 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                                    Our Mission
+                                    {t("mission.title")}
                                 </h3>
                                 <div className="space-y-4">
                                     <p className="text-gray-400 text-lg leading-relaxed">
-                                        We believe everyone deserves access to premium vehicles without the
-                                        hassle of traditional rental companies. Our platform eliminates
-                                        paperwork, long queues, and hidden fees.
+                                        {t("mission.text1")}
                                     </p>
                                     <p className="text-gray-400 text-lg leading-relaxed">
-                                        By connecting car owners with drivers, we create a community where
-                                        luxury is accessible, affordable, and enjoyable for everyone.
+                                        {t("mission.text2")}
                                     </p>
                                 </div>
                                 <div className="mt-8 flex flex-wrap gap-4">
@@ -74,13 +77,13 @@ export default function AboutPage() {
                                         href="/browse"
                                         className="inline-flex items-center gap-2 bg-cyan-400 hover:bg-cyan-500 text-gray-950 font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105"
                                     >
-                                        Browse Our Cars
+                                        {t("mission.browse")}
                                     </Link>
                                     <Link
                                         href="/about"
                                         className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-xl border border-gray-700 transition-all duration-300"
                                     >
-                                        Learn More
+                                        {t("mission.learn")}
                                     </Link>
                                 </div>
                             </div>
@@ -103,10 +106,10 @@ export default function AboutPage() {
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
                         <h3 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                            Our Core Values
+                            {t("values.title")}
                         </h3>
                         <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                            These principles guide everything we do at GoDrive
+                            {t("values.subtitle")}
                         </p>
                     </div>
 
@@ -152,77 +155,52 @@ export default function AboutPage() {
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
                         <h3 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                            Why Choose GoDrive?
+                            {t("why.title")}
                         </h3>
                         <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                            We are more than just a car rental platform
+                            {t("why.subtitle")}
                         </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
+                        <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8">
                             <Users className="w-12 h-12 text-cyan-400 mb-6" />
                             <h4 className="text-xl font-semibold text-white mb-3">
-                                Community Driven
+                                {t("why.community.title")}
                             </h4>
-                            <p className="text-gray-400 leading-relaxed">
-                                Built by drivers, for drivers. We understand what matters most when
-                                you are behind the wheel.
+                            <p className="text-gray-400">
+                                {t("why.community.description")}
                             </p>
                         </div>
 
-                        <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
+                        <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8">
                             <Award className="w-12 h-12 text-cyan-400 mb-6" />
                             <h4 className="text-xl font-semibold text-white mb-3">
-                                Premium Quality
+                                {t("why.premium.title")}
                             </h4>
-                            <p className="text-gray-400 leading-relaxed">
-                                Every vehicle in our collection meets strict quality standards.
-                                No compromises, only the best.
+                            <p className="text-gray-400">
+                                {t("why.premium.description")}
                             </p>
                         </div>
 
-                        <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-8">
+                        <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8">
                             <Shield className="w-12 h-12 text-cyan-400 mb-6" />
                             <h4 className="text-xl font-semibold text-white mb-3">
-                                Fully Insured
+                                {t("why.insured.title")}
                             </h4>
-                            <p className="text-gray-400 leading-relaxed">
-                                Every rental comes with comprehensive insurance coverage. Drive with
-                                complete peace of mind.
+                            <p className="text-gray-400">
+                                {t("why.insured.description")}
                             </p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section className="py-20 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-5xl mx-auto">
-                    <div className="bg-gradient-to-br from-cyan-400/10 to-purple-600/10 border border-cyan-400/20 rounded-3xl p-12 sm:p-16 text-center">
-                        <h3 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                            Ready to Experience GoDrive?
-                        </h3>
-                        <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-10">
-                            Join thousands of satisfied drivers and discover a new way to rent
-                            premium vehicles.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link
-                                href="/signup"
-                                className="bg-cyan-400 hover:bg-cyan-500 text-gray-950 font-semibold py-4 px-10 rounded-xl transition-all duration-300 transform hover:scale-105"
-                            >
-                                Create Account
-                            </Link>
-                            <Link
-                                href="/cars"
-                                className="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-4 px-10 rounded-xl border border-gray-700 transition-all duration-300"
-                            >
-                                Browse Cars
-                            </Link>
-                        </div>
-                    </div>
-                </div>
+            
+            <section>
+                <CTA />
             </section>
+
         </div>
     );
 }

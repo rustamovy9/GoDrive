@@ -1,33 +1,38 @@
-import { Search, Clock, Zap } from 'lucide-react';
+"use client";
 
-const steps = [
-    {
-        icon: Search,
-        title: 'Find Your Car',
-        description: 'Browse our curated collection of premium vehicles by location, category, and price.',
-    },
-    {
-        icon: Clock,
-        title: 'Book Instantly',
-        description: 'Select your dates and confirm your booking in seconds. No paperwork needed.',
-    },
-    {
-        icon: Zap,
-        title: 'Hit the Road',
-        description: 'Pick up your car and enjoy a seamless driving experience with 24/7 support.',
-    },
-];
+import { Search, Clock, Zap } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function HowItWorks() {
+    const t = useTranslations("HowItWorks");
+
+    const steps = [
+        {
+            icon: Search,
+            title: t("steps.findCar.title"),
+            description: t("steps.findCar.description"),
+        },
+        {
+            icon: Clock,
+            title: t("steps.bookInstantly.title"),
+            description: t("steps.bookInstantly.description"),
+        },
+        {
+            icon: Zap,
+            title: t("steps.hitRoad.title"),
+            description: t("steps.hitRoad.description"),
+        },
+    ];
+
     return (
         <section className="bg-gray-950 py-20 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
                     <h2 className="text-cyan-400 font-semibold tracking-wider text-sm uppercase mb-3">
-                        SIMPLE PROCESS
+                        {t("sectionSubtitle")}
                     </h2>
                     <h3 className="text-4xl sm:text-5xl font-bold text-white">
-                        How It Works
+                        {t("sectionTitle")}
                     </h3>
                 </div>
 

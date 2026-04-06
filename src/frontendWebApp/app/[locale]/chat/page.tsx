@@ -57,7 +57,7 @@ export default function ChatPage() {
     };
 
     return (
-        <main className="flex flex-col h-screen pt-[63px] bg-zinc-950 text-white">
+        <main className="flex flex-col h-screen pt-[85px] bg-zinc-950 text-white">
             <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-800 text-sm font-medium">
                 <Bot size={18} />
                 GoDrive AI

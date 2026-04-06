@@ -1,38 +1,44 @@
-import { Shield, Clock, Zap, Star } from 'lucide-react';
+"use client";
 
-const features = [
-    {
-        icon: Shield,
-        title: 'Fully Insured',
-        description: 'Every rental comes with comprehensive insurance coverage.',
-    },
-    {
-        icon: Clock,
-        title: '24/7 Support',
-        description: 'Round-the-clock customer support whenever you need it.',
-    },
-    {
-        icon: Zap,
-        title: 'Instant Booking',
-        description: 'No waiting. Confirm your car in seconds.',
-    },
-    {
-        icon: Star,
-        title: 'Verified Owners',
-        description: 'All car owners are verified and reviewed by the community.',
-    },
-];
+import { Shield, Clock, Zap, Star } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function WhyChooseUs() {
+    const t = useTranslations("WhyChooseUs");
+
+    const features = [
+        {
+            icon: Shield,
+            title: t("features.insured.title"),
+            description: t("features.insured.description"),
+        },
+        {
+            icon: Clock,
+            title: t("features.support.title"),
+            description: t("features.support.description"),
+        },
+        {
+            icon: Zap,
+            title: t("features.booking.title"),
+            description: t("features.booking.description"),
+        },
+        {
+            icon: Star,
+            title: t("features.owners.title"),
+            description: t("features.owners.description"),
+        },
+    ];
+
     return (
         <section className="bg-gray-950 py-20 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
+
                 <div className="text-center mb-16">
                     <h2 className="text-cyan-400 font-semibold tracking-wider text-sm uppercase mb-3">
-                        WHY GODRIVE
+                        {t("sectionSubtitle")}
                     </h2>
                     <h3 className="text-4xl sm:text-5xl font-bold text-white">
-                        Built for Modern Drivers
+                        {t("sectionTitle")}
                     </h3>
                 </div>
 
@@ -58,6 +64,7 @@ export default function WhyChooseUs() {
                         </div>
                     ))}
                 </div>
+
             </div>
         </section>
     );

@@ -1,0 +1,202 @@
+{
+  "Homepage": {
+    "title": "Premium Car Rental - Drive Your Dream Car",
+    "description": "Access hundreds of premium vehicles from trusted owners",
+    "header": "Premium Car Rental",
+    "main": {
+      "headline": "Drive Your Dream Car Today",
+      "highlight": "Dream Car",
+      "subtext": "Access hundreds of premium vehicles from trusted owners. Book instantly, drive anywhere.",
+      "buttons": {
+        "browse": "Browse Cars",
+        "getStarted": "Get Started"
+      },
+      "stats": {
+        "cars": "500+",
+        "users": "10K+",
+        "cities": "50+"
+      },
+      "statsLabels": {
+        "cars": "Cars",
+        "users": "Users",
+        "cities": "Cities"
+      }
+    }
+  },
+  "Navbar": {
+    "home": "Home",
+    "browseCars": "Browse Cars",
+    "about": "About",
+    "contact": "Contact",
+    "chatAI": "Chat AI",
+    "owner": "Owner",
+    "login": "Log in",
+    "signup": "Sign up",
+    "myProfile": "My Profile"
+  },
+  "HowItWorks": {
+    "sectionTitle": "How It Works",
+    "sectionSubtitle": "SIMPLE PROCESS",
+    "steps": {
+      "findCar": {
+        "title": "Find Your Car",
+        "description": "Browse our curated collection of premium vehicles by location, category, and price."
+      },
+      "bookInstantly": {
+        "title": "Book Instantly",
+        "description": "Select your dates and confirm your booking in seconds. No paperwork needed."
+      },
+      "hitRoad": {
+        "title": "Hit the Road",
+        "description": "Pick up your car and enjoy a seamless driving experience with 24/7 support."
+      }
+    }
+  },
+  "WhyChooseUs": {
+    "sectionSubtitle": "WHY GODRIVE",
+    "sectionTitle": "Built for Modern Drivers",
+    "features": {
+      "insured": {
+        "title": "Fully Insured",
+        "description": "Every rental comes with comprehensive insurance coverage."
+      },
+      "support": {
+        "title": "24/7 Support",
+        "description": "Round-the-clock customer support whenever you need it."
+      },
+      "booking": {
+        "title": "Instant Booking",
+        "description": "No waiting. Confirm your car in seconds."
+      },
+      "owners": {
+        "title": "Verified Owners",
+        "description": "All car owners are verified and reviewed by the community."
+      }
+    }
+  },
+  "Testimonials": {
+    "sectionSubtitle": "TESTIMONIALS",
+    "sectionTitle": "What Our Users Say",
+    "items": {
+      "user1": {
+        "name": "Sarah J.",
+        "text": "Absolutely amazing experience. The car was spotless and drove like a dream!",
+        "rating": 5
+      },
+      "user2": {
+        "name": "Mike T.",
+        "text": "Great service, smooth booking process. Will definitely use again.",
+        "rating": 4
+      },
+      "user3": {
+        "name": "Emily R.",
+        "text": "Premium quality all the way. The best rental experience I've had.",
+        "rating": 5
+      }
+    }
+  },
+  "CTA": {
+    "title": "Ready to Drive?",
+    "description": "Join thousands of happy drivers. Sign up today and get your first ride.",
+    "buttons": {
+      "create": "Create Account",
+      "browse": "Browse Cars"
+    }
+  },
+  "About": {
+    "hero": {
+      "subtitle": "ABOUT US",
+      "title": "Revolutionizing Car Rental",
+      "description": "GoDrive is a premium car rental platform that connects drivers with exceptional vehicles from trusted owners. We make luxury accessible."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "text1": "We believe everyone deserves access to premium vehicles without the hassle of traditional rental companies. Our platform eliminates paperwork, long queues, and hidden fees.",
+      "text2": "By connecting car owners with drivers, we create a community where luxury is accessible, affordable, and enjoyable for everyone.",
+      "browse": "Browse Our Cars",
+      "learn": "Learn More"
+    },
+    "values": {
+      "title": "Our Core Values",
+      "subtitle": "These principles guide everything we do at GoDrive",
+      "items": {
+        "trust": {
+          "title": "Trust & Safety",
+          "description": "Every vehicle and owner is thoroughly verified for your peace of mind."
+        },
+        "customer": {
+          "title": "Customer First",
+          "description": "Your satisfaction is our priority. We are here 24/7 to support you."
+        },
+        "innovation": {
+          "title": "Innovation",
+          "description": "Using cutting-edge technology to make car rental simple and fast."
+        },
+        "quality": {
+          "title": "Quality",
+          "description": "Only premium vehicles make it to our curated collection."
+        }
+      }
+    },
+    "stats": {
+      "customers": "Happy Customers",
+      "cars": "Premium Cars",
+      "cities": "Cities Covered",
+      "years": "Years Experience"
+    },
+    "why": {
+      "title": "Why Choose GoDrive?",
+      "subtitle": "We are more than just a car rental platform",
+      "community": {
+        "title": "Community Driven",
+        "description": "Built by drivers, for drivers. We understand what matters most when you are behind the wheel."
+      },
+      "premium": {
+        "title": "Premium Quality",
+        "description": "Every vehicle in our collection meets strict quality standards. No compromises, only the best."
+      },
+      "insured": {
+        "title": "Fully Insured",
+        "description": "Every rental comes with comprehensive insurance coverage. Drive with complete peace of mind."
+      }
+    },
+    "cta": {
+      "title": "Ready to Experience GoDrive?",
+      "description": "Join thousands of satisfied drivers and discover a new way to rent premium vehicles.",
+      "create": "Create Account",
+      "browse": "Browse Cars"
+    }
+  },
+  "Contact": {
+    "header": {
+      "small": "GET IN TOUCH",
+      "title": "Contact Us",
+      "desc": "Have questions? We're here to help. Reach out anytime."
+    },
+    "info": {
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "addressValue": "123 Premium Street, Los Angeles",
+      "hours": "Working Hours",
+      "hoursValue": "24/7 Support Available"
+    },
+    "form": {
+      "title": "Send us a Message",
+      "name": "Full Name",
+      "email": "Email Address",
+      "select": "Select a subject",
+      "general": "General Inquiry",
+      "booking": "Booking Question",
+      "support": "Technical Support",
+      "partner": "Partnership",
+      "other": "Other",
+      "message": "Your message...",
+      "send": "Send Message"
+    },
+    "visit": {
+      "title": "Visit Our Office",
+      "address": "123 Premium Street, Los Angeles, USA"
+    }
+  }
+}
