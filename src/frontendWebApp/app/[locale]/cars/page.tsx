@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Search, MapPin, Calendar, Tag, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Car {
   id: number;
@@ -39,6 +40,7 @@ export default function BrowseCars() {
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<number | null>(null);
+  const t = useTranslations("Carpage");
 
   const [loading, setLoading] = useState(true);
 
@@ -164,7 +166,7 @@ export default function BrowseCars() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <div className="relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-cyan-400 transition-colors" />
             <input
@@ -235,6 +237,11 @@ export default function BrowseCars() {
             </select>
             <FilterIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
           </div>
+          <Link href="/addcar">
+            <button className="bg-cyan-500 hover:bg-cyan-600 text-black font-semibold px-6 py-3 rounded-lg transition text-sm md:text-base">
+              + Add Car
+            </button>
+          </Link>
         </div>
 
         {loading && (

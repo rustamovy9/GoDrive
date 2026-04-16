@@ -3,10 +3,14 @@
 import { useEffect, useState } from "react";
 import { Car, DollarSign, Calendar, Plus } from "lucide-react";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 
 export default function OwnerDashboard() {
   const [activeCars, setActiveCars] = useState(0);
   const [pendingBookings, setPendingBookings] = useState(0);
+
+  const t = useTranslations("OwnerDashboard");
+  const locale = useLocale();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -70,10 +74,10 @@ export default function OwnerDashboard() {
     <main className="flex-1 p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">
-          Owner Dashboard
+          {t("title")}
         </h1>
         <p className="text-zinc-400">
-          Welcome back! Here's what's happening with your cars.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -81,7 +85,7 @@ export default function OwnerDashboard() {
         <div className="bg-zinc-900/80 backdrop-blur-xl rounded-xl p-6 border border-zinc-800">
           <div className="flex items-center gap-3 mb-3">
             <DollarSign className="text-green-500" size={24} />
-            <p className="text-zinc-400 text-sm">Total Income</p>
+            <p className="text-zinc-400 text-sm">{t("income")}</p>
           </div>
           <p className="text-3xl font-bold text-green-500">12200</p>
         </div>
@@ -89,7 +93,7 @@ export default function OwnerDashboard() {
         <div className="bg-zinc-900/80 backdrop-blur-xl rounded-xl p-6 border border-zinc-800">
           <div className="flex items-center gap-3 mb-3">
             <Car className="text-cyan-400" size={24} />
-            <p className="text-zinc-400 text-sm">Active Cars</p>
+            <p className="text-zinc-400 text-sm">{t("activeCars")}</p>
           </div>
           <p className="text-3xl font-bold text-cyan-400">
             {activeCars}
@@ -99,7 +103,7 @@ export default function OwnerDashboard() {
         <div className="bg-zinc-900/80 backdrop-blur-xl rounded-xl p-6 border border-zinc-800">
           <div className="flex items-center gap-3 mb-3">
             <Calendar className="text-yellow-500" size={24} />
-            <p className="text-zinc-400 text-sm">Pending Bookings</p>
+            <p className="text-zinc-400 text-sm">{t("pendingBookings")}</p>
           </div>
           <p className="text-3xl font-bold text-yellow-500">
             {pendingBookings}
@@ -107,16 +111,17 @@ export default function OwnerDashboard() {
         </div>
       </div>
 
-      <div className="flex gap-4">
-        <Link href="/addcar">
+      <div className="flex gap-4 flex-wrap">
+        <Link href={`/${locale}/addcar`}>
           <button className="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-black font-semibold px-6 py-3 rounded-lg transition-colors">
             <Plus size={20} />
-            Add New Car
+            {t("addCar")}
           </button>
         </Link>
-        <Link href="/bookings">
+
+        <Link href={`/${locale}/bookings`}>
           <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white font-semibold px-6 py-3 rounded-lg border border-zinc-700 transition-colors">
-            View Bookings
+            {t("viewBookings")}
           </button>
         </Link>
       </div>

@@ -1,0 +1,88 @@
+{
+  "Sidebar": {
+    "dashboard": "Dashboard",
+    "company": "Company",
+    "cars": "My Cars",
+    "bookings": "Bookings",
+    "notifications": "Notifications",
+    "chat": "Chat AI",
+    "user": "User",
+    "signOut": "Sign Out"
+  },
+  "OwnerDashboard": {
+    "title": "Owner Dashboard",
+    "subtitle": "Welcome back! Here's what's happening with your cars.",
+    "income": "Total Income",
+    "activeCars": "Active Cars",
+    "pendingBookings": "Pending Bookings",
+    "addCar": "Add New Car",
+    "viewBookings": "View Bookings"
+  },
+  "Company": {
+    "title": "Company",
+    "noCompany": "No company found",
+    "create": "Create company",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "name": "Name",
+    "contact": "Contact",
+    "editCompany": "Edit Company",
+    "createCompany": "Create Company",
+    "confirmDelete": "Confirm delete",
+    "deleteConfirmText": "Are you sure you want to delete this company?"
+  },
+  "CarsPage": {
+    "title": "My Cars",
+    "addCar": "+ Add Car",
+    "year": "Year",
+    "unknownLocation": "Unknown Location",
+    "noImage": "No Image",
+    "noPrice": "No Price",
+    "perDay": "/day",
+
+    "status": {
+      "blocked": "Blocked",
+      "available": "Available",
+      "rented": "Rented",
+      "service": "Service",
+      "unknown": "Unknown"
+    },
+    "edit": "Edit"
+  },
+  "BookingPage": {
+    "title": "Bookings",
+    "booking": "Booking",
+    "noImage": "No Image",
+    "unknownLocation": "Unknown location",
+    "route": "Route",
+    "accept": "Accept",
+    "reject": "Reject",
+    "loading": "Loading...",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "cancelled": "Cancelled",
+      "completed": "Completed",
+      "rejected": "Rejected",
+      "unknown": "Unknown"
+    }
+  },
+  "NotificationsPage": {
+    "title": "Notifications",
+    "markAll": "Mark all as read",
+    "loading": "Loading...",
+    "noNotifications": "No notifications",
+    "justNow": "Just now",
+    "hourAgo": "{count} hour ago",
+    "dayAgo": "{count} day ago",
+    "deleteTitle": "Delete notification?",
+    "deleteDesc": "This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "readAllTitle": "Mark all as read?",
+    "readAllDesc": "All notifications will be marked as read.",
+    "confirm": "Confirm"
+  }
+}

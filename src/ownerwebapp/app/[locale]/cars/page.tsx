@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface Car {
     id: number;
@@ -25,6 +26,8 @@ interface CarWithExtras extends Car {
 }
 
 export default function CarsPage() {
+    const t = useTranslations("CarsPage");
+
     const [cars, setCars] = useState<CarWithExtras[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -89,15 +92,15 @@ export default function CarsPage() {
     const getStatus = (status: number) => {
         switch (status) {
             case 0:
-                return "Blocked";
+                return t("status.blocked");
             case 1:
-                return "Available";
+                return t("status.available");
             case 2:
-                return "Rented";
+                return t("status.rented");
             case 3:
-                return "Service";
+                return t("status.service");
             default:
-                return "Unknown";
+                return t("status.unknown");
         }
     };
 
@@ -120,10 +123,7 @@ export default function CarsPage() {
         return (
             <div className="p-6 space-y-4">
                 {[1, 2, 3].map((i) => (
-                    <div
-                        key={i}
-                        className="animate-pulse bg-zinc-900 h-32 rounded-xl"
-                    />
+                    <div key={i} className="animate-pulse bg-zinc-900 h-32 rounded-xl" />
                 ))}
             </div>
         );
@@ -132,10 +132,13 @@ export default function CarsPage() {
     return (
         <div className="p-4 md:p-6 text-white">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl md:text-3xl font-bold">My Cars</h1>
+                <h1 className="text-2xl md:text-3xl font-bold">
+                    {t("title")}
+                </h1>
+
                 <Link href="/addcar">
                     <button className="bg-cyan-500 hover:bg-cyan-600 text-black font-semibold px-4 py-2 rounded-lg transition text-sm md:text-base">
-                        + Add Car
+                        {t("addCar")}
                     </button>
                 </Link>
             </div>
@@ -144,7 +147,7 @@ export default function CarsPage() {
                 {cars.map((car) => (
                     <div
                         key={car.id}
-                        className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 backdrop-blur-xl hover:shadow-lg hover:shadow-cyan-500/10 transition"
+                        className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 backdrop-blur-xl"
                     >
                         <div className="w-full sm:w-40 h-28 bg-zinc-800 rounded-xl overflow-hidden">
                             {car.images?.length > 0 ? (
@@ -154,7 +157,7 @@ export default function CarsPage() {
                                 />
                             ) : (
                                 <div className="flex items-center justify-center h-full text-zinc-500">
-                                    No Image
+                                    {t("noImage")}
                                 </div>
                             )}
                         </div>
@@ -164,31 +167,33 @@ export default function CarsPage() {
                                 {car.brand} {car.model}
                             </h2>
 
-                            <p className="text-zinc-400 text-sm">Year: {car.year}</p>
+                            <p className="text-zinc-400 text-sm">
+                                {t("year")}: {car.year}
+                            </p>
+
                             <p className="text-zinc-500 text-sm">
                                 {car.location
                                     ? `${car.location.country} - ${car.location.city}`
-                                    : "Unknown Location"}
+                                    : t("unknownLocation")}
                             </p>
 
                             <p className="text-cyan-400 font-semibold mt-1">
-                                {car.pricePerDay ? `$${car.pricePerDay}` : "No Price"} /day
+                                {car.pricePerDay
+                                    ? `$${car.pricePerDay}`
+                                    : t("noPrice")} {t("perDay")}
                             </p>
                         </div>
 
-                        <div className="mt-2 sm:mt-0">
-                            <span
-                                className={`px-3 py-1 text-sm rounded-full ${getStatusColor(
-                                    car.carStatus
-                                )}`}
-                            >
+                        <div>
+                            <span className={`px-3 py-1 text-sm rounded-full ${getStatusColor(car.carStatus)}`}>
                                 {getStatus(car.carStatus)}
                             </span>
                         </div>
-                        <div className="flex gap-2 mt-2 sm:mt-0">
+
+                        <div className="flex gap-2">
                             <Link href={`/editcar/${car.id}`}>
                                 <button className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 px-3 py-1 rounded-lg text-sm transition">
-                                    ✏️ Edit
+                                    ✏️ {t("edit")}
                                 </button>
                             </Link>
                         </div>

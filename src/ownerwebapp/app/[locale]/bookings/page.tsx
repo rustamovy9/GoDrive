@@ -2,6 +2,7 @@
 
 import { MapPin } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface Booking {
   id: number;
@@ -24,6 +25,8 @@ interface Car {
 }
 
 export default function BookingPage() {
+  const t = useTranslations("BookingPage");
+
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [cars, setCars] = useState<{ [key: number]: Car }>({});
   const [loading, setLoading] = useState(true);
@@ -71,12 +74,12 @@ export default function BookingPage() {
 
   const getStatus = (status: number) => {
     switch (status) {
-      case 0: return "Pending";
-      case 1: return "Confirmed";
-      case 2: return "Cancelled";
-      case 3: return "Completed";
-      case 4: return "Rejected";
-      default: return "Unknown";
+      case 0: return t("status.pending");
+      case 1: return t("status.confirmed");
+      case 2: return t("status.cancelled");
+      case 3: return t("status.completed");
+      case 4: return t("status.rejected");
+      default: return t("status.unknown");
     }
   };
 
@@ -131,86 +134,78 @@ export default function BookingPage() {
 
   return (
     <div className="p-4 md:p-6 text-white">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6">Bookings</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">
+        {t("title")}
+      </h1>
 
       <div className="space-y-4">
         {bookings.map((b) => {
           const car = cars[b.carId];
 
           return (
-            <div
-              key={b.id}
-              className="flex flex-col sm:flex-row gap-4 bg-zinc-900/80 border border-zinc-800 rounded-2xl overflow-hidden backdrop-blur-xl"
-            >
-              <div className="w-full sm:w-60 h-40 bg-zinc-800 flex-shrink-0">
+            <div key={b.id} className="flex flex-col sm:flex-row gap-4 bg-zinc-900/80 border border-zinc-800 rounded-2xl overflow-hidden">
+
+              <div className="w-full sm:w-60 h-40 bg-zinc-800">
                 {car?.images?.length > 0 ? (
-                  <img
-                    src={car.images[0]}
-                    alt="car"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={car.images[0]} className="w-full h-full object-cover" />
                 ) : (
                   <div className="flex items-center justify-center h-full text-zinc-500">
-                    No Image
+                    {t("noImage")}
                   </div>
                 )}
               </div>
 
               <div className="flex-1 p-4 sm:p-5">
                 <div className="flex justify-between mb-2 items-center">
-                  <h2 className="text-lg md:text-xl font-semibold">
-                    Booking #{b.id}
+                  <h2 className="text-lg font-semibold">
+                    {t("booking")} #{b.id}
                   </h2>
-                  <span
-                    className={`px-3 py-1 text-xs md:text-sm rounded-full ${getStatusColor(
-                      b.bookingStatus
-                    )}`}
-                  >
+
+                  <span className={`px-3 py-1 text-sm rounded-full ${getStatusColor(b.bookingStatus)}`}>
                     {getStatus(b.bookingStatus)}
                   </span>
                 </div>
 
                 {car && (
-                  <p className="text-cyan-400 font-medium mb-1 text-sm md:text-base">
+                  <p className="text-cyan-400">
                     {car.brand} {car.model} ({car.year})
                   </p>
                 )}
 
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex items-center gap-2 bg-zinc-800/60 border border-zinc-700 px-3 py-1 rounded-lg text-sm md:text-base">
-                    <MapPin size={14} className="text-cyan-400" />
-                    <span>{car?.location || "Unknown location"}</span>
-                  </div>
+                <div className="flex items-center gap-2 my-2">
+                  <MapPin size={14} className="text-cyan-400" />
+                  <span>{car?.location || t("unknownLocation")}</span>
                 </div>
 
-                <p className="text-zinc-400 text-sm md:text-base mb-1">
-                  Route: {b.pickupCity} → {b.dropOffCity}
+                <p className="text-zinc-400">
+                  {t("route")}: {b.pickupCity} → {b.dropOffCity}
                 </p>
-                <p className="text-zinc-400 text-sm md:text-base">
+
+                <p className="text-zinc-400">
                   {new Date(b.startDateTime).toLocaleDateString()} -{" "}
                   {new Date(b.endDateTime).toLocaleDateString()}
                 </p>
 
-                <p className="text-green-400 font-bold mt-3 text-lg md:text-xl">
+                <p className="text-green-400 font-bold mt-3 text-lg">
                   {b.totalPrice} TJS
                 </p>
 
                 {b.bookingStatus === 0 && (
-                  <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                  <div className="flex gap-3 mt-4">
                     <button
                       disabled={actionLoading === b.id}
                       onClick={() => updateBookingStatus(b.id, 1)}
-                      className="px-4 py-2 bg-green-500 hover:bg-green-600 text-black text-sm md:text-base font-semibold rounded-lg transition disabled:opacity-50"
+                      className="px-4 py-2 bg-green-500 text-black rounded-lg disabled:opacity-50"
                     >
-                      {actionLoading === b.id ? "Loading..." : "Accept"}
+                      {actionLoading === b.id ? t("loading") : t("accept")}
                     </button>
 
                     <button
                       disabled={actionLoading === b.id}
                       onClick={() => updateBookingStatus(b.id, 4)}
-                      className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm md:text-base font-semibold rounded-lg transition disabled:opacity-50"
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg disabled:opacity-50"
                     >
-                      Reject
+                      {t("reject")}
                     </button>
                   </div>
                 )}

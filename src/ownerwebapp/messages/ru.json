@@ -1,0 +1,88 @@
+{
+  "Sidebar": {
+    "dashboard": "Панель",
+    "company": "Компания",
+    "cars": "Мои машины",
+    "bookings": "Бронирования",
+    "notifications": "Уведомления",
+    "chat": "Чат AI",
+    "user": "Пользователь",
+    "signOut": "Выйти"
+  },
+  "OwnerDashboard": {
+    "title": "Панель владельца",
+    "subtitle": "С возвращением! Вот что происходит с вашими автомобилями.",
+    "income": "Общий доход",
+    "activeCars": "Активные автомобили",
+    "pendingBookings": "Ожидающие бронирования",
+    "addCar": "Добавить автомобиль",
+    "viewBookings": "Просмотр бронирований"
+  },
+  "Company": {
+    "title": "Компания",
+    "noCompany": "Компания не найдена",
+    "create": "Создать компанию",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "name": "Название",
+    "contact": "Контакт",
+    "editCompany": "Редактировать компанию",
+    "createCompany": "Создать компанию",
+    "confirmDelete": "Подтверждение удаления",
+    "deleteConfirmText": "Вы уверены, что хотите удалить эту компанию?"
+  },
+  "CarsPage": {
+    "title": "Мои машины",
+    "addCar": "+ Добавить машину",
+    "year": "Год",
+    "unknownLocation": "Неизвестное место",
+    "noImage": "Нет изображения",
+    "noPrice": "Нет цены",
+    "perDay": "/день",
+
+    "status": {
+      "blocked": "Заблокирована",
+      "available": "Доступна",
+      "rented": "Арендована",
+      "service": "В сервисе",
+      "unknown": "Неизвестно"
+    },
+    "edit": "Редактировать"
+  },
+  "BookingPage": {
+    "title": "Бронирования",
+    "booking": "Бронь",
+    "noImage": "Нет изображения",
+    "unknownLocation": "Неизвестное место",
+    "route": "Маршрут",
+    "accept": "Принять",
+    "reject": "Отклонить",
+    "loading": "Загрузка...",
+    "status": {
+      "pending": "В ожидании",
+      "confirmed": "Подтверждено",
+      "cancelled": "Отменено",
+      "completed": "Завершено",
+      "rejected": "Отклонено",
+      "unknown": "Неизвестно"
+    }
+  },
+  "NotificationsPage": {
+    "title": "Уведомления",
+    "markAll": "Отметить все как прочитанные",
+    "loading": "Загрузка...",
+    "noNotifications": "Нет уведомлений",
+    "justNow": "Только что",
+    "hourAgo": "{count} час назад",
+    "dayAgo": "{count} день назад",
+    "deleteTitle": "Удалить уведомление?",
+    "deleteDesc": "Это действие нельзя отменить.",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "readAllTitle": "Отметить все как прочитанные?",
+    "readAllDesc": "Все уведомления будут отмечены как прочитанные.",
+    "confirm": "Подтвердить"
+  }
+}
