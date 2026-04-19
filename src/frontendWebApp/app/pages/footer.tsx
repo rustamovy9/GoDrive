@@ -16,7 +16,7 @@ export default function Footer() {
                             </span>
                         </Link>
                         <p className="text-gray-400 text-sm leading-relaxed">
-                            Premium car rental platform. Drive your dream car today.
+                            Premium car rental platform. DRIVE YOUT DREAM CAR TODAY.
                         </p>
                     </div>
 
