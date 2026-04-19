@@ -1,0 +1,88 @@
+{
+  "Sidebar": {
+    "dashboard": "Асосӣ",
+    "company": "Ширкат",
+    "cars": "Мошинҳои ман",
+    "bookings": "Фармоишҳо",
+    "notifications": "Огоҳиномаҳо",
+    "chat": "Чат AI",
+    "user": "Истифодабаранда",
+    "signOut": "Баромадан"
+  },
+  "OwnerDashboard": {
+    "title": "Панели соҳибкор",
+    "subtitle": "Хуш омадед! Ин ҷо маълумот дар бораи мошинҳои шумост.",
+    "income": "Даромади умумӣ",
+    "activeCars": "Мошинҳои фаъол",
+    "pendingBookings": "Бронҳои интизор",
+    "addCar": "Илова кардани мошин",
+    "viewBookings": "Дидани бронҳо"
+  },
+  "Company": {
+    "title": "Ширкат",
+    "noCompany": "Ширкат ёфт нашуд",
+    "create": "Сохтани ширкат",
+    "edit": "Таҳрир",
+    "delete": "Ҳазф",
+    "save": "Захира",
+    "cancel": "Бекор",
+    "name": "Ном",
+    "contact": "Тамос",
+    "editCompany": "Таҳрири ширкат",
+    "createCompany": "Сохтани ширкат",
+    "confirmDelete": "Тасдиқи ҳазф",
+    "deleteConfirmText": "Шумо мутмаин ҳастед, ки ин ширкатро ҳазф мекунед?"
+  },
+  "CarsPage": {
+    "title": "Мошинҳои ман",
+    "addCar": "+ Илова кардани мошин",
+    "year": "Сол",
+    "unknownLocation": "Ҷой номаълум",
+    "noImage": "Сурат нест",
+    "noPrice": "Нарх нест",
+    "perDay": "/рӯз",
+
+    "status": {
+      "blocked": "Блок",
+      "available": "Дастрас",
+      "rented": "Иҷора шудааст",
+      "service": "Дар сервис",
+      "unknown": "Номаълум"
+    },
+    "edit": "Таҳрир"
+  },
+  "BookingPage": {
+    "title": "Бронҳо",
+    "booking": "Брон",
+    "noImage": "Сурат нест",
+    "unknownLocation": "Ҷой номаълум",
+    "route": "Маршрут",
+    "accept": "Қабул",
+    "reject": "Рад",
+    "loading": "Бор шуда истодааст...",
+    "status": {
+      "pending": "Дар интизор",
+      "confirmed": "Тасдиқ шуд",
+      "cancelled": "Бекор шуд",
+      "completed": "Ба анҷом расид",
+      "rejected": "Рад шуд",
+      "unknown": "Номаълум"
+    }
+  },
+  "NotificationsPage": {
+    "title": "Огоҳиномаҳо",
+    "markAll": "Ҳамаро хондашуда кун",
+    "loading": "Бор шуда истодааст...",
+    "noNotifications": "Огоҳинома нест",
+    "justNow": "Ҳозир",
+    "hourAgo": "{count} соат пеш",
+    "dayAgo": "{count} рӯз пеш",
+    "deleteTitle": "Огоҳиномаро нест кунӣ?",
+    "deleteDesc": "Ин амал баргардонда намешавад.",
+    "cancel": "Бекор",
+    "delete": "Нест кардан",
+    "readAllTitle": "Ҳамаро хондашуда кунӣ?",
+    "readAllDesc": "Ҳама огоҳиномаҳо хондашуда мешаванд.",
+    "confirm": "Тасдиқ"
+  }
+}
