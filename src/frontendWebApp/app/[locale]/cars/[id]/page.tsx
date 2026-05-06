@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { MapPin } from "lucide-react";
+import { Modal, Button } from "antd";
 
 interface CarType {
     id: number;
@@ -34,20 +35,48 @@ export default function CarDetails() {
 
     const [locations, setLocations] = useState<LocationType[]>([]);
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalContent, setModalContent] = useState<{
+        title: string;
+        message: string;
+        type: "success" | "error" | "info";
+    } | null>(null);
+
     const token =
         typeof window !== "undefined" ? localStorage.getItem("token") : null;
     const isLoggedIn = !!token;
 
     useEffect(() => {
-        fetchCar();
-        fetchLocations();
-    }, []);
+        if (id) {
+            fetchCar();
+            fetchLocations();
+        }
+    }, [id, token]);
+
+    const showModal = (title: string, message: string, type: "success" | "error" | "info" = "info") => {
+        setModalContent({ title, message, type });
+        setIsModalOpen(true);
+    };
+
+    const handleModalOk = () => {
+        setIsModalOpen(false);
+        setModalContent(null);
+    };
+
+    const handleModalCancel = () => {
+        setIsModalOpen(false);
+        setModalContent(null);
+    };
 
     const fetchCar = async () => {
         try {
             const res = await fetch(
                 `https://godrive-ruc4.onrender.com/api/cars/${id}`,
-                { headers: { Authorization: `Bearer ${token}` } }
+                {
+                    headers: token
+                        ? { Authorization: `Bearer ${token}` }
+                        : {}
+                }
             );
             const data = await res.json();
             if (data.isSuccess) {
@@ -56,6 +85,7 @@ export default function CarDetails() {
             }
         } catch (err) {
             console.error(err);
+            showModal("Error", "Failed to load car details", "error");
         }
     };
 
@@ -63,7 +93,11 @@ export default function CarDetails() {
         try {
             const res = await fetch(
                 `https://godrive-ruc4.onrender.com/api/car-prices/by-car/${carId}`,
-                { headers: { Authorization: `Bearer ${token}` } }
+                {
+                    headers: token
+                        ? { Authorization: `Bearer ${token}` }
+                        : {}
+                }
             );
             const data = await res.json();
             if (data.isSuccess) setPrice(data.data.pricePerDay);
@@ -76,7 +110,11 @@ export default function CarDetails() {
         try {
             const res = await fetch(
                 "https://godrive-ruc4.onrender.com/api/locations",
-                { headers: { Authorization: `Bearer ${token}` } }
+                {
+                    headers: token
+                        ? { Authorization: `Bearer ${token}` }
+                        : {}
+                }
             );
             const data = await res.json();
             if (data.isSuccess) {
@@ -90,20 +128,21 @@ export default function CarDetails() {
             }
         } catch (err) {
             console.error(err);
+            showModal("Error", "Failed to load locations", "error");
         }
     };
 
     const handleBooking = async () => {
         if (!startDate || !endDate) {
-            alert("Please select pick-up and drop-off dates");
+            showModal("Missing Information", "Please select pick-up and drop-off dates", "error");
             return;
         }
         if (!pickupLocationId || !dropOffLocationId) {
-            alert("Please select pickup and drop-off locations");
+            showModal("Missing Information", "Please select pickup and drop-off locations", "error");
             return;
         }
         if (pickupLocationId === dropOffLocationId) {
-            alert("Pickup and drop-off locations cannot be the same");
+            showModal("Invalid Selection", "Pickup and drop-off locations cannot be the same", "error");
             return;
         }
         if (!car) return;
@@ -113,16 +152,16 @@ export default function CarDetails() {
         const now = new Date();
 
         if (start <= now) {
-            alert("Start date must be in the future");
+            showModal("Invalid Date", "Start date must be in the future", "error");
             return;
         }
         if (end <= start) {
-            alert("End date must be after start date");
+            showModal("Invalid Date", "End date must be after start date", "error");
             return;
         }
         const diffHours = (end.getTime() - start.getTime()) / 1000 / 3600;
         if (diffHours < 1) {
-            alert("Booking duration must be at least 1 hour");
+            showModal("Invalid Duration", "Booking duration must be at least 1 hour", "error");
             return;
         }
 
@@ -135,7 +174,7 @@ export default function CarDetails() {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
                     },
                     body: JSON.stringify({
                         carId: car.id,
@@ -151,16 +190,20 @@ export default function CarDetails() {
             const data = await res.json();
 
             if (data.isSuccess) {
-                alert("Booking successful!");
+                showModal("Success!", "Booking successful!", "success");
             } else {
-                alert("Booking failed: " + (data.error?.message || "Unknown error"));
+                showModal("Booking Failed", data.error?.message || "Unknown error", "error");
             }
         } catch (err) {
             console.error(err);
-            alert("Booking failed");
+            showModal("Error", "Booking failed. Please try again.", "error");
         } finally {
             setIsBookingLoading(false);
         }
+    };
+
+    const handleLoginAlert = () => {
+        showModal("Login Required", "Please login to book this car", "info");
     };
 
     if (!car) {
@@ -171,6 +214,29 @@ export default function CarDetails() {
         );
     }
 
+    const getModalStyles = () => {
+        if (!modalContent) return {};
+        switch (modalContent.type) {
+            case "success":
+                return {
+                    confirmButtonProps: { className: "bg-green-500 hover:bg-green-600 text-white border-0" },
+                    contentClass: "text-green-700",
+                };
+            case "error":
+                return {
+                    confirmButtonProps: { className: "bg-red-500 hover:bg-red-600 text-white border-0" },
+                    contentClass: "text-red-700",
+                };
+            default:
+                return {
+                    confirmButtonProps: { className: "bg-cyan-400 hover:bg-cyan-300 text-black border-0" },
+                    contentClass: "text-gray-700",
+                };
+        }
+    };
+
+    const modalStyles = getModalStyles();
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-black via-gray-950 to-black text-white pt-[100px] px-8 pb-20">
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10">
@@ -180,18 +246,20 @@ export default function CarDetails() {
                         <img
                             src={car.images?.[activeImage] || "/default-car.jpg"}
                             className="w-full h-[520px] object-cover"
+                            alt={`${car.brand} ${car.model}`}
                         />
                         <span className="absolute top-6 right-6 bg-green-500 text-sm font-semibold px-4 py-1 rounded-full">
                             Available
                         </span>
                     </div>
 
-                    <div className="flex gap-4 mt-4">
+                    <div className="flex gap-4 mt-4 flex-wrap">
                         {car.images?.map((img, index) => (
                             <img
                                 key={index}
                                 src={img}
                                 onClick={() => setActiveImage(index)}
+                                alt={`Thumbnail ${index + 1}`}
                                 className={`h-20 w-28 object-cover rounded-lg cursor-pointer border transition ${activeImage === index
                                     ? "border-cyan-400 scale-105"
                                     : "border-gray-700 hover:border-gray-500"
@@ -223,7 +291,7 @@ export default function CarDetails() {
                         <select
                             value={pickupLocationId || ""}
                             onChange={(e) => setPickupLocationId(Number(e.target.value))}
-                            className="bg-[#222] text-white p-3 rounded-lg w-full"
+                            className="bg-[#222] text-white p-3 rounded-lg w-full border border-gray-700 focus:outline-none focus:border-cyan-400"
                         >
                             <option value="">Select Pickup Location</option>
                             {locations.map((loc) => (
@@ -236,7 +304,7 @@ export default function CarDetails() {
                         <select
                             value={dropOffLocationId || ""}
                             onChange={(e) => setDropOffLocationId(Number(e.target.value))}
-                            className="bg-[#222] text-white p-3 rounded-lg w-full"
+                            className="bg-[#222] text-white p-3 rounded-lg w-full border border-gray-700 focus:outline-none focus:border-cyan-400"
                         >
                             <option value="">Select Drop-off Location</option>
                             {locations.map((loc) => (
@@ -250,22 +318,22 @@ export default function CarDetails() {
                             type="datetime-local"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
-                            className="bg-[#222] text-white p-3 rounded-lg placeholder-gray-500 w-full"
+                            className="bg-[#222] text-white p-3 rounded-lg placeholder-gray-500 w-full border border-gray-700 focus:outline-none focus:border-cyan-400"
                             placeholder="Pick-up"
                         />
                         <input
                             type="datetime-local"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
-                            className="bg-[#222] text-white p-3 rounded-lg placeholder-gray-500 w-full"
+                            className="bg-[#222] text-white p-3 rounded-lg placeholder-gray-500 w-full border border-gray-700 focus:outline-none focus:border-cyan-400"
                             placeholder="Drop-off"
                         />
 
                         <button
-                            onClick={isLoggedIn ? handleBooking : () => alert("Please login first")}
+                            onClick={isLoggedIn ? handleBooking : handleLoginAlert}
                             className={`w-full py-3 rounded-lg font-semibold transition-all ${isLoggedIn
                                 ? "bg-cyan-400 text-black hover:bg-cyan-300 hover:shadow-[0_0_25px_rgba(34,211,238,0.5)]"
-                                : "bg-blue-500 text-white cursor-not-allowed opacity-80"
+                                : "bg-blue-500 text-white cursor-not-allowed opacity-80 hover:opacity-100"
                                 }`}
                             disabled={isBookingLoading}
                         >
@@ -279,6 +347,46 @@ export default function CarDetails() {
 
                 </div>
             </div>
+
+            <Modal
+                title={modalContent?.title}
+                open={isModalOpen}
+                onOk={handleModalOk}
+                onCancel={handleModalCancel}
+                footer={[
+                    <Button
+                        key="ok"
+                        onClick={handleModalOk}
+                        {...modalStyles.confirmButtonProps}
+                    >
+                        OK
+                    </Button>,
+                ]}
+                closable
+                centered
+                className="dark-modal"
+                styles={{
+                    header: {
+                        borderBottom: "1px solid #374151",
+                        paddingBottom: "12px",
+                    },
+                    body: {
+                        padding: "16px 24px",
+                    },
+                    content: {
+                        backgroundColor: "#1f2937",
+                        color: "#f3f4f6",
+                        borderRadius: "12px",
+                    },
+                    title: {
+                        color: "#f3f4f6",
+                        fontSize: "1.25rem",
+                        fontWeight: "600",
+                    },
+                }}
+            >
+                <p className={modalStyles.contentClass}>{modalContent?.message}</p>
+            </Modal>
         </div>
     );
 }
